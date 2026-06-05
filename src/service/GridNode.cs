@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using Gridfall.contracts;
+using Gridfall.domain;
 
 namespace Gridfall.service;
 // Node within Godot to access tilemap for GridManager to use.
@@ -18,7 +19,7 @@ public partial class GridNode : Node
 			return;
 		}
 
-		GridManager = new GridManager(GridMap);
+		GridManager = new GridManager(GridMap, new TileFactory());
 		var tileState = GridManager.GetTileStateAt(new Vector2I(0, 0));
 		if (tileState != null)
 		{

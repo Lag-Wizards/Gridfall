@@ -1,5 +1,6 @@
 using Godot;
 
+namespace Gridfall.domain;
 
 public class TileState
 {

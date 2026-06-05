@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using Gridfall.contracts;
+using Gridfall.domain;
 
 namespace Gridfall.service;
 
@@ -9,14 +10,16 @@ public class GridManager : IGridManager
 {
 	public TileMapLayer GridMap { get; }
 
+	private readonly ITileFactory _tileFactory;
 	private TileState[,] _gridMatrix;
 	
 	private Vector2I _mapSize;
 	private Vector2I _mapOffset;
 
-	public GridManager(TileMapLayer gridMap)
+	public GridManager(TileMapLayer gridMap, ITileFactory tileFactory)
 	{
 		GridMap = gridMap ?? throw new ArgumentNullException(nameof(gridMap), "GridMap cannot be null");
+		_tileFactory = tileFactory ?? throw new ArgumentNullException(nameof(tileFactory), "TileFactory cannot be null");
 		InitializeGrid();
 	}
 
@@ -35,25 +38,7 @@ public class GridManager : IGridManager
 				Vector2I godotTileCoords = new Vector2I(x + _mapOffset.X, y + _mapOffset.Y);
 				TileData cellData = GridMap.GetCellTileData(godotTileCoords);
 
-				_gridMatrix[x, y] = new TileState();
-
-				if (cellData != null)
-				{
-					int rawInt = (int)cellData.GetCustomData("terrain_type");
-
-					_gridMatrix[x, y].Terrain = (TerrainType)rawInt;
-
-					_gridMatrix[x, y].MovementCost = _gridMatrix[x, y].Terrain switch
-					{
-						TerrainType.Grass => 1,
-						_ => 999
-					};
-				}
-				else
-				{
-					_gridMatrix[x, y].Terrain = TerrainType.Void;
-					_gridMatrix[x, y].MovementCost = 999; 
-				}
+				_gridMatrix[x, y] = _tileFactory.CreateTile(cellData);
 			}
 		}
 	}

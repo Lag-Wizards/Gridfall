@@ -1,4 +1,5 @@
 using Godot;
+using Gridfall.domain;
 
 namespace Gridfall.contracts;
 // Interface for class that stores state of current tiles in 2d array

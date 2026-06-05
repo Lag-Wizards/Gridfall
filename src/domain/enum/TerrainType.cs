@@ -1,4 +1,6 @@
 
+namespace Gridfall.domain;
+
 
 public enum TerrainType
 {
