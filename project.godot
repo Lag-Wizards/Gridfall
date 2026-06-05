@@ -11,7 +11,8 @@ config_version=5
 [application]
 
 config/name="Gridfall"
-config/features=PackedStringArray("4.6", "GL Compatibility")
+run/main_scene="uid://bvx48ianmdyi7"
+config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [dotnet]
