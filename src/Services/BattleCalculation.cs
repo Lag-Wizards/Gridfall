@@ -1,7 +1,7 @@
 using Godot;
 using System;
-namespace Gridfall.scripts;
-
+namespace Gridfall.Services;
+/*
 public partial class BattleCalculation
 {
 
@@ -29,7 +29,7 @@ public partial class BattleCalculation
 		{
 			triangleDamageBonus = -1;
 			triangleHitBonus = -15;
-		}*/
+		}
 
 		// DETERMINE FINAL DAMAGE
 		// Chooses Defense for physical, Resistance for magic
@@ -60,50 +60,51 @@ public partial class BattleCalculation
 	}
 
 	public void ExecuteBattle(Unit player, Unit enemy)
-    {
-        CombatReport report = CalculateStats(player, enemy);
-        RandomNumberGenerator rng = new RandomNumberGenerator();
-        rng.Randomize(); 
-        
-        bool PerformAttack(Unit attacker, Unit defender, int damage, int hitChance)
-        {
-            int roll = rng.RandiRange(0, 99);
-            
-            if (roll < hitChance)
-            {
-                defender.Hp = Math.Max(0, defender.Hp - damage); // Prevent HP from dropping below 0
-                return true; 
-            }
-            else
-            {
-                return false; 
-            }
-        }
-        
+	{
+		CombatReport report = CalculateStats(player, enemy);
+		RandomNumberGenerator rng = new RandomNumberGenerator();
+		rng.Randomize(); 
+		
+		bool PerformAttack(Unit attacker, Unit defender, int damage, int hitChance)
+		{
+			int roll = rng.RandiRange(0, 99);
+			
+			if (roll < hitChance)
+			{
+				defender.Hp = Math.Max(0, defender.Hp - damage); // Prevent HP from dropping below 0
+				return true; 
+			}
+			else
+			{
+				return false; 
+			}
+		}
+		
 
-        // INITIATOR ATTACKS
-        PerformAttack(player, enemy, report.PlayerDamage, report.PlayerFinalHit);
-        if (enemy.Hp <= 0)
-        {
-            return; // End battle early if defender dies
-        }
+		// INITIATOR ATTACKS
+		PerformAttack(player, enemy, report.PlayerDamage, report.PlayerFinalHit);
+		if (enemy.Hp <= 0)
+		{
+			return; // End battle early if defender dies
+		}
 
-        // DEFENDER COUNTER-ATTACKS
-        PerformAttack(enemy, player, report.EnemyDamage, report.EnemyFinalHit);
-        if (player.Hp <= 0)
-        {
-            return; // End battle early if initiator dies
-        }
+		// DEFENDER COUNTER-ATTACKS
+		PerformAttack(enemy, player, report.EnemyDamage, report.EnemyFinalHit);
+		if (player.Hp <= 0)
+		{
+			return; // End battle early if initiator dies
+		}
 
-        // FOLLOW-UP ATTACKS
-        if (report.PlayerDoubles)
-        {
-            PerformAttack(player, enemy, report.PlayerDamage, report.PlayerFinalHit);
-        }
-        else if (report.EnemyDoubles)
-        {
-            PerformAttack(enemy, player, report.EnemyDamage, report.EnemyFinalHit);
-        }
-        
-    }
+		// FOLLOW-UP ATTACKS
+		if (report.PlayerDoubles)
+		{
+			PerformAttack(player, enemy, report.PlayerDamage, report.PlayerFinalHit);
+		}
+		else if (report.EnemyDoubles)
+		{
+			PerformAttack(enemy, player, report.EnemyDamage, report.EnemyFinalHit);
+		}
+		
+	}
 }
+*/

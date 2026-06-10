@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-namespace Gridfall.Characters
+namespace Gridfall.Characters.Domain
 {
 	public partial class CharacterBase : Node
 	{

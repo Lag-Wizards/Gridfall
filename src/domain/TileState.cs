@@ -1,6 +1,7 @@
 using Godot;
+using Gridfall.Domain.Enums;
 
-namespace Gridfall.domain;
+namespace Gridfall.Domain;
 
 public class TileState
 {

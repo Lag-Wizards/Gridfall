@@ -1,11 +1,11 @@
 
 using Godot;
-using Gridfall.domain;
+using Gridfall.Domain;
 
-namespace Gridfall.contracts;
+namespace Gridfall.Contracts;
 
 public interface ITileFactory
 {
-    // Returns tile based on cell data
-    public TileState CreateTile(TileData cellData);
+	// Returns tile based on cell data
+	public TileState CreateTile(TileData cellData);
 }

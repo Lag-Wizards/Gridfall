@@ -1,9 +1,10 @@
 using Godot;
 using System;
-using Gridfall.contracts;
-using Gridfall.domain;
+using Gridfall.Contracts;
+using Gridfall.Domain;
+using Gridfall.Domain.Enums;
 
-namespace Gridfall.service;
+namespace Gridfall.Services;
 
 // Class to manage grid state, storing tile states in a 2d array
 public class GridManager : IGridManager

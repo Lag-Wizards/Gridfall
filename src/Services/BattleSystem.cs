@@ -1,6 +1,6 @@
 using Godot;
 using System;
-namespace Gridfall.scripts;
+namespace Gridfall.Services;
 public partial class BattleSystem : Node
 {
 	// Called when the node enters the scene tree for the first time.

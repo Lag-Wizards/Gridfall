@@ -1,9 +1,10 @@
 using Godot;
 using System;
-using Gridfall.contracts;
-using Gridfall.domain;
+using Gridfall.Contracts;
+using Gridfall.Domain;
+using Gridfall.Services;
 
-namespace Gridfall.service;
+namespace Gridfall.Services;
 // Node within Godot to access tilemap for GridManager to use.
 public partial class GridNode : Node
 {

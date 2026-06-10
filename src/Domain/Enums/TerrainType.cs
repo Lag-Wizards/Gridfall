@@ -1,5 +1,5 @@
 
-namespace Gridfall.domain;
+namespace Gridfall.Domain.Enums;
 
 
 public enum TerrainType

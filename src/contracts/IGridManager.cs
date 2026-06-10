@@ -1,7 +1,7 @@
 using Godot;
-using Gridfall.domain;
+using Gridfall.Domain;
 
-namespace Gridfall.contracts;
+namespace Gridfall.Contracts;
 // Interface for class that stores state of current tiles in 2d array
 public interface IGridManager
 {
