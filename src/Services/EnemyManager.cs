@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Gridfall.Domain.Enemies;
 
 namespace Gridfall.Services;
-{
 	public static class EnemyManager
 	{
 		public static EnemyBase CreateEnemy(string type, int level = 1)
@@ -29,4 +29,3 @@ namespace Gridfall.Services;
 			return list;
 		}
 	}
-}

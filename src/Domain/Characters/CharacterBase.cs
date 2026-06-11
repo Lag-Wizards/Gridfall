@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using Gridfall.Domain;
 
 namespace Gridfall.Characters.Domain
 {
@@ -16,9 +17,9 @@ namespace Gridfall.Characters.Domain
 		public int Speed { get; set; }
 		public int MovementRange { get; set; }
 
-		public List<string> Abilities { get; private set; } = new();
+		public Weapon EquippedWeapon { get; set; }
 
-		public void SetupCharacter(string characterName, int level)
+		public void SetupCharacter(string characterName, int level, Weapon weapon)
 		{
 			CharacterName = characterName;
 			Level = level;
@@ -30,14 +31,8 @@ namespace Gridfall.Characters.Domain
 			Defense = 3 + level;
 			Speed = 4 + level;
 			MovementRange = 5;
-		}
-
-		public void AddAbility(string abilityName)
-		{
-			if (!Abilities.Contains(abilityName))
-			{
-				Abilities.Add(abilityName);
-			}
+			
+			EquippedWeapon = weapon;
 		}
 
 		public void TakeDamage(int damageAmount)

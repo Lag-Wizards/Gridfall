@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using Gridfall.Services;
-
+using Gridfall.Domain.Enemies;
 
 public partial class EnemyNode : Node2D
 {
