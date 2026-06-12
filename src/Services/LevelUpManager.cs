@@ -5,12 +5,13 @@ namespace Gridfall.Services;
 
 public class LevelUpManager
 {
+    // random num gen
+    Random random = new Random();
+    
     // CALL on Character level up
     public void LevelUp(CharacterBase player)
     {
         player.Level++;
-        // random num gen
-        Random random = new Random();
         
         // add dictonary for growthrates for character
         // adjust stats based on growthrates
