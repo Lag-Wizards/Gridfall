@@ -18,6 +18,8 @@ public partial class PlayerController : Node2D
 
     public Vector2I CurrentTile { get; private set; }
 
+    private Sprite2D _debugMarker;
+
     public override void _Ready()
     {
         _gridNode = ResolveGridNode();
@@ -31,7 +33,9 @@ public partial class PlayerController : Node2D
         _gridMap = _gridNode.GridMap;
         _movementService = new MovementService(_gridManager);
 
+        EnsureDebugMarker();
         UpdateCurrentTileFromPosition();
+        SnapToCurrentTile();
         RegisterOccupantAt(CurrentTile);
     }
 
@@ -79,6 +83,40 @@ public partial class PlayerController : Node2D
     private void UpdateCurrentTileFromPosition()
     {
         CurrentTile = _gridManager.WorldToMap(GlobalPosition);
+    }
+
+    private void SnapToCurrentTile()
+    {
+        if (_gridManager != null)
+        {
+            var worldPosition = _gridManager.MapToWorld(CurrentTile);
+            GlobalPosition = worldPosition;
+            GD.Print($"PlayerController: snapped to current tile {CurrentTile} at {worldPosition}");
+        }
+    }
+
+    private void EnsureDebugMarker()
+    {
+        foreach (var child in GetChildren())
+        {
+            if (child is Sprite2D)
+                return;
+        }
+
+        _debugMarker = new Sprite2D();
+        _debugMarker.Name = "DebugMarker";
+        _debugMarker.Texture = CreateDebugTexture(24, Colors.Red);
+        _debugMarker.Centered = true;
+        _debugMarker.Position = Vector2.Zero;
+        AddChild(_debugMarker);
+    }
+
+    private ImageTexture CreateDebugTexture(int size, Color color)
+    {
+        var image = Image.CreateEmpty(size, size, false, Image.Format.Rgba8);
+        image.Fill(color);
+        var texture = ImageTexture.CreateFromImage(image);
+        return texture;
     }
 
     private void RegisterOccupantAt(Vector2I tile)
