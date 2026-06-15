@@ -59,66 +59,30 @@ public class GridManager : IGridManager
 
 	public Vector2I WorldToMap(Vector2 worldPosition)
 	{
-		// Convert world position to local position relative to the TileMap
 		Vector2 local = worldPosition - GridMap.GlobalPosition;
 		Vector2 cellSize = GetCellSize();
 
-		int x = Mathf.FloorToInt(local.X / cellSize.X) + _mapOffset.X;
-		int y = Mathf.FloorToInt(local.Y / cellSize.Y) + _mapOffset.Y;
-
+		int x = Mathf.FloorToInt(local.X / cellSize.X);
+		int y = Mathf.FloorToInt(local.Y / cellSize.Y);
 		return new Vector2I(x, y);
 	}
 
 	public Vector2 MapToWorld(Vector2I godotCoords)
 	{
+		Vector2 relative = new Vector2(godotCoords.X, godotCoords.Y);
 		Vector2 cellSize = GetCellSize();
-		Vector2 relative = new Vector2(godotCoords.X - _mapOffset.X, godotCoords.Y - _mapOffset.Y);
 
-		// Position at cell top-left + half cell to center
 		Vector2 world = GridMap.GlobalPosition + new Vector2(relative.X * cellSize.X, relative.Y * cellSize.Y) + (cellSize / 2f);
-
 		return world;
 	}
 
-	// Helper to obtain tile cell size from the TileMap. Uses reflection to be resilient
-	// to different TileMap-like node types. Falls back to 16x16 if not available.
 	private Vector2 GetCellSize()
 	{
-		// Try property "CellSize"
-		var type = GridMap.GetType();
-		var prop = type.GetProperty("CellSize");
-		if (prop != null)
+		if (GridMap.TileSet != null)
 		{
-			object val = prop.GetValue(GridMap);
-			if (val is Vector2 v) return v;
+			return (Vector2)GridMap.TileSet.TileSize;
 		}
-
-		// Try method "GetCellSize()"
-		var method = type.GetMethod("GetCellSize");
-		if (method != null)
-		{
-			object val = method.Invoke(GridMap, null);
-			if (val is Vector2 v2) return v2;
-		}
-
-		// Try accessing TileSet tile size via TileSet.TileSize or similar
-		var tileSetProp = type.GetProperty("TileSet") ?? type.GetProperty("Tileset");
-		if (tileSetProp != null)
-		{
-			var tileSet = tileSetProp.GetValue(GridMap);
-			if (tileSet != null)
-			{
-				var tsType = tileSet.GetType();
-				var tileSizeProp = tsType.GetProperty("TileSize") ?? tsType.GetProperty("Size");
-				if (tileSizeProp != null)
-				{
-					object val = tileSizeProp.GetValue(tileSet);
-					if (val is Vector2 v3) return v3;
-				}
-			}
-		}
-
-		// Final fallback
+		GD.PushError("GridManager: TileSet is null. Falling back to default 16x16 tile size.");
 		return new Vector2(16, 16);
 	}
 }
