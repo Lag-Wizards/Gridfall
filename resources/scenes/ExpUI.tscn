@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://cn2l6pnx12lla"]
+
+[ext_resource type="Script" uid="uid://bvqmd5ve451oq" path="res://resources/scenes/ExpUI.cs" id="1_iypxo"]
+
+[node name="ExpUI" type="Node2D" unique_id=835226005]
+script = ExtResource("1_iypxo")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=611963451]
+offset_right = 55.0
+offset_bottom = 8.0
+color = Color(0.49019608, 0.49019608, 0.49019608, 1)
+
+[node name="ExpBar" type="ProgressBar" parent="ColorRect" unique_id=37282400]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 6.0
+offset_right = 11.0
+offset_bottom = 45.745224
+rotation = -1.5707964
+step = 1.0
+value = 50.0
+show_percentage = false

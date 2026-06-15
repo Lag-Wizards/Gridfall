@@ -19,16 +19,34 @@ public partial class CharacterLeveling : Node
 	{
 		int expGained = experienceCalculator.EnemyKilled(player, enemy);
 
-		player.Exp += expGained;
+		player.AddExperience(expGained);
+
+		CheckLevelUp(player);
+	}
+	
+	public void SuccessfulHitExp(CharacterBase player, CharacterBase enemy)
+	{
+		int expGained = experienceCalculator.EnemyHitAlive(player, enemy);
+
+		player.AddExperience(expGained);
+
+		CheckLevelUp(player);
+	}
+	
+	public void AwardMissedHitExp(CharacterBase player, CharacterBase enemy)
+	{
+		int expGained = experienceCalculator.MissedHit(player, enemy);
+
+		player.AddExperience(expGained);
 
 		CheckLevelUp(player);
 	}
 
 	private void CheckLevelUp(CharacterBase player)
 	{
-		while (player.Exp >= 100)
+		while (player.Experience >= 100)
 		{
-			player.Exp -= 100;
+			player.Experience -= 100;
 
 			levelUpManager.LevelUp(player);
 

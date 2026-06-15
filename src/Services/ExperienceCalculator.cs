@@ -4,7 +4,7 @@ namespace Gridfall.Services;
 
 public class ExperienceCalculator
 {
-    // CURRENTLY PARAMETERS DO NOTHING, IF APPLICABLE DOWN THE LINE ADJUST CORRESPONDING EXP BASED ON LEVEL DISPARITY?
+    // CURRENTLY PARAMETERS DO NOTHING, IF APPLICABLE DOWN THE LINE, ADJUST CORRESPONDING EXP GAINED BASED ON LEVEL DISPARITY?
     // On kill gain 31 exp
     public int EnemyKilled(CharacterBase player, CharacterBase enemy)
     {

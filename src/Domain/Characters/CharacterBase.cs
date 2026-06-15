@@ -16,7 +16,13 @@ namespace Gridfall.Characters.Domain
 		public int Defense { get; set; }
 		public int Speed { get; set; }
 		public int MovementRange { get; set; }
-
+		// Declaring event handler for when exp changes so UI can update
+		[Signal]
+		public delegate void ExpChangedEventHandler(int exp);
+		[Signal]
+		public delegate void StatChangedEventHandler(string stat, int value);
+		public int Experience { get; set; }
+		
 		public Weapon EquippedWeapon { get; set; }
 
 		public void SetupCharacter(string characterName, int level, Weapon weapon)
@@ -65,6 +71,44 @@ namespace Gridfall.Characters.Domain
 		public bool IsAlive()
 		{
 			return Health > 0;
+		}
+		// Adds exp to character
+		public void AddExperience(int amount)
+		{
+			Experience += amount;
+			// let's UI know that exp has been changed
+			EmitSignal(SignalName.ExpChanged, Experience);
+		}
+		
+		public void ModifyStat(string stat, int amount)
+		{
+			switch (stat)
+			{
+				case "Level":
+					Level += amount;
+					EmitSignal(SignalName.StatChanged, stat, Level);
+					break;
+				
+				case "HP":
+					MaxHealth += amount;
+					EmitSignal(SignalName.StatChanged, stat, MaxHealth);
+					break;
+
+				case "STR":
+					Strength += amount;
+					EmitSignal(SignalName.StatChanged, stat, Strength);
+					break;
+
+				case "SPD":
+					Speed += amount;
+					EmitSignal(SignalName.StatChanged, stat, Speed);
+					break;
+
+				case "DEF":
+					Defense += amount;
+					EmitSignal(SignalName.StatChanged, stat, Defense);
+					break;
+			}
 		}
 	}
 }
