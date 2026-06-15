@@ -23,9 +23,9 @@ public class SaveService : ISaveService
             Speed = character.Speed,
             MovementRange = character.MovementRange,
 
-            WeaponType = (int)character.EquippedWeapon.Type,
-            WeaponDamage = character.EquippedWeapon.Damage,
-            WeaponRange = character.EquippedWeapon.Range
+            WeaponType = character.EquippedWeapon != null ? (int)character.EquippedWeapon.Type : 0,
+            WeaponDamage = character.EquippedWeapon != null ? character.EquippedWeapon.Damage : 0,
+            WeaponRange = character.EquippedWeapon != null ? character.EquippedWeapon.Range : 0
         };
 
         string json = JsonSerializer.Serialize(saveData);
