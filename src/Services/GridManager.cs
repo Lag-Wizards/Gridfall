@@ -56,4 +56,33 @@ public class GridManager : IGridManager
 
 		return null;
 	}
+
+	public Vector2I WorldToMap(Vector2 worldPosition)
+	{
+		Vector2 local = worldPosition - GridMap.GlobalPosition;
+		Vector2 cellSize = GetCellSize();
+
+		int x = Mathf.FloorToInt(local.X / cellSize.X);
+		int y = Mathf.FloorToInt(local.Y / cellSize.Y);
+		return new Vector2I(x, y);
+	}
+
+	public Vector2 MapToWorld(Vector2I godotCoords)
+	{
+		Vector2 relative = new Vector2(godotCoords.X, godotCoords.Y);
+		Vector2 cellSize = GetCellSize();
+
+		Vector2 world = GridMap.GlobalPosition + new Vector2(relative.X * cellSize.X, relative.Y * cellSize.Y) + (cellSize / 2f);
+		return world;
+	}
+
+	private Vector2 GetCellSize()
+	{
+		if (GridMap.TileSet != null)
+		{
+			return (Vector2)GridMap.TileSet.TileSize;
+		}
+		GD.PushError("GridManager: TileSet is null. Falling back to default 16x16 tile size.");
+		return new Vector2(16, 16);
+	}
 }
