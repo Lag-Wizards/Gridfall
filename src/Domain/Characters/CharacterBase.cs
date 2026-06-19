@@ -16,6 +16,14 @@ namespace Gridfall.Characters.Domain
 		public int Defense { get; set; }
 		public int Speed { get; set; }
 		public int MovementRange { get; set; }
+		// Growth rates used for level-up stat increases (stat key -> percentage chance)
+		public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
+		{
+			{"HP", 50},
+			{"STR", 50},
+			{"DEF", 50},
+			{"SPD", 50}
+		};
 		// Declaring event handler for when exp changes so UI can update
 		[Signal]
 		public delegate void ExpChangedEventHandler(int exp);
