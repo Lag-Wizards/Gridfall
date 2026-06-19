@@ -1,5 +1,6 @@
 using Godot;
-using System;
+using System.Collections.Generic;
+using System.Linq;
 using Gridfall.Contracts;
 using Gridfall.Services;
 
@@ -9,12 +10,18 @@ namespace Gridfall.Controllers;
 public partial class PlayerController : Node2D
 {
 	[Export] public NodePath GridNodePath { get; set; }
+	[Export] public NodePath MovementOverlayPath { get; set; }
+	[Export] public NodePath MovementPhaseLabelPath { get; set; }
 	[Export] public int MovementRange { get; set; } = 5;
 
 	private GridNode _gridNode;
 	private IGridManager _gridManager;
 	private TileMapLayer _gridMap;
+	private TileMapLayer _movementOverlay;
 	private IMovementService _movementService;
+	private Label _movementPhaseLabel;
+	private List<Vector2I> _reachableTiles = new();
+	private bool _movementPhaseActive;
 
 	public Vector2I CurrentTile { get; private set; }
 
@@ -32,16 +39,19 @@ public partial class PlayerController : Node2D
 		_gridManager = _gridNode.GridManager;
 		_gridMap = _gridNode.GridMap;
 		_movementService = new MovementService(_gridManager);
+		_movementOverlay = ResolveMovementOverlay();
+		_movementPhaseLabel = ResolveMovementPhaseLabel();
 
 		EnsureDebugMarker();
 		UpdateCurrentTileFromPosition();
 		SnapToCurrentTile();
 		RegisterOccupantAt(CurrentTile);
+		ActivateMovementPhase();
 	}
 
 	private GridNode ResolveGridNode()
 	{
-		if (GridNodePath != null)
+		if (GridNodePath != null && !string.IsNullOrEmpty(GridNodePath.ToString()))
 		{
 			var assigned = GetNodeOrNull<GridNode>(GridNodePath);
 			if (assigned != null)
@@ -87,36 +97,136 @@ public partial class PlayerController : Node2D
 
 	private void SnapToCurrentTile()
 	{
-		if (_gridManager != null)
+		if (_gridManager == null)
+			return;
+
+		var worldPosition = _gridManager.MapToWorld(CurrentTile);
+		GlobalPosition = worldPosition;
+		GD.Print($"PlayerController: snapped to current tile {CurrentTile} at {worldPosition}");
+	}
+
+	private void ActivateMovementPhase()
+	{
+		_movementPhaseActive = true;
+		_updateReachableTiles();
+		UpdateMovementOverlay();
+		UpdateMovementPhaseLabel();
+	}
+
+	private void DeactivateMovementPhase()
+	{
+		_movementPhaseActive = false;
+		_reachableTiles.Clear();
+		UpdateMovementOverlay();
+		UpdateMovementPhaseLabel();
+	}
+
+	private void ToggleMovementPhase()
+	{
+		if (_movementPhaseActive)
+			DeactivateMovementPhase();
+		else
+			ActivateMovementPhase();
+	}
+
+	private void _updateReachableTiles()
+	{
+		_reachableTiles = _movementService.GetReachableTiles(CurrentTile, MovementRange).ToList();
+	}
+
+	private void UpdateMovementOverlay()
+	{
+		if (_movementOverlay == null)
+			return;
+
+		_movementOverlay.Clear();
+
+		if (!_movementPhaseActive)
+			return;
+
+		foreach (var tile in _reachableTiles)
 		{
-			var worldPosition = _gridManager.MapToWorld(CurrentTile);
-			GlobalPosition = worldPosition;
-			GD.Print($"PlayerController: snapped to current tile {CurrentTile} at {worldPosition}");
+			_movementOverlay.SetCell(new Vector2I(tile.X, tile.Y), 0);
 		}
 	}
 
-	private void EnsureDebugMarker()
+	private void UpdateMovementPhaseLabel()
 	{
-		foreach (var child in GetChildren())
+		if (_movementPhaseLabel == null)
+			return;
+
+		_movementPhaseLabel.Text = _movementPhaseActive ? "Movement Phase: ACTIVE" : "Movement Phase: INACTIVE";
+		_movementPhaseLabel.Modulate = _movementPhaseActive ? Colors.LimeGreen : Colors.LightGray;
+	}
+
+	private TileMapLayer ResolveMovementOverlay()
+	{
+		if (MovementOverlayPath != null && !string.IsNullOrEmpty(MovementOverlayPath.ToString()))
 		{
-			if (child is Sprite2D)
-				return;
+			var node = GetNodeOrNull<TileMapLayer>(MovementOverlayPath);
+			if (node != null)
+				return node;
+
+			var root = GetTree().CurrentScene;
+			if (root != null)
+			{
+				node = root.GetNodeOrNull<TileMapLayer>(MovementOverlayPath);
+				if (node != null)
+					return node;
+			}
 		}
 
-		_debugMarker = new Sprite2D();
-		_debugMarker.Name = "DebugMarker";
-		_debugMarker.Texture = CreateDebugTexture(24, Colors.Red);
-		_debugMarker.Centered = true;
-		_debugMarker.Position = Vector2.Zero;
-		AddChild(_debugMarker);
+		var sceneRoot = GetTree().CurrentScene;
+		return sceneRoot?.GetNodeOrNull<TileMapLayer>("GridOverlay");
+	}
+
+	private Label ResolveMovementPhaseLabel()
+	{
+		if (MovementPhaseLabelPath != null && !string.IsNullOrEmpty(MovementPhaseLabelPath.ToString()))
+		{
+			var node = GetNodeOrNull<Label>(MovementPhaseLabelPath);
+			if (node != null)
+				return node;
+
+			var root = GetTree().CurrentScene;
+			if (root != null)
+			{
+				node = root.GetNodeOrNull<Label>(MovementPhaseLabelPath);
+				if (node != null)
+					return node;
+			}
+		}
+
+		var sceneRoot = GetTree().CurrentScene;
+		return sceneRoot?.GetNodeOrNull<Label>("MovementPhaseLabel");
 	}
 
 	private ImageTexture CreateDebugTexture(int size, Color color)
 	{
 		var image = Image.CreateEmpty(size, size, false, Image.Format.Rgba8);
 		image.Fill(color);
-		var texture = ImageTexture.CreateFromImage(image);
-		return texture;
+		return ImageTexture.CreateFromImage(image);
+	}
+
+	private void EnsureDebugMarker()
+	{
+		foreach (var child in GetChildren())
+		{
+			if (child is Sprite2D sprite && sprite.Name == "DebugMarker")
+			{
+				_debugMarker = sprite;
+				return;
+			}
+		}
+
+		_debugMarker = new Sprite2D
+		{
+			Name = "DebugMarker",
+			Texture = CreateDebugTexture(24, Colors.Red),
+			Centered = true,
+			Position = Vector2.Zero
+		};
+		AddChild(_debugMarker);
 	}
 
 	private void RegisterOccupantAt(Vector2I tile)
@@ -138,6 +248,18 @@ public partial class PlayerController : Node2D
 		if (!(@event is InputEventKey keyEvent) || !keyEvent.IsPressed())
 			return;
 
+		if (keyEvent.Keycode == Key.M)
+		{
+			ToggleMovementPhase();
+			return;
+		}
+
+		if (!_movementPhaseActive)
+		{
+			GD.Print("PlayerController: movement blocked because phase is inactive.");
+			return;
+		}
+
 		Vector2I dir = keyEvent.Keycode switch
 		{
 			Key.Up => new Vector2I(0, -1),
@@ -147,7 +269,8 @@ public partial class PlayerController : Node2D
 			_ => default
 		};
 
-		if (dir == default) return;
+		if (dir == default)
+			return;
 
 		TryMoveBy(dir);
 	}
@@ -184,8 +307,11 @@ public partial class PlayerController : Node2D
 		RegisterOccupantAt(target);
 		CurrentTile = target;
 
-		Vector2 worldPos = _gridManager.MapToWorld(target);
+		var worldPos = _gridManager.MapToWorld(target);
 		GlobalPosition = worldPos;
 		GD.Print($"PlayerController: moved to {target} at world {worldPos}");
+
+		_updateReachableTiles();
+		UpdateMovementOverlay();
 	}
 }
