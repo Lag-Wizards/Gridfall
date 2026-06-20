@@ -8,7 +8,7 @@ public class ExperienceCalculator
     // On kill gain 31 exp
     public int EnemyKilled(CharacterBase player, CharacterBase enemy)
     {
-        return 31 ;
+        return 31;
     }
     // On miss hit gain 3 exp
     public int MissedHit(CharacterBase player, CharacterBase enemy)

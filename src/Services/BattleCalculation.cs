@@ -1,110 +1,174 @@
 using Godot;
 using System;
-namespace Gridfall.Services;
-/*
-public partial class BattleCalculation
-{
+using Gridfall.Characters.Domain;
 
-	public CombatReport CalculateStats(Unit player, Unit enemy)
+namespace Gridfall.Services;
+
+public class BattleCalculation
+{
+	private CharacterLeveling characterLeveling = new CharacterLeveling();
+
+	public CombatReport CalculateStats(CharacterBase attacker, CharacterBase attackee)
 	{
 
 		// CALCULATE ATTACK SPEED
 		// Weapons heavier than a unit's Constitution slow them down
-		int playerWeightPenalty = Math.Max(0, player.WeaponWeight - player.Con);
-		int playerAS = player.Speed - playerWeightPenalty;
+		int playerWeightPenalty = Math.Max(0, attacker.EquippedWeapon.Weight - attacker.Constitution);
+		int playerAS = attacker.Speed - playerWeightPenalty;
 
-		int enemyWeightPenalty = Math.Max(0, enemy.WeaponWeight - enemy.Con);
-		int enemyAS = enemy.Speed - enemyWeightPenalty;
+		int enemyWeightPenalty = Math.Max(0, attackee.EquippedWeapon.Weight - attackee.Constitution);
+		int enemyAS = attackee.Speed - enemyWeightPenalty;
 
 		// WEAPON TRIANGLE MODIFIERS
-		/*int triangleDamageBonus = 0;
+		int triangleDamageBonus = 0;
 		int triangleHitBonus = 0;
 
-		if (HasTriangleAdvantage(player.WeaponType, enemy.WeaponType))
+		/*
+		if (HasTriangleAdvantage(attacker.EquippedWeapon.Type, attackee.EquippedWeapon.Type))
 		{
 			triangleDamageBonus = 1;
 			triangleHitBonus = 15;
 		}
-		else if (HasTriangleDisadvantage(player.WeaponType, enemy.WeaponType))
+		else if (HasTriangleDisadvantage(attacker.EquippedWeapon.Type, attackee.EquippedWeapon.Type))
 		{
 			triangleDamageBonus = -1;
 			triangleHitBonus = -15;
 		}
+		*/
 
 		// DETERMINE FINAL DAMAGE
 		// Chooses Defense for physical, Resistance for magic
-		int enemyMitigation = (player.IsMagic) ? enemy.Res : (enemy.Def);
-		int playerMitigation = (enemy.IsMagic) ? player.Res : player.Def;
+		int enemyMitigation = (attacker.IsMagic)
+			? attackee.Resistance
+			: attackee.Defense;
 
-		int playerAttack = player.Strength + player.WeaponAttack; // + triangleDamageBonus;
+		int playerMitigation = (attackee.IsMagic)
+			? attacker.Resistance
+			: attacker.Defense;
+
+		int playerAttack = attacker.Strength + attacker.EquippedWeapon.Damage;
 		int playerDamage = Math.Max(0, playerAttack - enemyMitigation);
 
-		int enemyAttack = enemy.Strength + enemy.WeaponAttack; // - triangleDamageBonus;
+		int enemyAttack = attackee.Strength + attackee.EquippedWeapon.Damage;
 		int enemyDamage = Math.Max(0, enemyAttack - playerMitigation);
 
 		// DETERMINE DISPLAYED HIT RATE
-		int playerAccuracy = player.WeaponHitRate + (player.Skill * 2) + (player.Luck / 2); // + triangleHitBonus;
-		int enemyAvoid = (enemyAS * 2) + enemy.Luck;
-		int playerFinalHit = Math.Clamp(playerAccuracy - enemyAvoid, 0, 100);
+		int playerAccuracy =
+			attacker.EquippedWeapon.HitRate +
+			(attacker.Skill * 2) +
+			(attacker.Luck / 2);
 
-		int enemyAccuracy = enemy.WeaponHitRate + (enemy.Skill * 2) + (enemy.Luck / 2); // - triangleHitBonus;
-		int playerAvoid = (playerAS * 2) + player.Luck;
-		int enemyFinalHit = Math.Clamp(enemyAccuracy - playerAvoid, 0, 100);
+		int enemyAvoid =
+			(enemyAS * 2) +
+			attackee.Luck;
+
+		int playerFinalHit =
+			Math.Clamp(playerAccuracy - enemyAvoid, 0, 100);
+
+		int enemyAccuracy =
+			attackee.EquippedWeapon.HitRate +
+			(attackee.Skill * 2) +
+			(attackee.Luck / 2);
+
+		int playerAvoid =
+			(playerAS * 2) +
+			attacker.Luck;
+
+		int enemyFinalHit =
+			Math.Clamp(enemyAccuracy - playerAvoid, 0, 100);
 
 		// DETERMINE DOUBLE ATTACK STATUS
 		bool playerDoubles = (playerAS - enemyAS) >= 4;
 		bool enemyDoubles = (enemyAS - playerAS) >= 4;
-
 		
-		return new CombatReport(playerDamage, playerFinalHit, playerDoubles, enemyDamage, enemyFinalHit, enemyDoubles);
+		return new CombatReport(
+			playerDamage,
+			playerFinalHit,
+			playerDoubles,
+			enemyDamage,
+			enemyFinalHit,
+			enemyDoubles
+		);
 	}
 
-	public void ExecuteBattle(Unit player, Unit enemy)
+	public void ExecuteBattle(CharacterBase player, CharacterBase enemy)
 	{
+		int startingHealth = enemy.Health;
+
 		CombatReport report = CalculateStats(player, enemy);
+
 		RandomNumberGenerator rng = new RandomNumberGenerator();
-		rng.Randomize(); 
-		
-		bool PerformAttack(Unit attacker, Unit defender, int damage, int hitChance)
+		rng.Randomize();
+
+		bool PerformAttack(
+			CharacterBase attacker,
+			CharacterBase defender,
+			int damage,
+			int hitChance)
 		{
+
 			int roll = rng.RandiRange(0, 99);
-			
+
 			if (roll < hitChance)
 			{
-				defender.Hp = Math.Max(0, defender.Hp - damage); // Prevent HP from dropping below 0
-				return true; 
+				defender.TakeDamage(damage);
+
+				return true;
 			}
 			else
 			{
-				return false; 
+				return false;
 			}
 		}
-		
 
 		// INITIATOR ATTACKS
-		PerformAttack(player, enemy, report.PlayerDamage, report.PlayerFinalHit);
-		if (enemy.Hp <= 0)
-		{
-			return; // End battle early if defender dies
+		PerformAttack(
+			player,
+			enemy,
+			report.PlayerDamage,
+			report.PlayerFinalHit);
+
+		if (enemy.Health <= 0)
+		{ 
+			return;
 		}
 
 		// DEFENDER COUNTER-ATTACKS
-		PerformAttack(enemy, player, report.EnemyDamage, report.EnemyFinalHit);
-		if (player.Hp <= 0)
+
+		PerformAttack(
+			enemy,
+			player,
+			report.EnemyDamage,
+			report.EnemyFinalHit);
+
+		if (player.Health <= 0)
 		{
-			return; // End battle early if initiator dies
+			return;
 		}
 
 		// FOLLOW-UP ATTACKS
 		if (report.PlayerDoubles)
 		{
-			PerformAttack(player, enemy, report.PlayerDamage, report.PlayerFinalHit);
+
+			PerformAttack(
+				player,
+				enemy,
+				report.PlayerDamage,
+				report.PlayerFinalHit);
 		}
 		else if (report.EnemyDoubles)
 		{
-			PerformAttack(enemy, player, report.EnemyDamage, report.EnemyFinalHit);
+
+			PerformAttack(
+				enemy,
+				player,
+				report.EnemyDamage,
+				report.EnemyFinalHit);
 		}
-		
+
+		characterLeveling.BattleExpOutcome(
+			player,
+			enemy,
+			startingHealth);
 	}
 }
-*/

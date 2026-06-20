@@ -1,15 +1,14 @@
 using Godot;
 using System;
-namespace Gridfall.Services;
-public partial class BattleSystem : Node
-{
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-	}
+using Gridfall.Characters.Domain;
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+namespace Gridfall.Services;
+public class BattleSystem
+{
+	private BattleCalculation battleCalculation = new BattleCalculation();
+
+	public void InitiateCombat(CharacterBase attacker, CharacterBase defender)
 	{
+		battleCalculation.ExecuteBattle(attacker, defender);
 	}
 }

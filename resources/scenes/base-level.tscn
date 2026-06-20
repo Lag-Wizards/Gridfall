@@ -2,8 +2,9 @@
 
 [ext_resource type="TileSet" uid="uid://lpxb84fk7sjf" path="res://resources/tilesets/base-tileset.tres" id="1_w8wmq"]
 [ext_resource type="Texture2D" uid="uid://cyxo3vn81hk6k" path="res://assets/tileset/tile-outline.png" id="2_w8wmq"]
-[ext_resource type="Script" uid="uid://bgbmsmsot4855" path="res://src/Services/GridNode.cs" id="3_w8wmq"]
-[ext_resource type="Script" uid="uid://dtqm2avev8duk" path="res://src/Services/EnemyNode.cs" id="4_ypdn4"]
+[ext_resource type="Script" uid="uid://c8toiphshaqox" path="res://src/Services/GridNode.cs" id="3_w8wmq"]
+[ext_resource type="Script" uid="uid://bny54mgvct3qc" path="res://src/Services/EnemyNode.cs" id="4_ypdn4"]
+[ext_resource type="Script" uid="uid://l436qsd5qnvo" path="res://resources/scenes/Battletest.cs" id="5_fjnyl"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0jp7s"]
 texture = ExtResource("2_w8wmq")
@@ -31,3 +32,6 @@ GridMap = NodePath("../GridMap")
 
 [node name="Node2D2" type="Node2D" parent="." unique_id=1523646232]
 script = ExtResource("4_ypdn4")
+
+[node name="battletest" type="Node2D" parent="." unique_id=977051331]
+script = ExtResource("5_fjnyl")
