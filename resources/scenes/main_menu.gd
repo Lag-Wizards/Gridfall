@@ -5,7 +5,7 @@ func _ready():
 	$VBoxContainer/QuitButton.pressed.connect(_on_quit_pressed)
 
 func _on_start_pressed():
-	print("Start button clicked")
+	get_tree().change_scene_to_file("res://resources/scenes/base-level.tscn")
 
 func _on_quit_pressed():
 	get_tree().quit()

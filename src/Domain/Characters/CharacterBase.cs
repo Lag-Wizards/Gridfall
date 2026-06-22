@@ -1,122 +1,140 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using Gridfall.Domain;
+using Gridfall.Domain.Enums;
 
-namespace Gridfall.Characters.Domain
+namespace Gridfall.Domain;
+public partial class CharacterBase : Node2D
 {
-	public partial class CharacterBase : Node
+	public string CharacterName { get; set; }
+	public int Level { get; set; }
+
+	public int Health { get; private set; }
+	public int MaxHealth { get; private set; }
+
+	public int Strength { get; set; }
+	public int Defense { get; set; }
+	public int Speed { get; set; }
+	public int MovementRange { get; set; } 
+	
+	public static event Action OnPlayerDeath;
+	
+	// Growth rates used for level-up stat increases (stat key -> percentage chance)
+	public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
 	{
-		public string CharacterName { get; set; }
-		public int Level { get; set; }
+		{"HP", 50},
+		{"STR", 50},
+		{"DEF", 50},
+		{"SPD", 50}
+	};
+	// Declaring event handler for when exp changes so UI can update
+	[Signal]
+	public delegate void ExpChangedEventHandler(int exp);
+	[Signal]
+	public delegate void StatChangedEventHandler(string stat, int value);
+	public int Experience { get; set; }
+	
+	public Weapon EquippedWeapon { get; set; }
 
-		public int Health { get; private set; }
-		public int MaxHealth { get; private set; }
+	public void SetupCharacter(string characterName, int level, Weapon weapon)
+	{
+		CharacterName = characterName;
+		Level = level;
 
-		public int Strength { get; set; }
-		public int Defense { get; set; }
-		public int Speed { get; set; }
-		public int MovementRange { get; set; }
-		// Growth rates used for level-up stat increases (stat key -> percentage chance)
-		public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
-		{
-			{"HP", 50},
-			{"STR", 50},
-			{"DEF", 50},
-			{"SPD", 50}
-		};
-		// Declaring event handler for when exp changes so UI can update
-		[Signal]
-		public delegate void ExpChangedEventHandler(int exp);
-		[Signal]
-		public delegate void StatChangedEventHandler(string stat, int value);
-		public int Experience { get; set; }
+		MaxHealth = 25 + (level * 5);
+		Health = MaxHealth;
+
+		Strength = 5 + level;
+		Defense = 3 + level;
+		Speed = 4 + level;
+		MovementRange = 5;
 		
-		public Weapon EquippedWeapon { get; set; }
+		EquippedWeapon = weapon;
+	}
+	
+	public override async void _Ready()
+	{
+		Weapon weapon = new Weapon(WeaponType.Slash, 10, 1);
+		SetupCharacter("Character A", 1, weapon);
+		GD.Print(CharacterName);
+		GD.Print(Level);
+		GD.Print(Health);
+		
+		GD.Print("Game over in 3 seconds (Triggered in Characterbase _Ready)");
+		await ToSignal(GetTree().CreateTimer(3.0f), SceneTreeTimer.SignalName.Timeout);
+		TakeDamage(34);
+		GD.Print(Health);
+	}
 
-		public void SetupCharacter(string characterName, int level, Weapon weapon)
+	public void TakeDamage(int damageAmount)
+	{
+		int finalDamage = damageAmount - Defense;
+
+		if (finalDamage < 1)
 		{
-			CharacterName = characterName;
-			Level = level;
+			finalDamage = 1;
+		}
 
-			MaxHealth = 25 + (level * 5);
+		Health -= finalDamage;
+
+		if (Health <= 0)
+		{
+			Health = 0;
+			OnPlayerDeath.Invoke();
+		}
+	}
+
+	public void Heal(int healAmount)
+	{
+		Health += healAmount;
+
+		if (Health > MaxHealth)
+		{
 			Health = MaxHealth;
+		}
+	}
 
-			Strength = 5 + level;
-			Defense = 3 + level;
-			Speed = 4 + level;
-			MovementRange = 5;
+	public bool IsAlive()
+	{
+		return Health > 0;
+	}
+	// Adds exp to character
+	public void AddExperience(int amount)
+	{
+		Experience += amount;
+		// let's UI know that exp has been changed
+		EmitSignal(SignalName.ExpChanged, Experience);
+	}
+	
+	public void ModifyStat(string stat, int amount)
+	{
+		switch (stat)
+		{
+			case "Level":
+				Level += amount;
+				EmitSignal(SignalName.StatChanged, stat, Level);
+				break;
 			
-			EquippedWeapon = weapon;
-		}
+			case "HP":
+				MaxHealth += amount;
+				EmitSignal(SignalName.StatChanged, stat, MaxHealth);
+				break;
 
-		public void TakeDamage(int damageAmount)
-		{
-			int finalDamage = damageAmount - Defense;
+			case "STR":
+				Strength += amount;
+				EmitSignal(SignalName.StatChanged, stat, Strength);
+				break;
 
-			if (finalDamage < 1)
-			{
-				finalDamage = 1;
-			}
+			case "SPD":
+				Speed += amount;
+				EmitSignal(SignalName.StatChanged, stat, Speed);
+				break;
 
-			Health -= finalDamage;
-
-			if (Health < 0)
-			{
-				Health = 0;
-			}
-		}
-
-		public void Heal(int healAmount)
-		{
-			Health += healAmount;
-
-			if (Health > MaxHealth)
-			{
-				Health = MaxHealth;
-			}
-		}
-
-		public bool IsAlive()
-		{
-			return Health > 0;
-		}
-		// Adds exp to character
-		public void AddExperience(int amount)
-		{
-			Experience += amount;
-			// let's UI know that exp has been changed
-			EmitSignal(SignalName.ExpChanged, Experience);
-		}
-		
-		public void ModifyStat(string stat, int amount)
-		{
-			switch (stat)
-			{
-				case "Level":
-					Level += amount;
-					EmitSignal(SignalName.StatChanged, stat, Level);
-					break;
-				
-				case "HP":
-					MaxHealth += amount;
-					EmitSignal(SignalName.StatChanged, stat, MaxHealth);
-					break;
-
-				case "STR":
-					Strength += amount;
-					EmitSignal(SignalName.StatChanged, stat, Strength);
-					break;
-
-				case "SPD":
-					Speed += amount;
-					EmitSignal(SignalName.StatChanged, stat, Speed);
-					break;
-
-				case "DEF":
-					Defense += amount;
-					EmitSignal(SignalName.StatChanged, stat, Defense);
-					break;
-			}
+			case "DEF":
+				Defense += amount;
+				EmitSignal(SignalName.StatChanged, stat, Defense);
+				break;
 		}
 	}
 }

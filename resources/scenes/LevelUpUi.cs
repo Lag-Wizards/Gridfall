@@ -1,6 +1,6 @@
 using Godot;
 using System;
-using Gridfall.Characters.Domain;
+using Gridfall.Domain;
 
 public partial class LevelUpUi : Control
 {

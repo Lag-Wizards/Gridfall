@@ -12,7 +12,7 @@ namespace Gridfall.Contracts
 		int Defense { get; }
 		bool IsAlive { get; }
 
-		void TakeDamage(int amount);
+		void TakeDamage(int amount, bool isMagic);
 		int CalculateDamageTo(IEnemy target);
 		void Heal(int amount);
 		void LevelUp(int toLevel);

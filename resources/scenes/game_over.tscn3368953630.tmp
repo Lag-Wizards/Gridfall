@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://cu4l5b370yaf0"]
+
+[ext_resource type="Script" uid="uid://yincc8mebo58" path="res://resources/scenes/game_over.gd" id="1_ompxk"]
+
+[node name="Control" type="Control" unique_id=423929148]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ompxk")
+
+[node name="ColorRect2" type="ColorRect" parent="." unique_id=228600156]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.030149253, 0.010115844, 0.13404134, 1)
+
+[node name="Label" type="Label" parent="." unique_id=2083248334]
+layout_mode = 0
+offset_left = 448.0
+offset_top = 192.0
+offset_right = 703.0
+offset_bottom = 288.0
+theme_override_font_sizes/font_size = 47
+text = "Game Over"
+
+[node name="MainMenu" type="Button" parent="." unique_id=1108055421]
+custom_minimum_size = Vector2(250, 60)
+layout_mode = 0
+offset_left = 448.0
+offset_top = 352.0
+offset_right = 698.0
+offset_bottom = 412.0
+text = "Main Menu"
+
+[node name="Retry" type="Button" parent="." unique_id=1608934369]
+custom_minimum_size = Vector2(250, 60)
+layout_mode = 0
+offset_left = 448.0
+offset_top = 272.0
+offset_right = 698.0
+offset_bottom = 332.0
+text = "Retry"

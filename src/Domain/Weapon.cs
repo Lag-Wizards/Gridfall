@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using Gridfall.Domain.Enums;
-
+namespace Gridfall.Domain;
 public partial class Weapon
 {
 	public WeaponType Type { get; init; }

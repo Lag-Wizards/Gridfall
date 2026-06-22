@@ -3,7 +3,8 @@ namespace Gridfall.Domain.Enums;
 
 public enum WeaponType
 {
-	Melee = 1,
-	Range = 2,
-	Magic = 3
+	Slash = 1,
+	Blunt = 2,
+	Pierce = 3,
+	Magic = 4
 }

@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using Gridfall.Services;
+using Gridfall.Domain;
 using Gridfall.Domain.Enemies;
 
 public partial class EnemyNode : Node2D
@@ -17,18 +18,20 @@ public partial class EnemyNode : Node2D
 	{
 		base._Ready();
 		_enemy = EnemyManager.CreateEnemy(EnemyType, Level);
-		// You can expose stats to the editor or other nodes
 		UpdateName();
 	}
 
 	private void UpdateName()
 	{
-		Name = _enemy.Name + " L" + _enemy.Level;
+		if (_enemy != null)
+		{
+			Name = _enemy.Name + " L" + _enemy.Level;
+		}
 	}
 
-	public void ReceiveDamage(int amount)
+	public void ReceiveDamage(int amount, bool isMagic = false)
 	{
-		_enemy.TakeDamage(amount);
+		_enemy.TakeDamage(amount, isMagic);
 		if (!_enemy.IsAlive)
 			Die();
 	}

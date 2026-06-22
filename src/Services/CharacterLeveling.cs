@@ -1,6 +1,6 @@
 using Godot;
 using System;
-using Gridfall.Characters.Domain;
+using Gridfall.Domain;
 using Gridfall.Domain.Enemies;
 
 namespace Gridfall.Services;
