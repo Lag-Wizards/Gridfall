@@ -20,7 +20,6 @@ public partial class CharacterBase : Node2D
 	
 	public static event Action OnPlayerDeath;
 	
-	// Growth rates used for level-up stat increases (stat key -> percentage chance)
 	public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
 	{
 		{"HP", 50},
@@ -28,11 +27,13 @@ public partial class CharacterBase : Node2D
 		{"DEF", 50},
 		{"SPD", 50}
 	};
-	// Declaring event handler for when exp changes so UI can update
+
 	[Signal]
 	public delegate void ExpChangedEventHandler(int exp);
+
 	[Signal]
 	public delegate void StatChangedEventHandler(string stat, int value);
+
 	public int Experience { get; set; }
 	
 	public Weapon EquippedWeapon { get; set; }
@@ -51,6 +52,24 @@ public partial class CharacterBase : Node2D
 		MovementRange = 5;
 		
 		EquippedWeapon = weapon;
+	}
+
+	public void LoadFromSave(SaveData saveData)
+	{
+		CharacterName = saveData.CharacterName;
+		Level = saveData.Level;
+		Health = saveData.Health;
+		MaxHealth = saveData.MaxHealth;
+		Strength = saveData.Strength;
+		Defense = saveData.Defense;
+		Speed = saveData.Speed;
+		MovementRange = saveData.MovementRange;
+
+		EquippedWeapon = new Weapon(
+			(WeaponType)saveData.WeaponType,
+			saveData.WeaponDamage,
+			saveData.WeaponRange
+		);
 	}
 	
 	public override async void _Ready()
@@ -99,11 +118,10 @@ public partial class CharacterBase : Node2D
 	{
 		return Health > 0;
 	}
-	// Adds exp to character
+
 	public void AddExperience(int amount)
 	{
 		Experience += amount;
-		// let's UI know that exp has been changed
 		EmitSignal(SignalName.ExpChanged, Experience);
 	}
 	
