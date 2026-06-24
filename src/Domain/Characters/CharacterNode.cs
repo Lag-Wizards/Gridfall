@@ -36,6 +36,9 @@ public partial class CharacterNode : Node2D
 			GD.Print("No save found. Created default character.");
 		}
 
+		GameManager gameManager = GetNode<GameManager>("/root/GameManager");
+		gameManager.SetCurrentCharacter(_character);
+
 		CreateSprite();
 
 		UpdateName();

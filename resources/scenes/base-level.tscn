@@ -2,11 +2,12 @@
 
 [ext_resource type="TileSet" uid="uid://lpxb84fk7sjf" path="res://resources/tilesets/base-tileset.tres" id="1_w8wmq"]
 [ext_resource type="Texture2D" uid="uid://cyxo3vn81hk6k" path="res://assets/tileset/tile-outline.png" id="2_w8wmq"]
-[ext_resource type="Script" uid="uid://big2lhuiwqcsm" path="res://src/Services/GridNode.cs" id="3_w8wmq"]
-[ext_resource type="Script" uid="uid://co2aqfrga5hdi" path="res://src/Services/EnemyNode.cs" id="4_ypdn4"]
+[ext_resource type="Script" uid="uid://c8toiphshaqox" path="res://src/Services/GridNode.cs" id="3_w8wmq"]
+[ext_resource type="Script" uid="uid://bny54mgvct3qc" path="res://src/Services/EnemyNode.cs" id="4_ypdn4"]
 [ext_resource type="Texture2D" uid="uid://bapth5fg7rekp" path="res://assets/sprites/slime.png" id="5_fjnyl"]
-[ext_resource type="Script" uid="uid://ba7k2xxcao0sf" path="res://src/Domain/Characters/CharacterBase.cs" id="6_tatbj"]
+[ext_resource type="Script" uid="uid://cx74el5t8vfuf" path="res://src/Domain/Characters/CharacterNode.cs" id="6_gnlbj"]
 [ext_resource type="Texture2D" uid="uid://3e370uhe0u38" path="res://assets/sprites/Character.png" id="6_yh8fr"]
+[ext_resource type="PackedScene" uid="uid://cxugg0y5bgbeo" path="res://resources/scenes/pause_menu.tscn" id="8_gnlbj"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0jp7s"]
 texture = ExtResource("2_w8wmq")
@@ -43,8 +44,12 @@ texture = ExtResource("5_fjnyl")
 
 [node name="Character" type="Node2D" parent="." unique_id=956083732]
 position = Vector2(-24, -6)
-script = ExtResource("6_tatbj")
+script = ExtResource("6_gnlbj")
 
 [node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=876553366]
 position = Vector2(0, -2)
 texture = ExtResource("6_yh8fr")
+
+[node name="PauseMenu" parent="." unique_id=1598538406 instance=ExtResource("8_gnlbj")]
+process_mode = 3
+visible = false
