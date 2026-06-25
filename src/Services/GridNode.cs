@@ -15,6 +15,7 @@ public partial class GridNode : Node
 
 	public override void _Ready()
 	{
+		EnsureGridMap();
 		if (GridMap == null)
 		{
 			GD.PrintErr("GridMap is null within GridNode");
@@ -51,6 +52,19 @@ public partial class GridNode : Node
 		GD.Print("GridNode: auto-created Node2D3 PlayerController node.");
 	}
 
+	private void EnsureGridMap()
+	{
+		if (GridMap != null)
+			return;
+
+		var sceneRoot = GetTree().CurrentScene;
+		if (sceneRoot == null)
+			return;
+
+		var gridMap = sceneRoot.GetNodeOrNull<TileMapLayer>("GridMap");
+		if (gridMap != null)
+			GridMap = gridMap;
+	}
 	private PlayerController FindPlayerControllerRecursive(Node node)
 	{
 		if (node is PlayerController controller)

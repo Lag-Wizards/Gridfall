@@ -49,7 +49,7 @@ public partial class PlayerController : Node2D
 		_gridMap = _gridNode.GridMap;
 		_movementService = new MovementService(_gridManager);
 		EnsureUiNodes();
-		_movementOverlay = ResolveMovementOverlay();
+		EnsureMovementOverlay();
 		_movementPhaseLabel = ResolveMovementPhaseLabel();
 		_playerHealthLabel = ResolveLabel(PlayerHealthLabelPath, "PlayerHealthLabel");
 		_movementRemainingLabel = ResolveLabel(MovementRemainingLabelPath, "MovementRemainingLabel");
@@ -173,7 +173,14 @@ public partial class PlayerController : Node2D
 	private void UpdateMovementOverlay()
 	{
 		if (_movementOverlay == null)
-			return;
+		{
+			EnsureMovementOverlay();
+			if (_movementOverlay == null)
+			{
+				GD.PrintErr("PlayerController: MovementOverlay not found after fallback.");
+				return;
+			}
+		}
 
 		_movementOverlay.Clear();
 
@@ -217,18 +224,58 @@ public partial class PlayerController : Node2D
 		if (sceneRoot == null)
 			return;
 
-		// Create a UI root so labels/buttons can be found by name later.
 		var uiRoot = sceneRoot.GetNodeOrNull<CanvasLayer>("PlayerUi");
 		if (uiRoot == null)
 		{
-			uiRoot = new CanvasLayer { Name = "PlayerUi" };
+			uiRoot = new CanvasLayer
+			{
+				Name = "PlayerUi",
+				Layer = 1
+			};
 			sceneRoot.AddChild(uiRoot);
 		}
 
-		CreateOrFindLabel(uiRoot, "MovementPhaseLabel", "Movement Phase: ACTIVE", new Vector2(16, 16));
-		CreateOrFindLabel(uiRoot, "PlayerHealthLabel", "HP: 20/20", new Vector2(16, 48));
-		CreateOrFindLabel(uiRoot, "MovementRemainingLabel", "Move: 5/5", new Vector2(16, 80));
-		CreateOrFindButton(uiRoot, "NextPhaseButton", "Next Phase", new Vector2(16, 112));
+		var panel = uiRoot.GetNodeOrNull<Panel>("PlayerUiPanel");
+		if (panel == null)
+		{
+			panel = new Panel
+			{
+				Name = "PlayerUiPanel",
+				Size = new Vector2(240, 140),
+				Position = new Vector2(8, 8)
+			};
+			uiRoot.AddChild(panel);
+		}
+
+		CreateOrFindLabel(panel, "MovementPhaseLabel", "Movement Phase: ACTIVE", new Vector2(10, 10));
+		CreateOrFindLabel(panel, "PlayerHealthLabel", "HP: 20/20", new Vector2(10, 38));
+		CreateOrFindLabel(panel, "MovementRemainingLabel", "Move: 5/5", new Vector2(10, 66));
+		CreateOrFindButton(panel, "NextPhaseButton", "Next Phase", new Vector2(10, 100));
+		GD.Print("PlayerController: EnsureUiNodes completed.");
+	}
+
+	private void EnsureMovementOverlay()
+	{
+		_movementOverlay = ResolveMovementOverlay();
+		if (_movementOverlay != null)
+			return;
+
+		var sceneRoot = GetTree().CurrentScene;
+		if (sceneRoot == null)
+		{
+			GD.PrintErr("PlayerController: cannot create movement overlay because scene root is null.");
+			return;
+		}
+
+		var overlay = new TileMapLayer
+		{
+			Name = "GridOverlay",
+			TileSet = _gridMap?.TileSet,
+			Modulate = new Color(1, 1, 1, 0.2f)
+		};
+		sceneRoot.AddChild(overlay);
+		_movementOverlay = overlay;
+		GD.Print("PlayerController: created GridOverlay runtime fallback.");
 	}
 
 	private void CreateOrFindLabel(Node parent, string name, string text, Vector2 position)
@@ -279,7 +326,11 @@ public partial class PlayerController : Node2D
 		}
 
 		var sceneRoot = GetTree().CurrentScene;
-		return sceneRoot?.GetNodeOrNull<TileMapLayer>("GridOverlay");
+		var overlay = sceneRoot?.GetNodeOrNull<TileMapLayer>("GridOverlay");
+		if (overlay != null)
+			return overlay;
+
+		return sceneRoot?.GetNodeOrNull<TileMapLayer>("GridMap");
 	}
 
 	private Label ResolveMovementPhaseLabel()
