@@ -125,10 +125,16 @@ namespace Gridfall.Characters.Domain
 				
 				case "LUCK":
 					Luck += amount;
+					EmitSignal(SignalName.StatChanged, stat, Luck);
 					break;
 				
 				case "SKILL":
 					Skill += amount;
+					EmitSignal(SignalName.StatChanged, stat, Skill);
+					break;
+				case "RES":
+					Resistance += amount;
+					EmitSignal(SignalName.StatChanged, stat, Resistance);
 					break;
 				
 			}

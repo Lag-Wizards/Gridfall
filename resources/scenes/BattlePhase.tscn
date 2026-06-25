@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://c1ikv2b5udxhy"]
+
+[ext_resource type="Script" uid="uid://df6o351fb1xlc" path="res://resources/scenes/BattlePhase.cs" id="1_2lqsd"]
+[ext_resource type="PackedScene" uid="uid://cn2l6pnx12lla" path="res://resources/scenes/ExpUI.tscn" id="2_et1vc"]
+[ext_resource type="PackedScene" uid="uid://cccj1124u3dld" path="res://resources/scenes/LevelUpUI.tscn" id="3_lkjqs"]
+
+[node name="BattlePhase" type="Control" unique_id=1461201677]
+layout_mode = 3
+anchor_right = 0.33400002
+anchor_bottom = 0.37800002
+offset_right = -384.76804
+offset_bottom = -244.94402
+script = ExtResource("1_2lqsd")
+
+[node name="VBoxContainerFightOptions" type="VBoxContainer" parent="." unique_id=798125897]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 36.0
+offset_right = 256.0
+offset_bottom = 102.0
+
+[node name="FightButton" type="Button" parent="VBoxContainerFightOptions" unique_id=1576162460]
+layout_mode = 2
+text = "Fight"
+
+[node name="CancelButton" type="Button" parent="VBoxContainerFightOptions" unique_id=2026254870]
+layout_mode = 2
+text = "Cancel"
+
+[node name="CombatReport" type="HBoxContainer" parent="." unique_id=1822434296]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 22.0
+offset_right = 82.0
+offset_bottom = 121.0
+
+[node name="AttackerPanel" type="PanelContainer" parent="CombatReport" unique_id=1381334210]
+layout_mode = 2
+
+[node name="DefenderPanel" type="PanelContainer" parent="CombatReport" unique_id=1751701412]
+layout_mode = 2
+
+[node name="ExpUI" parent="." unique_id=835226005 instance=ExtResource("2_et1vc")]
+layout_mode = 0
+offset_left = 121.0
+offset_top = 144.0
+offset_right = 121.0
+offset_bottom = 144.0
+
+[node name="LevelUpUi" parent="." unique_id=335815996 instance=ExtResource("3_lkjqs")]
+layout_mode = 0

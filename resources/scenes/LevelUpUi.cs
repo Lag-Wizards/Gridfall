@@ -9,6 +9,10 @@ public partial class LevelUpUi : Control
 	private Label strLabel;
 	private Label spdLabel;
 	private Label defLabel;
+	private Label skillLabel;
+	private Label conLabel;
+	private Label resLabel;
+	private Label luckLabel;
 	private CharacterBase selectedCharacter;
 	
 	// Called when the node enters the scene tree for the first time.
@@ -19,6 +23,11 @@ public partial class LevelUpUi : Control
 		strLabel = GetNode<Label>("StatsUI/AttributeValues/STR");
 		spdLabel = GetNode<Label>("StatsUI/AttributeValues/SPD");
 		defLabel = GetNode<Label>("StatsUI/AttributeValues/DEF");
+		skillLabel = GetNode<Label>("StatsUI/AttributeValues/SKILL");
+		conLabel = GetNode<Label>("StatsUI/AttributeValues/CON");
+		luckLabel = GetNode<Label>("StatsUI/AttributeValues/LUCK");
+		resLabel = GetNode<Label>("StatsUI/AttributeValues/RES");
+
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -30,7 +39,6 @@ public partial class LevelUpUi : Control
 	public void SetSelectedCharacter(CharacterBase newCharacter)
 	{
 		// removes previous character
-		// thoughts on putting this in exittree?
 		if (selectedCharacter != null)
 		{
 			selectedCharacter.StatChanged -= OnStatChanged;
@@ -44,10 +52,13 @@ public partial class LevelUpUi : Control
 		selectedCharacter.StatChanged += OnStatChanged;
 		// Updates all stats
 		levelLabel.Text = selectedCharacter.Level.ToString();
-		hpLabel.Text = selectedCharacter.Health.ToString();
+		hpLabel.Text = selectedCharacter.MaxHealth.ToString();
 		strLabel.Text = selectedCharacter.Strength.ToString();
 		spdLabel.Text = selectedCharacter.Speed.ToString();
 		defLabel.Text = selectedCharacter.Defense.ToString();
+		skillLabel.Text = selectedCharacter.Skill.ToString();
+		luckLabel.Text = selectedCharacter.Luck.ToString();
+		resLabel.Text = selectedCharacter.Resistance.ToString();
 	}
 	private void OnStatChanged(string stat, int value)
 	{
@@ -71,6 +82,18 @@ public partial class LevelUpUi : Control
 
 			case "HP":
 				hpLabel.Text = value.ToString();
+				break;
+				
+			case "SKILL":
+				skillLabel.Text = value.ToString();
+				break;
+				
+			case "LUCK":
+				luckLabel.Text = value.ToString();
+				break;
+				
+			case "RES":
+				resLabel.Text = value.ToString();
 				break;
 		}
 	}
