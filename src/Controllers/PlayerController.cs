@@ -254,7 +254,7 @@ public partial class PlayerController : Node2D
 		}
 
 		var sceneRoot = GetTree().CurrentScene;
-		return sceneRoot?.GetNodeOrNull<Label>(fallbackName);
+		return sceneRoot != null ? FindLabelRecursive(sceneRoot, fallbackName) : null;
 	}
 
 	private Button ResolveButton(NodePath path, string fallbackName)
@@ -275,7 +275,43 @@ public partial class PlayerController : Node2D
 		}
 
 		var sceneRoot = GetTree().CurrentScene;
-		return sceneRoot?.GetNodeOrNull<Button>(fallbackName);
+		return sceneRoot != null ? FindButtonRecursive(sceneRoot, fallbackName) : null;
+	}
+
+	private Label FindLabelRecursive(Node node, string name)
+	{
+		if (node is Label label && node.Name == name)
+			return label;
+
+		foreach (var child in node.GetChildren())
+		{
+			if (child is Node childNode)
+			{
+				var found = FindLabelRecursive(childNode, name);
+				if (found != null)
+					return found;
+			}
+		}
+
+		return null;
+	}
+
+	private Button FindButtonRecursive(Node node, string name)
+	{
+		if (node is Button button && node.Name == name)
+			return button;
+
+		foreach (var child in node.GetChildren())
+		{
+			if (child is Node childNode)
+			{
+				var found = FindButtonRecursive(childNode, name);
+				if (found != null)
+					return found;
+			}
+		}
+
+		return null;
 	}
 
 	private ImageTexture CreateDebugTexture(int size, Color color)

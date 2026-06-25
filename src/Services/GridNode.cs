@@ -42,13 +42,13 @@ public partial class GridNode : Node
 
 		var controller = new PlayerController
 		{
-			Name = "PlayerController",
+			Name = "Node2D3",
 			GridNodePath = GetPath(),
 			MovementRange = 5
 		};
 
 		sceneRoot.AddChild(controller);
-		GD.Print("GridNode: auto-created PlayerController node.");
+		GD.Print("GridNode: auto-created Node2D3 PlayerController node.");
 	}
 
 	private PlayerController FindPlayerControllerRecursive(Node node)
