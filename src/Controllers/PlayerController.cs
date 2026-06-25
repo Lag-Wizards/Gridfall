@@ -12,6 +12,9 @@ public partial class PlayerController : Node2D
 	[Export] public NodePath GridNodePath { get; set; }
 	[Export] public NodePath MovementOverlayPath { get; set; }
 	[Export] public NodePath MovementPhaseLabelPath { get; set; }
+	[Export] public NodePath PlayerHealthLabelPath { get; set; }
+	[Export] public NodePath MovementRemainingLabelPath { get; set; }
+	[Export] public NodePath NextPhaseButtonPath { get; set; }
 	[Export] public int MovementRange { get; set; } = 5;
 
 	private GridNode _gridNode;
@@ -20,8 +23,14 @@ public partial class PlayerController : Node2D
 	private TileMapLayer _movementOverlay;
 	private IMovementService _movementService;
 	private Label _movementPhaseLabel;
+	private Label _playerHealthLabel;
+	private Label _movementRemainingLabel;
+	private Button _nextPhaseButton;
 	private List<Vector2I> _reachableTiles = new();
 	private bool _movementPhaseActive;
+	private int _remainingMovement;
+	private int _currentHealth = 20;
+	private int _maxHealth = 20;
 
 	public Vector2I CurrentTile { get; private set; }
 
@@ -41,12 +50,21 @@ public partial class PlayerController : Node2D
 		_movementService = new MovementService(_gridManager);
 		_movementOverlay = ResolveMovementOverlay();
 		_movementPhaseLabel = ResolveMovementPhaseLabel();
+		_playerHealthLabel = ResolveLabel(PlayerHealthLabelPath, "PlayerHealthLabel");
+		_movementRemainingLabel = ResolveLabel(MovementRemainingLabelPath, "MovementRemainingLabel");
+		_nextPhaseButton = ResolveButton(NextPhaseButtonPath, "NextPhaseButton");
 
 		EnsureDebugMarker();
 		UpdateCurrentTileFromPosition();
 		SnapToCurrentTile();
 		RegisterOccupantAt(CurrentTile);
+		ResetCharacterStatus();
 		ActivateMovementPhase();
+
+		if (_nextPhaseButton != null)
+		{
+			_nextPhaseButton.Pressed += OnNextPhasePressed;
+		}
 	}
 
 	private GridNode ResolveGridNode()
@@ -108,9 +126,12 @@ public partial class PlayerController : Node2D
 	private void ActivateMovementPhase()
 	{
 		_movementPhaseActive = true;
+		_remainingMovement = MovementRange;
 		_updateReachableTiles();
 		UpdateMovementOverlay();
 		UpdateMovementPhaseLabel();
+		UpdatePlayerHealthLabel();
+		UpdateMovementRemainingLabel();
 	}
 
 	private void DeactivateMovementPhase()
@@ -119,6 +140,20 @@ public partial class PlayerController : Node2D
 		_reachableTiles.Clear();
 		UpdateMovementOverlay();
 		UpdateMovementPhaseLabel();
+	}
+
+	private void ResetCharacterStatus()
+	{
+		_maxHealth = 20;
+		_currentHealth = _maxHealth;
+		_remainingMovement = MovementRange;
+		UpdatePlayerHealthLabel();
+		UpdateMovementRemainingLabel();
+	}
+
+	private void OnNextPhasePressed()
+	{
+		DeactivateMovementPhase();
 	}
 
 	private void ToggleMovementPhase()
@@ -159,6 +194,22 @@ public partial class PlayerController : Node2D
 		_movementPhaseLabel.Modulate = _movementPhaseActive ? Colors.LimeGreen : Colors.LightGray;
 	}
 
+	private void UpdatePlayerHealthLabel()
+	{
+		if (_playerHealthLabel == null)
+			return;
+
+		_playerHealthLabel.Text = $"HP: {_currentHealth}/{_maxHealth}";
+	}
+
+	private void UpdateMovementRemainingLabel()
+	{
+		if (_movementRemainingLabel == null)
+			return;
+
+		_movementRemainingLabel.Text = $"Move: {_remainingMovement}/{MovementRange}";
+	}
+
 	private TileMapLayer ResolveMovementOverlay()
 	{
 		if (MovementOverlayPath != null && !string.IsNullOrEmpty(MovementOverlayPath.ToString()))
@@ -182,23 +233,49 @@ public partial class PlayerController : Node2D
 
 	private Label ResolveMovementPhaseLabel()
 	{
-		if (MovementPhaseLabelPath != null && !string.IsNullOrEmpty(MovementPhaseLabelPath.ToString()))
+		return ResolveLabel(MovementPhaseLabelPath, "MovementPhaseLabel");
+	}
+
+	private Label ResolveLabel(NodePath path, string fallbackName)
+	{
+		if (path != null && !string.IsNullOrEmpty(path.ToString()))
 		{
-			var node = GetNodeOrNull<Label>(MovementPhaseLabelPath);
+			var node = GetNodeOrNull<Label>(path);
 			if (node != null)
 				return node;
 
 			var root = GetTree().CurrentScene;
 			if (root != null)
 			{
-				node = root.GetNodeOrNull<Label>(MovementPhaseLabelPath);
+				node = root.GetNodeOrNull<Label>(path);
 				if (node != null)
 					return node;
 			}
 		}
 
 		var sceneRoot = GetTree().CurrentScene;
-		return sceneRoot?.GetNodeOrNull<Label>("MovementPhaseLabel");
+		return sceneRoot?.GetNodeOrNull<Label>(fallbackName);
+	}
+
+	private Button ResolveButton(NodePath path, string fallbackName)
+	{
+		if (path != null && !string.IsNullOrEmpty(path.ToString()))
+		{
+			var node = GetNodeOrNull<Button>(path);
+			if (node != null)
+				return node;
+
+			var root = GetTree().CurrentScene;
+			if (root != null)
+			{
+				node = root.GetNodeOrNull<Button>(path);
+				if (node != null)
+					return node;
+			}
+		}
+
+		var sceneRoot = GetTree().CurrentScene;
+		return sceneRoot?.GetNodeOrNull<Button>(fallbackName);
 	}
 
 	private ImageTexture CreateDebugTexture(int size, Color color)
@@ -280,7 +357,19 @@ public partial class PlayerController : Node2D
 		var target = CurrentTile + delta;
 		GD.Print($"PlayerController: attempting move from {CurrentTile} to {target}");
 
-		if (!_movementService.CanReach(CurrentTile, target, MovementRange))
+		if (!_movementPhaseActive)
+		{
+			GD.Print("PlayerController: movement blocked because phase is inactive.");
+			return;
+		}
+
+		if (_remainingMovement <= 0)
+		{
+			GD.Print("PlayerController: no movement remaining this phase.");
+			return;
+		}
+
+		if (!_movementService.CanReach(CurrentTile, target, _remainingMovement))
 		{
 			GD.Print($"PlayerController: target {target} not reachable from {CurrentTile}");
 			return;
@@ -311,7 +400,12 @@ public partial class PlayerController : Node2D
 		GlobalPosition = worldPos;
 		GD.Print($"PlayerController: moved to {target} at world {worldPos}");
 
+		_remainingMovement -= targetState.MovementCost;
+		if (_remainingMovement < 0)
+			_remainingMovement = 0;
+
 		_updateReachableTiles();
 		UpdateMovementOverlay();
+		UpdateMovementRemainingLabel();
 	}
 }
