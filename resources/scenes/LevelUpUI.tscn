@@ -1,3 +1,80 @@
 [gd_scene format=3 uid="uid://cccj1124u3dld"]
 
-[node name="LevelUpUi" type="Node2D" unique_id=335815996]
+[node name="LevelUpUi" type="Control" unique_id=74280778]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="StatsUI" type="HBoxContainer" parent="." unique_id=1533571121]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AttributeLabels" type="VBoxContainer" parent="StatsUI" unique_id=1705133832]
+layout_mode = 2
+
+[node name="Level" type="Label" parent="StatsUI/AttributeLabels" unique_id=2010284810]
+layout_mode = 2
+text = "Level"
+
+[node name="HP" type="Label" parent="StatsUI/AttributeLabels" unique_id=1841992487]
+layout_mode = 2
+text = "HP"
+
+[node name="STR" type="Label" parent="StatsUI/AttributeLabels" unique_id=381459366]
+layout_mode = 2
+text = "STR"
+
+[node name="SKILL" type="Label" parent="StatsUI/AttributeLabels" unique_id=1185751298]
+layout_mode = 2
+text = "SKILL"
+
+[node name="SPD" type="Label" parent="StatsUI/AttributeLabels" unique_id=1906968055]
+layout_mode = 2
+text = "SPD"
+
+[node name="LUCK" type="Label" parent="StatsUI/AttributeLabels" unique_id=579025533]
+layout_mode = 2
+text = "LUCK"
+
+[node name="DEF" type="Label" parent="StatsUI/AttributeLabels" unique_id=1664078967]
+layout_mode = 2
+text = "DEF"
+
+[node name="RES" type="Label" parent="StatsUI/AttributeLabels" unique_id=976867648]
+layout_mode = 2
+text = "RES"
+
+[node name="CON" type="Label" parent="StatsUI/AttributeLabels" unique_id=1978629712]
+layout_mode = 2
+text = "CON"
+
+[node name="AttributeValues" type="VBoxContainer" parent="StatsUI" unique_id=1974912433]
+layout_mode = 2
+
+[node name="Level" type="Label" parent="StatsUI/AttributeValues" unique_id=573674199]
+layout_mode = 2
+text = "1"
+
+[node name="HP" type="Label" parent="StatsUI/AttributeValues" unique_id=1557734861]
+layout_mode = 2
+
+[node name="STR" type="Label" parent="StatsUI/AttributeValues" unique_id=1926047958]
+layout_mode = 2
+
+[node name="SKILL" type="Label" parent="StatsUI/AttributeValues" unique_id=204638582]
+layout_mode = 2
+
+[node name="SPD" type="Label" parent="StatsUI/AttributeValues" unique_id=548238389]
+layout_mode = 2
+
+[node name="LUCK" type="Label" parent="StatsUI/AttributeValues" unique_id=1068629239]
+layout_mode = 2
+
+[node name="DEF" type="Label" parent="StatsUI/AttributeValues" unique_id=1990980854]
+layout_mode = 2
+
+[node name="RES" type="Label" parent="StatsUI/AttributeValues" unique_id=688062921]
+layout_mode = 2
+
+[node name="CON" type="Label" parent="StatsUI/AttributeValues" unique_id=626266455]
+layout_mode = 2

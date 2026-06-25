@@ -1,11 +1,14 @@
 [gd_scene format=3 uid="uid://cn2l6pnx12lla"]
 
-[ext_resource type="Script" uid="uid://bvqmd5ve451oq" path="res://resources/scenes/ExpUI.cs" id="1_iypxo"]
+[ext_resource type="Script" uid="uid://byfxo0ujx2j8y" path="res://resources/scenes/ExpUI.cs" id="1_iypxo"]
 
-[node name="ExpUI" type="Node2D" unique_id=835226005]
+[node name="ExpUI" type="Control" unique_id=1992584585]
+layout_mode = 3
+anchors_preset = 0
 script = ExtResource("1_iypxo")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=611963451]
+layout_mode = 0
 offset_right = 55.0
 offset_bottom = 8.0
 color = Color(0.49019608, 0.49019608, 0.49019608, 1)

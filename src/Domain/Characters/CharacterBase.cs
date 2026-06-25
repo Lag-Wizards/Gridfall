@@ -1,136 +1,143 @@
-using Godot;
 using System;
+using Godot;
 using System.Collections.Generic;
 using Gridfall.Domain;
-using Gridfall.Domain.Enums;
-using Gridfall.Services;
 
-namespace Gridfall.Domain;
-public partial class CharacterBase : Node2D
+namespace Gridfall.Characters.Domain
 {
-	public string CharacterName { get; set; }
-	public int Level { get; set; }
-
-	public int Health { get; private set; }
-	public int MaxHealth { get; private set; }
-
-	public int Strength { get; set; }
-	public int Defense { get; set; }
-	public int Speed { get; set; }
-	public int MovementRange { get; set; } 
-	
-	// Growth rates used for level-up stat increases (stat key -> percentage chance)
-	public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
+	public partial class CharacterBase : Node
 	{
-		{"HP", 50},
-		{"STR", 50},
-		{"DEF", 50},
-		{"SPD", 50}
-	};
-	// Declaring event handler for when exp changes so UI can update
-	[Signal]
-	public delegate void ExpChangedEventHandler(int exp);
-	[Signal]
-	public delegate void StatChangedEventHandler(string stat, int value);
-	public int Experience { get; set; }
-	
-	public Weapon EquippedWeapon { get; set; }
-
-	public void SetupCharacter(string characterName, int level, Weapon weapon)
-	{
-		CharacterName = characterName;
-		Level = level;
-
-		MaxHealth = 25 + (level * 5);
-		Health = MaxHealth;
-
-		Strength = 5 + level;
-		Defense = 3 + level;
-		Speed = 4 + level;
-		MovementRange = 5;
+		public string CharacterName { get; set; }
+		public int Level { get; set; }
+		public int Health { get; private set; }
+		public int MaxHealth { get; private set; }
+		public int Strength { get; set; }
+		public int Defense { get; set; }
+		public int Resistance { get; set; }
+		public int Speed { get; set; }
+		public int Luck { get; set; }
+		public int Skill {get; set;}
+		public int Constitution {get; set;}
+		public bool IsMagic {get; set;}
+		public int MovementRange { get; set; }
+		// Declaring event handler for when exp changes so UI can update
+		[Signal]
+		public delegate void ExpChangedEventHandler(int exp);
+		[Signal]
+		public delegate void StatChangedEventHandler(string stat, int value);
+		public int Experience { get; set; }
 		
-		EquippedWeapon = weapon;
-	}
-	
-	public override async void _Ready()
-	{
-		Weapon weapon = new Weapon(WeaponType.Slash, 10, 1);
-		SetupCharacter("Character A", 1, weapon);
-		GD.Print(CharacterName);
-		GD.Print(Level);
-		GD.Print(Health);
-		
-		
-	}
+		public Weapon EquippedWeapon { get; set; }
 
-	public void TakeDamage(int damageAmount)
-	{
-		int finalDamage = damageAmount - Defense;
-
-		if (finalDamage < 1)
+		public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
 		{
-			finalDamage = 1;
-		}
+			{ "HP", 0 },
+			{ "STR", 0 },
+			{ "SPD", 0 },
+			{ "DEF", 0 },
+			{ "RES", 0 },
+			{ "LUCK", 0 },
+			{ "SKILL", 0 },
+		};
 
-		Health -= finalDamage;
-
-		if (Health <= 0)
+		public void SetupCharacter(string characterName, int level, Weapon weapon, Dictionary<string, int> customGrowthRates = null)
 		{
-			Health = 0;
-			Events.EmitPlayerDied();
-		}
-	}
+			CharacterName = characterName;
+			Level = level;
 
-	public void Heal(int healAmount)
-	{
-		Health += healAmount;
-
-		if (Health > MaxHealth)
-		{
+			MaxHealth = 25 + (level * 5);
 			Health = MaxHealth;
-		}
-	}
 
-	public bool IsAlive()
-	{
-		return Health > 0;
-	}
-	// Adds exp to character
-	public void AddExperience(int amount)
-	{
-		Experience += amount;
-		// let's UI know that exp has been changed
-		EmitSignal(SignalName.ExpChanged, Experience);
-	}
-	
-	public void ModifyStat(string stat, int amount)
-	{
-		switch (stat)
-		{
-			case "Level":
-				Level += amount;
-				EmitSignal(SignalName.StatChanged, stat, Level);
-				break;
+			Strength = 5 + level;
+			Defense = 3 + level;
+			Speed = 4 + level;
+			MovementRange = 5;
 			
-			case "HP":
-				MaxHealth += amount;
-				EmitSignal(SignalName.StatChanged, stat, MaxHealth);
-				break;
+			EquippedWeapon = weapon;
+			
+			if (customGrowthRates != null)
+			{
+				foreach (var growth in customGrowthRates)
+				{
+					if (GrowthRates.ContainsKey(growth.Key))
+					{
+						GrowthRates[growth.Key] = growth.Value;
+					}
+				}
+			}
+		}
 
-			case "STR":
-				Strength += amount;
-				EmitSignal(SignalName.StatChanged, stat, Strength);
-				break;
+		public void TakeDamage(int damageAmount)
+		{
+			Health = Math.Max(0, Health - damageAmount);
+		}
 
-			case "SPD":
-				Speed += amount;
-				EmitSignal(SignalName.StatChanged, stat, Speed);
-				break;
+		public void Heal(int healAmount)
+		{
+			Health += healAmount;
 
-			case "DEF":
-				Defense += amount;
-				EmitSignal(SignalName.StatChanged, stat, Defense);
-				break;
+			if (Health > MaxHealth)
+			{
+				Health = MaxHealth;
+			}
+		}
+
+		public bool IsAlive()
+		{
+			return Health > 0;
+		}
+		// Adds exp to character
+		public void AddExperience(int amount)
+		{
+			Experience += amount;
+			// let's UI know that exp has been changed
+			EmitSignal(SignalName.ExpChanged, Experience);
+		}
+		
+		public void ModifyStat(string stat, int amount)
+		{
+			switch (stat)
+			{
+				case "Level":
+					Level += amount;
+					EmitSignal(SignalName.StatChanged, stat, Level);
+					break;
+				
+				case "HP":
+					MaxHealth += amount;
+					EmitSignal(SignalName.StatChanged, stat, MaxHealth);
+					break;
+
+				case "STR":
+					Strength += amount;
+					EmitSignal(SignalName.StatChanged, stat, Strength);
+					break;
+
+				case "SPD":
+					Speed += amount;
+					EmitSignal(SignalName.StatChanged, stat, Speed);
+					break;
+
+				case "DEF":
+					Defense += amount;
+					EmitSignal(SignalName.StatChanged, stat, Defense);
+					break;
+				
+				case "LUCK":
+					Luck += amount;
+					EmitSignal(SignalName.StatChanged, stat, Luck);
+					break;
+				
+				case "SKILL":
+					Skill += amount;
+					EmitSignal(SignalName.StatChanged, stat, Skill);
+					break;
+				case "RES":
+					Resistance += amount;
+					EmitSignal(SignalName.StatChanged, stat, Resistance);
+					break;
+				
+			}
 		}
 	}
 }
