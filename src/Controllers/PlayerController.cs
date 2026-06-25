@@ -48,6 +48,7 @@ public partial class PlayerController : Node2D
 		_gridManager = _gridNode.GridManager;
 		_gridMap = _gridNode.GridMap;
 		_movementService = new MovementService(_gridManager);
+		EnsureUiNodes();
 		_movementOverlay = ResolveMovementOverlay();
 		_movementPhaseLabel = ResolveMovementPhaseLabel();
 		_playerHealthLabel = ResolveLabel(PlayerHealthLabelPath, "PlayerHealthLabel");
@@ -208,6 +209,56 @@ public partial class PlayerController : Node2D
 			return;
 
 		_movementRemainingLabel.Text = $"Move: {_remainingMovement}/{MovementRange}";
+	}
+
+	private void EnsureUiNodes()
+	{
+		var sceneRoot = GetTree().CurrentScene;
+		if (sceneRoot == null)
+			return;
+
+		// Create a UI root so labels/buttons can be found by name later.
+		var uiRoot = sceneRoot.GetNodeOrNull<CanvasLayer>("PlayerUi");
+		if (uiRoot == null)
+		{
+			uiRoot = new CanvasLayer { Name = "PlayerUi" };
+			sceneRoot.AddChild(uiRoot);
+		}
+
+		CreateOrFindLabel(uiRoot, "MovementPhaseLabel", "Movement Phase: ACTIVE", new Vector2(16, 16));
+		CreateOrFindLabel(uiRoot, "PlayerHealthLabel", "HP: 20/20", new Vector2(16, 48));
+		CreateOrFindLabel(uiRoot, "MovementRemainingLabel", "Move: 5/5", new Vector2(16, 80));
+		CreateOrFindButton(uiRoot, "NextPhaseButton", "Next Phase", new Vector2(16, 112));
+	}
+
+	private void CreateOrFindLabel(Node parent, string name, string text, Vector2 position)
+	{
+		var label = FindLabelRecursive(parent, name);
+		if (label != null)
+			return;
+
+		label = new Label
+		{
+			Name = name,
+			Text = text,
+			Position = position
+		};
+		parent.AddChild(label);
+	}
+
+	private void CreateOrFindButton(Node parent, string name, string text, Vector2 position)
+	{
+		var button = FindButtonRecursive(parent, name);
+		if (button != null)
+			return;
+
+		button = new Button
+		{
+			Name = name,
+			Text = text,
+			Position = position
+		};
+		parent.AddChild(button);
 	}
 
 	private TileMapLayer ResolveMovementOverlay()
