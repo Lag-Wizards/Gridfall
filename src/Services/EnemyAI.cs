@@ -1,6 +1,8 @@
 using Godot;
 
-public partial class EnemyAI : Node
+namespace Gridfall.Services;
+
+public class EnemyAI
 {
 	public string DetermineAction(Vector2I enemyPosition, Vector2I playerPosition)
 	{
