@@ -232,7 +232,7 @@ public partial class PlayerController : Node2D
 				Name = "PlayerUi",
 				Layer = 1
 			};
-			sceneRoot.AddChild(uiRoot);
+			sceneRoot.CallDeferred("add_child", uiRoot);
 		}
 
 		var panel = uiRoot.GetNodeOrNull<Panel>("PlayerUiPanel");
@@ -244,7 +244,7 @@ public partial class PlayerController : Node2D
 				Size = new Vector2(240, 140),
 				Position = new Vector2(8, 8)
 			};
-			uiRoot.AddChild(panel);
+			uiRoot.CallDeferred("add_child", panel);
 		}
 
 		CreateOrFindLabel(panel, "MovementPhaseLabel", "Movement Phase: ACTIVE", new Vector2(10, 10));
@@ -273,7 +273,7 @@ public partial class PlayerController : Node2D
 			TileSet = _gridMap?.TileSet,
 			Modulate = new Color(1, 1, 1, 0.2f)
 		};
-		sceneRoot.AddChild(overlay);
+		sceneRoot.CallDeferred("add_child", overlay);
 		_movementOverlay = overlay;
 		GD.Print("PlayerController: created GridOverlay runtime fallback.");
 	}
