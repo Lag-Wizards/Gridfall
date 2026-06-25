@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using Gridfall.Controllers;
 using Gridfall.Contracts;
 using Gridfall.Domain;
 using Gridfall.Services;
@@ -14,6 +15,7 @@ public partial class GridNode : Node
 
 	public override void _Ready()
 	{
+		EnsureGridMap();
 		if (GridMap == null)
 		{
 			GD.PrintErr("GridMap is null within GridNode");
@@ -26,5 +28,58 @@ public partial class GridNode : Node
 		{
 			GD.Print("Tile move cost at (0, 0): " + tileState.MovementCost);
 		}
+
+		EnsurePlayerController();
+	}
+
+	private void EnsurePlayerController()
+	{
+		var sceneRoot = GetTree().CurrentScene;
+		if (sceneRoot == null)
+			return;
+
+		if (FindPlayerControllerRecursive(sceneRoot) != null)
+			return;
+
+		var controller = new PlayerController
+		{
+			Name = "Node2D3",
+			GridNodePath = GetPath(),
+			MovementRange = 5
+		};
+
+		sceneRoot.AddChild(controller);
+		GD.Print("GridNode: auto-created Node2D3 PlayerController node.");
+	}
+
+	private void EnsureGridMap()
+	{
+		if (GridMap != null)
+			return;
+
+		var sceneRoot = GetTree().CurrentScene;
+		if (sceneRoot == null)
+			return;
+
+		var gridMap = sceneRoot.GetNodeOrNull<TileMapLayer>("GridMap");
+		if (gridMap != null)
+			GridMap = gridMap;
+	}
+	private PlayerController FindPlayerControllerRecursive(Node node)
+	{
+		if (node is PlayerController controller)
+			return controller;
+
+		foreach (var child in node.GetChildren())
+		{
+			if (child is Node childNode)
+			{
+				var found = FindPlayerControllerRecursive(childNode);
+				if (found != null)
+					return found;
+			}
+		}
+
+		return null;
 	}
 }
