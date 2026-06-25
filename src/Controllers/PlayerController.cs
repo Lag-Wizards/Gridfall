@@ -191,13 +191,7 @@ public partial class PlayerController : Node2D
 		{
 			_movementOverlay.SetCell(new Vector2I(tile.X, tile.Y), 0);
 		}
-	}
-
-	private void UpdateMovementPhaseLabel()
-	{
-		if (_movementPhaseLabel == null)
-			return;
-
+		GD.Print($"PlayerController: movement overlay has {_reachableTiles.Count} reachable tiles.");
 		_movementPhaseLabel.Text = _movementPhaseActive ? "Movement Phase: ACTIVE" : "Movement Phase: INACTIVE";
 		_movementPhaseLabel.Modulate = _movementPhaseActive ? Colors.LimeGreen : Colors.LightGray;
 	}
@@ -213,18 +207,27 @@ public partial class PlayerController : Node2D
 	private void UpdateMovementRemainingLabel()
 	{
 		if (_movementRemainingLabel == null)
+			_movementRemainingLabel = ResolveLabel(MovementRemainingLabelPath, "MovementRemainingLabel");
+		if (_movementRemainingLabel == null)
 			return;
 
 		_movementRemainingLabel.Text = $"Move: {_remainingMovement}/{MovementRange}";
 	}
 
-	private void EnsureUiNodes()
+	private void UpdateMovementPhaseLabel()
 	{
-		var sceneRoot = GetTree().CurrentScene;
-		if (sceneRoot == null)
+		if (_movementPhaseLabel == null)
+			_movementPhaseLabel = ResolveMovementPhaseLabel();
+		if (_movementPhaseLabel == null)
 			return;
 
-		var uiRoot = sceneRoot.GetNodeOrNull<CanvasLayer>("PlayerUi");
+		_movementPhaseLabel.Text = _movementPhaseActive ? "Movement Phase: ACTIVE" : "Movement Phase: INACTIVE";
+		_movementPhaseLabel.Modulate = _movementPhaseActive ? Colors.LimeGreen : Colors.LightGray;
+	}
+
+	private void EnsureUiNodes()
+	{
+		var uiRoot = GetNodeOrNull<CanvasLayer>("PlayerUi");
 		if (uiRoot == null)
 		{
 			uiRoot = new CanvasLayer
@@ -232,7 +235,7 @@ public partial class PlayerController : Node2D
 				Name = "PlayerUi",
 				Layer = 1
 			};
-			sceneRoot.CallDeferred("add_child", uiRoot);
+			AddChild(uiRoot);
 		}
 
 		var panel = uiRoot.GetNodeOrNull<Panel>("PlayerUiPanel");
@@ -244,7 +247,7 @@ public partial class PlayerController : Node2D
 				Size = new Vector2(240, 140),
 				Position = new Vector2(8, 8)
 			};
-			uiRoot.CallDeferred("add_child", panel);
+			uiRoot.AddChild(panel);
 		}
 
 		CreateOrFindLabel(panel, "MovementPhaseLabel", "Movement Phase: ACTIVE", new Vector2(10, 10));
@@ -545,5 +548,8 @@ public partial class PlayerController : Node2D
 		_updateReachableTiles();
 		UpdateMovementOverlay();
 		UpdateMovementRemainingLabel();
+
+		if (_remainingMovement == 0)
+			DeactivateMovementPhase();
 	}
 }
