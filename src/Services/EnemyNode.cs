@@ -14,11 +14,15 @@ public partial class EnemyNode : Node2D
 
 	private EnemyBase _enemy;
 
-	public override void _Ready()
+	public async override void _Ready()
 	{
 		base._Ready();
 		_enemy = EnemyManager.CreateEnemy(EnemyType, Level);
 		UpdateName();
+		Events.EmitEnemySpawned();
+		GD.Print("Victory in 3 seconds (triggered in EnemyNode)");
+		await ToSignal(GetTree().CreateTimer(3.0f), SceneTreeTimer.SignalName.Timeout);
+		ReceiveDamage(100);
 	}
 
 	private void UpdateName()

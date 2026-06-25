@@ -1,0 +1,55 @@
+[gd_scene format=3 uid="uid://bvmcnu5qji8gk"]
+
+[node name="Victory" type="Control" unique_id=1535494273]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect2" type="ColorRect" parent="." unique_id=391502209]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.03137255, 0.5176471, 0.13333334, 1)
+
+[node name="Label" type="Label" parent="." unique_id=1881175757]
+layout_mode = 0
+offset_left = 449.0
+offset_top = 188.0
+offset_right = 704.0
+offset_bottom = 284.0
+theme_override_font_sizes/font_size = 47
+text = "Victory!"
+horizontal_alignment = 1
+
+[node name="MainMenu" type="Button" parent="." unique_id=1029500619]
+custom_minimum_size = Vector2(250, 60)
+layout_mode = 0
+offset_left = 455.0
+offset_top = 420.0
+offset_right = 705.0
+offset_bottom = 480.0
+text = "Main Menu"
+
+[node name="Save" type="Button" parent="." unique_id=1401295716]
+custom_minimum_size = Vector2(250, 60)
+layout_mode = 0
+offset_left = 453.0
+offset_top = 347.0
+offset_right = 703.0
+offset_bottom = 407.0
+text = "Save"
+
+[node name="Retry" type="Button" parent="." unique_id=172304736]
+custom_minimum_size = Vector2(250, 60)
+layout_mode = 0
+offset_left = 452.0
+offset_top = 270.0
+offset_right = 702.0
+offset_bottom = 330.0
+text = "Next Level"

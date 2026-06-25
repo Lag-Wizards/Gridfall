@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Gridfall.Domain;
 using Gridfall.Domain.Enums;
+using Gridfall.Services;
 
 namespace Gridfall.Domain;
 public partial class CharacterBase : Node2D
@@ -17,8 +18,6 @@ public partial class CharacterBase : Node2D
 	public int Defense { get; set; }
 	public int Speed { get; set; }
 	public int MovementRange { get; set; } 
-	
-	public static event Action OnPlayerDeath;
 	
 	// Growth rates used for level-up stat increases (stat key -> percentage chance)
 	public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
@@ -61,10 +60,7 @@ public partial class CharacterBase : Node2D
 		GD.Print(Level);
 		GD.Print(Health);
 		
-		GD.Print("Game over in 3 seconds (Triggered in Characterbase _Ready)");
-		await ToSignal(GetTree().CreateTimer(3.0f), SceneTreeTimer.SignalName.Timeout);
-		TakeDamage(34);
-		GD.Print(Health);
+		
 	}
 
 	public void TakeDamage(int damageAmount)
@@ -81,7 +77,7 @@ public partial class CharacterBase : Node2D
 		if (Health <= 0)
 		{
 			Health = 0;
-			OnPlayerDeath.Invoke();
+			Events.EmitPlayerDied();
 		}
 	}
 

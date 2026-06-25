@@ -1,6 +1,7 @@
 using System;
 using Gridfall.Contracts;
 using Gridfall.Domain;
+using Gridfall.Services;
 namespace Gridfall.Domain.Enemies
 {
 	public abstract class EnemyBase : IEnemy
@@ -78,7 +79,7 @@ namespace Gridfall.Domain.Enemies
 
 		protected virtual void OnDeath()
 		{
-			// Hook for subclasses or node wrappers
+			Events.EmitEnemyDied();
 		}
 	}
 }
