@@ -28,6 +28,74 @@ namespace Gridfall.Characters.Domain
 		public int Experience { get; set; }
 		
 		public Weapon EquippedWeapon { get; set; }
+	
+	public static event Action OnPlayerDeath;
+	
+	public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
+	{
+		{"HP", 50},
+		{"STR", 50},
+		{"DEF", 50},
+		{"SPD", 50}
+	};
+
+	[Signal]
+	public delegate void ExpChangedEventHandler(int exp);
+
+	[Signal]
+	public delegate void StatChangedEventHandler(string stat, int value);
+
+	public int Experience { get; set; }
+	
+	public Weapon EquippedWeapon { get; set; }
+
+	public void SetupCharacter(string characterName, int level, Weapon weapon)
+	{
+		CharacterName = characterName;
+		Level = level;
+
+		MaxHealth = 25 + (level * 5);
+		Health = MaxHealth;
+
+		Strength = 5 + level;
+		Defense = 3 + level;
+		Speed = 4 + level;
+		MovementRange = 5;
+		
+		EquippedWeapon = weapon;
+	}
+
+	public void LoadFromSave(SaveData saveData)
+	{
+		CharacterName = saveData.CharacterName;
+		Level = saveData.Level;
+		Health = saveData.Health;
+		MaxHealth = saveData.MaxHealth;
+		Strength = saveData.Strength;
+		Defense = saveData.Defense;
+		Speed = saveData.Speed;
+		MovementRange = saveData.MovementRange;
+
+		EquippedWeapon = new Weapon(
+			(WeaponType)saveData.WeaponType,
+			saveData.WeaponDamage,
+			saveData.WeaponRange
+		);
+	}
+	
+	public override async void _Ready()
+	{
+		Weapon weapon = new Weapon(WeaponType.Slash, 10, 1);
+		SetupCharacter("Character A", 1, weapon);
+		GD.Print(CharacterName);
+		GD.Print(Level);
+		GD.Print(Health);
+		
+		GD.Print("Game over in 3 seconds (Triggered in Characterbase _Ready)");
+		await ToSignal(GetTree().CreateTimer(3.0f), SceneTreeTimer.SignalName.Timeout);
+		TakeDamage(34);
+		GD.Print(Health);
+	}
 
 		public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>
 		{
@@ -52,6 +120,25 @@ namespace Gridfall.Characters.Domain
 			Defense = 3 + level;
 			Speed = 4 + level;
 			MovementRange = 5;
+	public bool IsAlive()
+	{
+		return Health > 0;
+	}
+
+	public void AddExperience(int amount)
+	{
+		Experience += amount;
+		EmitSignal(SignalName.ExpChanged, Experience);
+	}
+	
+	public void ModifyStat(string stat, int amount)
+	{
+		switch (stat)
+		{
+			case "Level":
+				Level += amount;
+				EmitSignal(SignalName.StatChanged, stat, Level);
+				break;
 			
 			EquippedWeapon = weapon;
 			
