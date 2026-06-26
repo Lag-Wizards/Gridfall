@@ -32,6 +32,7 @@ public partial class CharacterNode : Node2D
 
 		if (saveService.SaveExists())
 		{
+			GD.Print("Attempting to load save data");
 			SaveData saveData = saveService.Load();
 			saveData.Health = saveData.MaxHealth;
 			_character.LoadFromSave(saveData);
