@@ -11,7 +11,7 @@ Fong Vang - Character attributes, battling system, character leveling, Player ba
 
 Jeffrey Cohn - EnemyAI implementation, CharacterBase implementation, EnemyDisplay implementation, enemy decision-making logic, character stat management, damage and healing functionality, code reviews, and testing.
 
-Manas Patel - 
+Manas Patel - Enemy Class, Character Movement(Player Controller), Movement Phase, Movement UI, code review/debugging and testing. 
 
 Tanner Gleason -
 
