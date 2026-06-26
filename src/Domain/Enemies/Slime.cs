@@ -4,7 +4,7 @@ using Gridfall.Domain.Enums;
 
 namespace Gridfall.Domain.Enemies
 {
-	public class Slime : EnemyBase
+	public partial class Slime : EnemyBase
 	{
 		public Slime(int level = 1) : base("Slime", level, maxHp: 12 + (level-1)*4, attack: 2 + (level-1)*1, defense: 0 + (level-1)*0, speed: 1 + (level-1)*1, skill: 1 + (level-1)*1, constitution: 1 + (level-1)*1, resistance: 1 + (level-1)*1, luck: 1 + (level-1)*1, equippedWeapon: new Weapon(WeaponType.Magic, 10, 1))
 		{

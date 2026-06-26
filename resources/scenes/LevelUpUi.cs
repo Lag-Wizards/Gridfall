@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using Gridfall.Domain;
+using Gridfall.Characters.Domain;
 
 public partial class LevelUpUi : Control
 {
@@ -15,7 +16,6 @@ public partial class LevelUpUi : Control
 	private Label luckLabel;
 	private CharacterBase selectedCharacter;
 	
-	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		levelLabel = GetNode<Label>("StatsUI/AttributeValues/Level");
@@ -27,15 +27,8 @@ public partial class LevelUpUi : Control
 		conLabel = GetNode<Label>("StatsUI/AttributeValues/CON");
 		luckLabel = GetNode<Label>("StatsUI/AttributeValues/LUCK");
 		resLabel = GetNode<Label>("StatsUI/AttributeValues/RES");
-
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
-	
-	
 	public void SetSelectedCharacter(CharacterBase newCharacter)
 	{
 		// removes previous character
@@ -60,8 +53,10 @@ public partial class LevelUpUi : Control
 		luckLabel.Text = selectedCharacter.Luck.ToString();
 		resLabel.Text = selectedCharacter.Resistance.ToString();
 	}
+	
 	private void OnStatChanged(string stat, int value)
 	{
+		GD.Print($"OnStatChanged called. Stat: {stat}, Value: {value}");
 		switch (stat)
 		{
 			case "Level":

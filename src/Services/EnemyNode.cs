@@ -14,15 +14,44 @@ public partial class EnemyNode : Node2D
 
 	private EnemyBase _enemy;
 
-	public async override void _Ready()
+	public EnemyBase Stats => _enemy;
+
+	public override void _EnterTree()
+	{
+		base._EnterTree();
+		_enemy = EnemyManager.CreateEnemy(EnemyType, Level);
+	}
+
+	public override void _Ready()
 	{
 		base._Ready();
-		_enemy = EnemyManager.CreateEnemy(EnemyType, Level);
 		UpdateName();
 		Events.EmitEnemySpawned();
-		GD.Print("Victory in 3 seconds (triggered in EnemyNode)");
-		await ToSignal(GetTree().CreateTimer(3.0f), SceneTreeTimer.SignalName.Timeout);
-		ReceiveDamage(100);
+
+		if (_enemy != null)
+		{
+			_enemy.OnUnitDeath += Die;
+		}
+
+		var sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+		if (sprite != null && sprite.Position != Vector2.Zero)
+		{
+			GlobalPosition += sprite.Position;
+			sprite.Position = Vector2.Zero;
+		}
+
+		if (GameManager.Instance?.GridManager != null)
+		{
+			Vector2I gridPos = GameManager.Instance.GridManager.WorldToMap(GlobalPosition);
+			GlobalPosition = GameManager.Instance.GridManager.MapToWorld(gridPos);
+			GD.Print($"Snapped enemy node to grid tile {gridPos} at world {GlobalPosition}");
+
+			var tileState = GameManager.Instance.GridManager.GetTileStateAt(gridPos);
+			if (tileState != null)
+			{
+				tileState.CurrentOccupant = this;
+			}
+		}
 	}
 
 	private void UpdateName()
@@ -49,7 +78,15 @@ public partial class EnemyNode : Node2D
 
 	private void Die()
 	{
-		// Default behavior: queue free. Teammates can override/extend in scene.
+		if (GameManager.Instance?.GridManager != null)
+		{
+			Vector2I gridPos = GameManager.Instance.GridManager.WorldToMap(GlobalPosition);
+			var tileState = GameManager.Instance.GridManager.GetTileStateAt(gridPos);
+			if (tileState != null && tileState.CurrentOccupant == this)
+			{
+				tileState.CurrentOccupant = null;
+			}
+		}
 		QueueFree();
 	}
 }

@@ -1,32 +1,46 @@
 using System;
+using Godot;
 using Gridfall.Contracts;
 using Gridfall.Domain;
 using Gridfall.Services;
+
 namespace Gridfall.Domain.Enemies
 {
-	public abstract class EnemyBase : IEnemy
+	public abstract partial class EnemyBase : CombatUnit, IEnemy
 	{
-		public string Name { get; protected set; }
-		public int Level { get; protected set; }
-		public int MaxHp { get; protected set; }
-		public int CurrentHp { get; protected set; }
-		public int Attack { get; protected set; }
-		public int Defense { get; protected set; }
-		public int Speed { get; protected set; }
-		public int Skill { get; protected set; }
-		public int Constitution { get; protected set; }
-		public int Resistance { get; protected set; }
-		public int Luck { get; protected set; }
-		public Weapon EquippedWeapon { get; protected set; }
-		public bool IsAlive => CurrentHp > 0;
+		public string Name
+		{
+			get => UnitName;
+			protected set => UnitName = value;
+		}
+
+		public int MaxHp
+		{
+			get => MaxHealth;
+			protected set => MaxHealth = value;
+		}
+
+		public int CurrentHp
+		{
+			get => Health;
+			protected set => Health = value;
+		}
+
+		public int Attack
+		{
+			get => Strength;
+			protected set => Strength = value;
+		}
+
+		public bool IsAlive => Health > 0;
 
 		protected EnemyBase(string name, int level, int maxHp, int attack, int defense, int speed, int skill, int constitution, int resistance, int luck, Weapon equippedWeapon)
 		{
-			Name = name;
+			UnitName = name;
 			Level = Math.Max(1, level);
-			MaxHp = Math.Max(1, maxHp);
-			CurrentHp = MaxHp;
-			Attack = Math.Max(0, attack);
+			MaxHealth = Math.Max(1, maxHp);
+			Health = MaxHealth;
+			Strength = Math.Max(0, attack);
 			Defense = Math.Max(0, defense);
 			Speed = Math.Max(0, speed);
 			Skill = Math.Max(0, skill);
@@ -38,18 +52,17 @@ namespace Gridfall.Domain.Enemies
 
 		public virtual void TakeDamage(int amount, bool isMagic)
 		{
-			int dmg;
-			if (!isMagic)
+			int dmg = isMagic ? Math.Max(0, amount - Resistance) : Math.Max(0, amount - Defense);
+			TakeDamage(dmg);
+		}
+
+		public override void TakeDamage(int damageAmount)
+		{
+			base.TakeDamage(damageAmount);
+			if (Health == 0)
 			{
-				dmg = Math.Max(0, amount - Defense);
-			}
-			else 
-			{
-				dmg = Math.Max(0, amount - Resistance);
-			}
-			CurrentHp = Math.Max(0, CurrentHp - dmg);
-			if (CurrentHp == 0)
 				OnDeath();
+			}
 		}
 
 		public virtual int CalculateDamageTo(IEnemy target)
@@ -59,22 +72,17 @@ namespace Gridfall.Domain.Enemies
 			return dmg;
 		}
 
-		public virtual void Heal(int amount)
-		{
-			CurrentHp = Math.Min(MaxHp, CurrentHp + Math.Max(0, amount));
-		}
-
 		public virtual void LevelUp(int toLevel)
 		{
 			if (toLevel <= Level) return;
 			while (Level < toLevel)
 			{
 				Level++;
-				MaxHp += 5;
-				Attack += 1;
+				MaxHealth += 5;
+				Strength += 1;
 				Defense += 1;
 			}
-			CurrentHp = MaxHp;
+			Health = MaxHealth;
 		}
 
 		protected virtual void OnDeath()

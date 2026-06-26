@@ -1,4 +1,5 @@
 using Gridfall.Domain;
+using Gridfall.Characters.Domain;
 
 namespace Gridfall.Contracts;
 

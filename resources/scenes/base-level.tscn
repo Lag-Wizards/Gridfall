@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://c8toiphshaqox" path="res://src/Services/GridNode.cs" id="3_w8wmq"]
 [ext_resource type="Script" uid="uid://co2aqfrga5hdi" path="res://src/Services/EnemyNode.cs" id="4_ypdn4"]
 [ext_resource type="Texture2D" uid="uid://bapth5fg7rekp" path="res://assets/sprites/slime.png" id="5_fjnyl"]
-[ext_resource type="Script" uid="uid://33qqbl4hgclh" path="res://src/Domain/Characters/CharacterBase.cs" id="6_tatbj"]
+[ext_resource type="Script" uid="uid://d3kiduy171bi6" path="res://src/Domain/Characters/CharacterNode.cs" id="6_tatbj"]
 [ext_resource type="Texture2D" uid="uid://3e370uhe0u38" path="res://assets/sprites/Character.png" id="6_yh8fr"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0jp7s"]
@@ -27,7 +27,7 @@ tile_map_data = PackedByteArray("AAD2//n/AgAAAAAAAAD2//r/AgAAAAAAAAD3//r/AgAAAAA
 tile_set = SubResource("TileSet_eempa")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=928056349]
-zoom = Vector2(2.595, 2.595)
+zoom = Vector2(2.5, 2.5)
 
 [node name="GridNode" type="Node2D" parent="." unique_id=879742588 node_paths=PackedStringArray("GridMap")]
 script = ExtResource("3_w8wmq")
@@ -38,7 +38,7 @@ script = ExtResource("4_ypdn4")
 EnemyType = "Slime"
 
 [node name="Sprite2D" type="Sprite2D" parent="Slime" unique_id=22083521]
-position = Vector2(88, -8)
+position = Vector2(41, -55)
 texture = ExtResource("5_fjnyl")
 
 [node name="Character" type="Node2D" parent="." unique_id=956083732]
@@ -48,3 +48,35 @@ script = ExtResource("6_tatbj")
 [node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=876553366]
 position = Vector2(0, -2)
 texture = ExtResource("6_yh8fr")
+
+[node name="Slime2" type="Node2D" parent="." unique_id=1660121052]
+script = ExtResource("4_ypdn4")
+EnemyType = "Slime"
+
+[node name="Sprite2D" type="Sprite2D" parent="Slime2" unique_id=340699174]
+position = Vector2(-39, -70)
+texture = ExtResource("5_fjnyl")
+
+[node name="Slime3" type="Node2D" parent="." unique_id=247207901]
+script = ExtResource("4_ypdn4")
+EnemyType = "Slime"
+
+[node name="Sprite2D" type="Sprite2D" parent="Slime3" unique_id=1888518327]
+position = Vector2(-6, -8)
+texture = ExtResource("5_fjnyl")
+
+[node name="Slime4" type="Node2D" parent="." unique_id=1317072807]
+script = ExtResource("4_ypdn4")
+EnemyType = "Slime"
+
+[node name="Sprite2D" type="Sprite2D" parent="Slime4" unique_id=1449070370]
+position = Vector2(90, -24)
+texture = ExtResource("5_fjnyl")
+
+[node name="Slime5" type="Node2D" parent="." unique_id=341883365]
+script = ExtResource("4_ypdn4")
+EnemyType = "Slime"
+
+[node name="Sprite2D" type="Sprite2D" parent="Slime5" unique_id=990210450]
+position = Vector2(89, 44)
+texture = ExtResource("5_fjnyl")

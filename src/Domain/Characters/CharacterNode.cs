@@ -2,6 +2,9 @@ using Godot;
 using Gridfall.Domain;
 using Gridfall.Domain.Enums;
 using Gridfall.Services;
+using Gridfall.Contracts;
+using System;
+using System.Collections.Generic;
 
 namespace Gridfall.Characters.Domain;
 
@@ -13,19 +16,24 @@ public partial class CharacterNode : Node2D
 	[Export]
 	public int Level = 1;
 
-	private CharacterBase _character;
+	private CharacterBase _character = new CharacterBase();
 	private Sprite2D _sprite;
+	private IMovementService _movementService;
 
-	public override void _Ready()
+	public CharacterBase Stats => _character;
+
+	public Vector2I CurrentTile { get; set; }
+
+	public override void _EnterTree()
 	{
-		base._Ready();
+		base._EnterTree();
 
-		_character = new CharacterBase();
 		SaveService saveService = new SaveService();
 
 		if (saveService.SaveExists())
 		{
 			SaveData saveData = saveService.Load();
+			saveData.Health = saveData.MaxHealth;
 			_character.LoadFromSave(saveData);
 			GD.Print("Loaded character data from save.");
 		}
@@ -36,12 +44,23 @@ public partial class CharacterNode : Node2D
 			GD.Print("No save found. Created default character.");
 		}
 
-		GameManager gameManager = GetNode<GameManager>("/root/GameManager");
-		gameManager.SetCurrentCharacter(_character);
+		_character.OnUnitDeath += OnPlayerDeath;
+		GameManager.Instance?.SetCurrentCharacter(_character);
+		GameManager.Instance?.RegisterPlayerCharacterNode(this);
+	}
 
-		CreateSprite();
+	public override void _Ready()
+	{
+		base._Ready();
+
+		_sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+		if (_sprite == null)
+		{
+			CreateSprite();
+		}
 
 		UpdateName();
+		InitializeGridPosition();
 	}
 
 	private void CreateSprite()
@@ -56,13 +75,110 @@ public partial class CharacterNode : Node2D
 		Name = _character.CharacterName + " L" + _character.Level;
 	}
 
-	public void SetGridPosition(Vector2I gridPosition, TileMapLayer gridMap)
+	public void InitializeGridPosition()
 	{
-		Position = gridMap.MapToLocal(gridPosition);
+		if (_movementService != null) return;
+		var gridManager = GameManager.Instance?.GridManager;
+		if (gridManager == null) return;
+
+		CurrentTile = gridManager.WorldToMap(GlobalPosition);
+		GlobalPosition = gridManager.MapToWorld(CurrentTile);
+		RegisterOccupantAt(CurrentTile);
+		_movementService = new MovementService(gridManager);
 	}
 
-	public void MoveToGridPosition(Vector2I gridPosition, TileMapLayer gridMap)
+	public bool TryMove(Vector2I direction, int remainingMovement, out int movementCost)
 	{
-		Position = gridMap.MapToLocal(gridPosition);
+		movementCost = 0;
+		var gridManager = GameManager.Instance?.GridManager;
+		if (gridManager == null || _movementService == null)
+			return false;
+
+		var target = CurrentTile + direction;
+
+		if (!_movementService.CanReach(CurrentTile, target, remainingMovement))
+			return false;
+
+		var targetState = gridManager.GetTileStateAt(target);
+		if (targetState == null || targetState.MovementCost >= 999 || targetState.IsOccupied)
+			return false;
+
+		UnregisterOccupantAt(CurrentTile);
+		CurrentTile = target;
+		RegisterOccupantAt(CurrentTile);
+		GlobalPosition = gridManager.MapToWorld(CurrentTile);
+
+		movementCost = targetState.MovementCost;
+		return true;
+	}
+
+	public EnemyNode GetEnemyInRange()
+	{
+		var gridManager = GameManager.Instance?.GridManager;
+		if (gridManager == null || _character == null)
+			return null;
+
+		int range = _character.EquippedWeapon?.Range ?? 1;
+		var sceneRoot = GetTree().CurrentScene;
+		var enemies = FindEnemyNodesRecursive(sceneRoot);
+
+		foreach (var enemyNode in enemies)
+		{
+			if (!GodotObject.IsInstanceValid(enemyNode))
+				continue;
+
+			Vector2I enemyTile = gridManager.WorldToMap(enemyNode.GlobalPosition);
+			int distance = Mathf.Abs(CurrentTile.X - enemyTile.X) + Mathf.Abs(CurrentTile.Y - enemyTile.Y);
+			if (distance <= range)
+			{
+				return enemyNode;
+			}
+		}
+
+		return null;
+	}
+
+	private List<EnemyNode> FindEnemyNodesRecursive(Node node)
+	{
+		var list = new List<EnemyNode>();
+		if (node is EnemyNode enemy)
+			list.Add(enemy);
+
+		if (node != null)
+		{
+			foreach (var child in node.GetChildren())
+			{
+				list.AddRange(FindEnemyNodesRecursive(child));
+			}
+		}
+		return list;
+	}
+
+	private void RegisterOccupantAt(Vector2I tile)
+	{
+		var gridManager = GameManager.Instance?.GridManager;
+		if (gridManager != null)
+		{
+			var tileState = gridManager.GetTileStateAt(tile);
+			if (tileState != null)
+				tileState.CurrentOccupant = this;
+		}
+	}
+
+	private void UnregisterOccupantAt(Vector2I tile)
+	{
+		var gridManager = GameManager.Instance?.GridManager;
+		if (gridManager != null)
+		{
+			var tileState = gridManager.GetTileStateAt(tile);
+			if (tileState != null && tileState.CurrentOccupant == this)
+				tileState.CurrentOccupant = null;
+		}
+	}
+
+	private void OnPlayerDeath()
+	{
+		GD.Print("CharacterNode: Player has died! Emitting player death event.");
+		Events.EmitPlayerDied();
 	}
 }

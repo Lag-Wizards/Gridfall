@@ -6,7 +6,7 @@ using Gridfall.Domain;
 using Gridfall.Services;
 
 namespace Gridfall.Services;
-// Node within Godot to access tilemap for GridManager to use.
+
 public partial class GridNode : Node
 {
 	[Export] public TileMapLayer GridMap { get; set; }
@@ -22,7 +22,11 @@ public partial class GridNode : Node
 			return;
 		}
 
+		EnsurePlayerController();
+
 		GridManager = new GridManager(GridMap, new TileFactory());
+		GameManager.Instance?.RegisterGridManager(GridManager);
+
 		var tileState = GridManager.GetTileStateAt(new Vector2I(0, 0));
 		if (tileState != null)
 		{
@@ -37,19 +41,20 @@ public partial class GridNode : Node
 		var sceneRoot = GetTree().CurrentScene;
 		if (sceneRoot == null)
 			return;
-
-		if (FindPlayerControllerRecursive(sceneRoot) != null)
+		var characterNode = sceneRoot.GetNodeOrNull<Node2D>("Character");
+		if (characterNode == null)
+		{
+			GD.PrintErr("Character node not found in scene. Cannot attach PlayerController.");
 			return;
+		}
 
 		var controller = new PlayerController
 		{
-			Name = "Node2D3",
-			GridNodePath = GetPath(),
+			Name = "PlayerController",
 			MovementRange = 5
 		};
 
-		sceneRoot.AddChild(controller);
-		GD.Print("GridNode: auto-created Node2D3 PlayerController node.");
+		characterNode.AddChild(controller);
 	}
 
 	private void EnsureGridMap()
@@ -64,22 +69,5 @@ public partial class GridNode : Node
 		var gridMap = sceneRoot.GetNodeOrNull<TileMapLayer>("GridMap");
 		if (gridMap != null)
 			GridMap = gridMap;
-	}
-	private PlayerController FindPlayerControllerRecursive(Node node)
-	{
-		if (node is PlayerController controller)
-			return controller;
-
-		foreach (var child in node.GetChildren())
-		{
-			if (child is Node childNode)
-			{
-				var found = FindPlayerControllerRecursive(childNode);
-				if (found != null)
-					return found;
-			}
-		}
-
-		return null;
 	}
 }

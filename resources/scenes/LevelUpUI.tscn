@@ -1,8 +1,15 @@
 [gd_scene format=3 uid="uid://cccj1124u3dld"]
 
+[ext_resource type="Script" uid="uid://dbs1p6xysueot" path="res://resources/scenes/LevelUpUi.cs" id="1_script"]
+
 [node name="LevelUpUi" type="Control" unique_id=74280778]
 layout_mode = 3
-anchors_preset = 0
+anchor_bottom = 0.165
+offset_left = 4.0
+offset_top = 225.0
+offset_right = 4.0
+offset_bottom = 118.079994
+script = ExtResource("1_script")
 
 [node name="StatsUI" type="HBoxContainer" parent="." unique_id=1533571121]
 layout_mode = 0

@@ -5,7 +5,7 @@ using Gridfall.Domain;
 
 namespace Gridfall.Domain.Enemies
 {
-	public class Goblin : EnemyBase
+	public partial class Goblin : EnemyBase
 	{
 		public Goblin(int level = 1) : base("Goblin", level, maxHp: 20 + (level-1)*5, attack: 4 + (level-1)*1, defense: 1 + (level-1)*1, speed: 1 + (level-1)*1, skill: 1 + (level-1)*1, constitution: 1 + (level-1)*1, resistance: 1 + (level-1)*1, luck: 1 + (level-1)*1, equippedWeapon: new Weapon(WeaponType.Slash, 10, 1))
 		{

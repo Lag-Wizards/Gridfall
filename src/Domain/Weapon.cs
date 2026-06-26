@@ -23,4 +23,8 @@ public partial class Weapon
 		Weight = weight;
 		HitRate = hitRate;
 	}
+
+	public Weapon(WeaponType type, int damage, int range) : this(type, "Equipped Weapon", damage, range, 0, 80)
+	{
+	}
 }

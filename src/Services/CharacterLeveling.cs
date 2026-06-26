@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using Gridfall.Domain;
-using Gridfall.Domain.Enemies;
+using Gridfall.Characters.Domain;
 
 namespace Gridfall.Services;
 public partial class CharacterLeveling : Node
@@ -15,7 +15,7 @@ public partial class CharacterLeveling : Node
 		levelUpManager = new LevelUpManager();
 	}
 
-	public void AwardKillExp(CharacterBase player, CharacterBase enemy)
+	public void AwardKillExp(CharacterBase player, CombatUnit enemy)
 	{
 		int expGained = experienceCalculator.EnemyKilled(player, enemy);
 		
@@ -24,7 +24,7 @@ public partial class CharacterLeveling : Node
 		CheckLevelUp(player);
 	}
 
-	public void SuccessfulHitExp(CharacterBase player, CharacterBase enemy)
+	public void SuccessfulHitExp(CharacterBase player, CombatUnit enemy)
 	{
 		int expGained = experienceCalculator.EnemyHitAlive(player, enemy);
 		
@@ -33,9 +33,8 @@ public partial class CharacterLeveling : Node
 		CheckLevelUp(player);
 	}
 
-	public void AwardMissedHitExp(CharacterBase player, CharacterBase enemy)
+	public void AwardMissedHitExp(CharacterBase player, CombatUnit enemy)
 	{
-
 		int expGained = experienceCalculator.MissedHit(player, enemy);
 
 		player.AddExperience(expGained);
@@ -43,33 +42,28 @@ public partial class CharacterLeveling : Node
 		CheckLevelUp(player);
 	}
 
-	public void BattleExpOutcome(CharacterBase attacker, CharacterBase attackee, int startingHealth)
+	public void BattleExpOutcome(CharacterBase player, CombatUnit enemy, int startingHealth)
 	{
-
-		if (attackee.Health == 0)
+		if (enemy.Health == 0)
 		{
-			AwardKillExp(attacker, attackee);
+			AwardKillExp(player, enemy);
 		}
-		else if (attackee.Health < startingHealth)
+		else if (enemy.Health < startingHealth)
 		{
-			SuccessfulHitExp(attacker, attackee);
+			SuccessfulHitExp(player, enemy);
 		}
 		else
 		{
-			AwardMissedHitExp(attacker, attackee);
+			AwardMissedHitExp(player, enemy);
 		}
 	}
 
 	private void CheckLevelUp(CharacterBase player)
 	{
-
 		while (player.Experience >= 100)
 		{
-
 			player.Experience -= 100;
-			
 			levelUpManager.LevelUp(player);
-			
 		}
 	}
 }

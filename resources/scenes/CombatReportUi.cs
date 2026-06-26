@@ -2,6 +2,7 @@ using Godot;
 using System;
 using Gridfall.Characters.Domain;
 using Gridfall.Services;
+using Gridfall.Domain;
 
 public partial class CombatReportUi : Control
 {
@@ -13,26 +14,61 @@ public partial class CombatReportUi : Control
 	private Label defenderdamageLabel;
 	private Label defenderhitrateLabel;
 	private Label defenderdoubleLabel;
-	CharacterBase selectedAttackerCharacter;
-	CharacterBase selectedDefenderCharacter;
+	private Label attackerTitleLabel;
+	private Label defenderTitleLabel;
+	CombatUnit selectedAttackerCharacter;
+	CombatUnit selectedDefenderCharacter;
 	BattleCalculation battleCalculation = new BattleCalculation();
-	// Called when the node enters the scene tree for the first time.
+
 	public override void _Ready()
 	{
-		attackerhpLabel = GetNode<Label>("HBoxContainer/AttackerParameters/HP");
-		attackerdamageLabel = GetNode<Label>("HBoxContainer/AttackerParameters/Attack");
-		attackerhitrateLabel = GetNode<Label>("HBoxContainer/AttackerParameters/HitRate"); 
-		attackerdoubleLabel = GetNode<Label>("HBoxContainer/AttackerParameters/Double");
+		var attackerPanel = GetNodeOrNull<PanelContainer>("AttackerPanel");
+		var defenderPanel = GetNodeOrNull<PanelContainer>("DefenderPanel");
 
-		defenderhpLabel  = GetNode<Label>("HBoxContainer/DefenderParameters/HP");
-		defenderdamageLabel  = GetNode<Label>("HBoxContainer/DefenderParameters/Attack");
-		defenderhitrateLabel  = GetNode<Label>("HBoxContainer/DefenderParameters/HitRate");
-		defenderdoubleLabel  = GetNode<Label>("HBoxContainer/DefenderParameters/Double");
+		if (attackerPanel != null && defenderPanel != null)
+		{
+			// Attacker VBox
+			var attackerVBox = new VBoxContainer();
+			attackerPanel.AddChild(attackerVBox);
+			
+			attackerTitleLabel = new Label { Text = "PLAYER PREVIEW", HorizontalAlignment = HorizontalAlignment.Center };
+			attackerVBox.AddChild(attackerTitleLabel);
+
+			attackerhpLabel = new Label();
+			attackerdamageLabel = new Label();
+			attackerhitrateLabel = new Label();
+			attackerdoubleLabel = new Label();
+
+			attackerVBox.AddChild(attackerhpLabel);
+			attackerVBox.AddChild(attackerdamageLabel);
+			attackerVBox.AddChild(attackerhitrateLabel);
+			attackerVBox.AddChild(attackerdoubleLabel);
+
+			// Defender VBox
+			var defenderVBox = new VBoxContainer();
+			defenderPanel.AddChild(defenderVBox);
+
+			defenderTitleLabel = new Label { Text = "ENEMY PREVIEW", HorizontalAlignment = HorizontalAlignment.Center };
+			defenderVBox.AddChild(defenderTitleLabel);
+
+			defenderhpLabel = new Label();
+			defenderdamageLabel = new Label();
+			defenderhitrateLabel = new Label();
+			defenderdoubleLabel = new Label();
+
+			defenderVBox.AddChild(defenderhpLabel);
+			defenderVBox.AddChild(defenderdamageLabel);
+			defenderVBox.AddChild(defenderhitrateLabel);
+			defenderVBox.AddChild(defenderdoubleLabel);
+		}
+		else
+		{
+			GD.PrintErr("CombatReportUi: AttackerPanel or DefenderPanel not found in scene tree!");
+		}
 	}
 
-	public void SetSelectedCharacter(CharacterBase attacker, CharacterBase defender)
+	public void SetSelectedCharacter(CombatUnit attacker, CombatUnit defender)
 	{
-
 		selectedAttackerCharacter = attacker;
 		selectedDefenderCharacter = defender;
 
@@ -41,19 +77,30 @@ public partial class CombatReportUi : Control
 			ClearReport();
 			return;
 		}
+
+		if (selectedAttackerCharacter is CharacterBase)
+		{
+			if (attackerTitleLabel != null) attackerTitleLabel.Text = "PLAYER PREVIEW";
+			if (defenderTitleLabel != null) defenderTitleLabel.Text = "ENEMY PREVIEW";
+		}
+		else
+		{
+			if (attackerTitleLabel != null) attackerTitleLabel.Text = "ENEMY PREVIEW";
+			if (defenderTitleLabel != null) defenderTitleLabel.Text = "PLAYER PREVIEW";
+		}
 		
 		// Updates ui parameters
-		CombatReport combatReport = battleCalculation.CalculateStats(selectedAttackerCharacter, selectedDefenderCharacter);
+		var combatReport = battleCalculation.CalculateStats(selectedAttackerCharacter, selectedDefenderCharacter);
 		
-		attackerhpLabel.Text = selectedAttackerCharacter.Health.ToString();
-		attackerdamageLabel.Text = combatReport.PlayerDamage.ToString();
-		attackerhitrateLabel.Text = combatReport.PlayerFinalHit.ToString();
-		attackerdoubleLabel.Text = combatReport.PlayerDoubles.ToString();
+		attackerhpLabel.Text = $"HP: {selectedAttackerCharacter.Health}";
+		attackerdamageLabel.Text = $"DMG: {combatReport.PlayerDamage}";
+		attackerhitrateLabel.Text = $"HIT: {combatReport.PlayerFinalHit}%";
+		attackerdoubleLabel.Text = $"DBL: {combatReport.PlayerDoubles}";
 			
-		defenderhpLabel.Text = selectedDefenderCharacter.Health.ToString();
-		defenderdamageLabel.Text = combatReport.EnemyDamage.ToString();
-		defenderhitrateLabel.Text = combatReport.EnemyFinalHit.ToString();
-		defenderdoubleLabel.Text = combatReport.EnemyDoubles.ToString();
+		defenderhpLabel.Text = $"HP: {selectedDefenderCharacter.Health}";
+		defenderdamageLabel.Text = $"DMG: {combatReport.EnemyDamage}";
+		defenderhitrateLabel.Text = $"HIT: {combatReport.EnemyFinalHit}%";
+		defenderdoubleLabel.Text = $"DBL: {combatReport.EnemyDoubles}";
 	}
 	
 	private void ClearReport()

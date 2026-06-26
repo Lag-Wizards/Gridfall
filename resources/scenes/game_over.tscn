@@ -1,8 +1,8 @@
-[gd_scene format=3 uid="uid://cu4l5b370yaf0"]
+[gd_scene format=3 uid="uid://3ymu1hulg328"]
 
-[ext_resource type="Script" uid="uid://yincc8mebo58" path="res://resources/scenes/game_over.gd" id="1_ompxk"]
+[ext_resource type="Script" uid="uid://8po1kj0rarhm" path="res://resources/scenes/game_over.gd" id="1_ompxk"]
 
-[node name="Control" type="Control" unique_id=423929148]
+[node name="GameOver" type="Control" unique_id=423929148]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0

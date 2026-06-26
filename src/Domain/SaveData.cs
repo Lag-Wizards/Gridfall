@@ -13,6 +13,12 @@ namespace Gridfall.Domain
 		public int Defense { get; set; }
 		public int Speed { get; set; }
 		public int MovementRange { get; set; }
+		public int Luck { get; set; }
+		public int Skill { get; set; }
+		public int Constitution { get; set; }
+		public int Resistance { get; set; }
+		public bool IsMagic { get; set; }
+		public int Experience { get; set; }
 
 		// Weapon fields are serialized as ints/values to keep the DTO simple.
 		public int WeaponType { get; set; }

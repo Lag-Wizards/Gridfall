@@ -1,6 +1,8 @@
 using Godot;
 using System;
 using Gridfall.Characters.Domain;
+using Gridfall.Domain;
+using Gridfall.Domain.Enums;
 
 namespace Gridfall.Services;
 
@@ -8,16 +10,13 @@ public class BattleCalculation
 {
 	private CharacterLeveling characterLeveling = new CharacterLeveling();
 
-	public CombatReport CalculateStats(CharacterBase attacker, CharacterBase attackee)
+	public CombatReport CalculateStats(CombatUnit attacker, CombatUnit attackee)
 	{
+		Weapon attackerWeapon = attacker.EquippedWeapon ?? new Weapon(WeaponType.Slash, "Fists", 0, 1, 0, 100);
+		Weapon attackeeWeapon = attackee.EquippedWeapon ?? new Weapon(WeaponType.Slash, "Fists", 0, 1, 0, 100);
 
 		// CALCULATE ATTACK SPEED
 		// Weapons heavier than a unit's Constitution slow them down
-		int playerWeightPenalty = Math.Max(0, attacker.EquippedWeapon.Weight - attacker.Constitution);
-		int playerAS = attacker.Speed - playerWeightPenalty;
-
-		int enemyWeightPenalty = Math.Max(0, attackee.EquippedWeapon.Weight - attackee.Constitution);
-		int enemyAS = attackee.Speed - enemyWeightPenalty;
 
 		// WEAPON TRIANGLE MODIFIERS
 		int triangleDamageBonus = 0;
@@ -35,6 +34,11 @@ public class BattleCalculation
 			triangleHitBonus = -15;
 		}
 		*/
+		int playerWeightPenalty = Math.Max(0, attackerWeapon.Weight - attacker.Constitution);
+		int playerAS = attacker.Speed - playerWeightPenalty;
+
+		int enemyWeightPenalty = Math.Max(0, attackeeWeapon.Weight - attackee.Constitution);
+		int enemyAS = attackee.Speed - enemyWeightPenalty;
 
 		// DETERMINE FINAL DAMAGE
 		// Chooses Defense for physical, Resistance for magic
@@ -46,15 +50,15 @@ public class BattleCalculation
 			? attacker.Resistance
 			: attacker.Defense;
 
-		int playerAttack = attacker.Strength + attacker.EquippedWeapon.Damage;
+		int playerAttack = attacker.Strength + attackerWeapon.Damage;
 		int playerDamage = Math.Max(0, playerAttack - enemyMitigation);
 
-		int enemyAttack = attackee.Strength + attackee.EquippedWeapon.Damage;
+		int enemyAttack = attackee.Strength + attackeeWeapon.Damage;
 		int enemyDamage = Math.Max(0, enemyAttack - playerMitigation);
 
 		// DETERMINE DISPLAYED HIT RATE
 		int playerAccuracy =
-			attacker.EquippedWeapon.HitRate +
+			attackerWeapon.HitRate +
 			(attacker.Skill * 2) +
 			(attacker.Luck / 2);
 
@@ -66,7 +70,7 @@ public class BattleCalculation
 			Math.Clamp(playerAccuracy - enemyAvoid, 0, 100);
 
 		int enemyAccuracy =
-			attackee.EquippedWeapon.HitRate +
+			attackeeWeapon.HitRate +
 			(attackee.Skill * 2) +
 			(attackee.Luck / 2);
 
@@ -91,7 +95,7 @@ public class BattleCalculation
 		);
 	}
 
-	public void ExecuteBattle(CharacterBase player, CharacterBase enemy)
+	public void ExecuteBattle(CombatUnit player, CombatUnit enemy)
 	{
 		int startingHealth = enemy.Health;
 
@@ -100,23 +104,25 @@ public class BattleCalculation
 		RandomNumberGenerator rng = new RandomNumberGenerator();
 		rng.Randomize();
 
+		GD.Print($"--- Combat Started: {player.UnitName} vs {enemy.UnitName} ---");
+
 		bool PerformAttack(
-			CharacterBase attacker,
-			CharacterBase defender,
+			CombatUnit attacker,
+			CombatUnit defender,
 			int damage,
 			int hitChance)
 		{
-
 			int roll = rng.RandiRange(0, 99);
 
 			if (roll < hitChance)
 			{
 				defender.TakeDamage(damage);
-
+				GD.Print($"{attacker.UnitName} hits {defender.UnitName} for {damage} damage! ({defender.UnitName} HP is now {defender.Health})");
 				return true;
 			}
 			else
 			{
+				GD.Print($"{attacker.UnitName} missed {defender.UnitName}!");
 				return false;
 			}
 		}
@@ -129,12 +135,18 @@ public class BattleCalculation
 			report.PlayerFinalHit);
 
 		if (enemy.Health <= 0)
-		{ 
+		{
+			if (player is CharacterBase playerChar)
+			{
+				characterLeveling.BattleExpOutcome(
+					playerChar,
+					enemy,
+					startingHealth);
+			}
 			return;
 		}
 
 		// DEFENDER COUNTER-ATTACKS
-
 		PerformAttack(
 			enemy,
 			player,
@@ -149,7 +161,6 @@ public class BattleCalculation
 		// FOLLOW-UP ATTACKS
 		if (report.PlayerDoubles)
 		{
-
 			PerformAttack(
 				player,
 				enemy,
@@ -158,7 +169,6 @@ public class BattleCalculation
 		}
 		else if (report.EnemyDoubles)
 		{
-
 			PerformAttack(
 				enemy,
 				player,
@@ -166,9 +176,12 @@ public class BattleCalculation
 				report.EnemyFinalHit);
 		}
 
-		characterLeveling.BattleExpOutcome(
-			player,
-			enemy,
-			startingHealth);
+		if (player is CharacterBase playerCharFinal)
+		{
+			characterLeveling.BattleExpOutcome(
+				playerCharFinal,
+				enemy,
+				startingHealth);
+		}
 	}
 }

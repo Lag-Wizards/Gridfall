@@ -2,6 +2,7 @@ using Godot;
 using System.Text.Json;
 using Gridfall.Contracts;
 using Gridfall.Domain;
+using Gridfall.Characters.Domain;
 
 namespace Gridfall.Services;
 
@@ -21,6 +22,12 @@ public class SaveService : ISaveService
 			Defense = character.Defense,
 			Speed = character.Speed,
 			MovementRange = character.MovementRange,
+			Luck = character.Luck,
+			Skill = character.Skill,
+			Constitution = character.Constitution,
+			Resistance = character.Resistance,
+			IsMagic = character.IsMagic,
+			Experience = character.Experience,
 
 			WeaponType = character.EquippedWeapon != null ? (int)character.EquippedWeapon.Type : 0,
 			WeaponDamage = character.EquippedWeapon != null ? character.EquippedWeapon.Damage : 0,

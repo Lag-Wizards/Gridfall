@@ -1,23 +1,25 @@
 [gd_scene format=3 uid="uid://c1ikv2b5udxhy"]
 
-[ext_resource type="Script" uid="uid://df6o351fb1xlc" path="res://resources/scenes/BattlePhase.cs" id="1_2lqsd"]
+[ext_resource type="Script" uid="uid://47d0vf0uxogs" path="res://resources/scenes/BattlePhase.cs" id="1_2lqsd"]
 [ext_resource type="PackedScene" uid="uid://cn2l6pnx12lla" path="res://resources/scenes/ExpUI.tscn" id="2_et1vc"]
 [ext_resource type="PackedScene" uid="uid://cccj1124u3dld" path="res://resources/scenes/LevelUpUI.tscn" id="3_lkjqs"]
+[ext_resource type="Script" uid="uid://dbiap4peloh5n" path="res://resources/scenes/CombatReportUi.cs" id="4_cr_ui"]
 
 [node name="BattlePhase" type="Control" unique_id=1461201677]
 layout_mode = 3
-anchor_right = 0.33400002
-anchor_bottom = 0.37800002
-offset_right = -384.76804
-offset_bottom = -244.94402
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_2lqsd")
 
 [node name="VBoxContainerFightOptions" type="VBoxContainer" parent="." unique_id=798125897]
 layout_mode = 0
-offset_left = 196.0
-offset_top = 36.0
-offset_right = 256.0
-offset_bottom = 102.0
+offset_left = 70.0
+offset_top = 420.0
+offset_right = 130.0
+offset_bottom = 486.0
 
 [node name="FightButton" type="Button" parent="VBoxContainerFightOptions" unique_id=1576162460]
 layout_mode = 2
@@ -29,10 +31,11 @@ text = "Cancel"
 
 [node name="CombatReport" type="HBoxContainer" parent="." unique_id=1822434296]
 layout_mode = 0
-offset_left = 9.0
-offset_top = 22.0
-offset_right = 82.0
-offset_bottom = 121.0
+offset_left = 66.0
+offset_top = 253.0
+offset_right = 139.0
+offset_bottom = 352.0
+script = ExtResource("4_cr_ui")
 
 [node name="AttackerPanel" type="PanelContainer" parent="CombatReport" unique_id=1381334210]
 layout_mode = 2
@@ -49,3 +52,9 @@ offset_bottom = 144.0
 
 [node name="LevelUpUi" parent="." unique_id=335815996 instance=ExtResource("3_lkjqs")]
 layout_mode = 0
+anchors_preset = 0
+anchor_bottom = 0.0
+offset_left = 2.0
+offset_top = 182.0
+offset_right = 2.0
+offset_bottom = 182.0
