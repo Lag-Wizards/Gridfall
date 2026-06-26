@@ -4,7 +4,7 @@ Scrum Master - Tanner Gleason
 Developers - Fong Vang, Ahmad Idris, Jeffrey Cohn, Manas Patel
 
 Team Contributions:
-Ahmad Idris - 
+Ahmad Idris - Main Menu, Pause Menu (Resume, Main Menu, Quit), GameManager implementation, CharacterNode save/load integration, SaveService integration, in-game pause menu listener, save button functionality, character persistence between scenes, code reviews and testing.
 Fong Vang - 
 Jeffrey Cohn - EnemyAI, Character Class, Enemy Display
 Manas Patel - 
