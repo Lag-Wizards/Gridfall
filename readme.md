@@ -1,12 +1,12 @@
 Roles
 Product Owner - Adam Pastorok Email: Apastorok@gmail.com
 Scrum Master - Tanner Gleason
-Developers - Fong Vang, Ahmad Idris, Jeffrey Cohen, Manas Patel
+Developers - Fong Vang, Ahmad Idris, Jeffrey Cohn, Manas Patel
 
 Team Contributions:
 Ahmad Idris - 
 Fong Vang - 
-Jeffrey Cohen - 
+Jeffrey Cohn - EnemyAI, Character Class, Enemy Display
 Manas Patel - 
 Tanner Gleason -
 
