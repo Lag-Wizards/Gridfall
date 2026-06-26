@@ -12,7 +12,7 @@ public class BattleCalculation
 
 	public CombatReport CalculateStats(CombatUnit attacker, CombatUnit attackee)
 	{
-		Weapon attackerWeapon = attacker.EquippedWeapon ?? new Weapon(WeaponType.Slash, "Fists", 0, 1, 0, 100);
+		Weapon attackerWeapon = attacker.EquippedWeapon ?? new Weapon(WeaponType.Slash, "Fists", 3, 1, 0, 100);
 		Weapon attackeeWeapon = attackee.EquippedWeapon ?? new Weapon(WeaponType.Slash, "Fists", 0, 1, 0, 100);
 
 		// CALCULATE ATTACK SPEED

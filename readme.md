@@ -7,7 +7,7 @@ Team Contributions:
 
 Ahmad Idris - Main Menu, Pause Menu (Resume, Main Menu, Quit), GameManager implementation, CharacterNode save/load integration, SaveService integration, in-game pause menu listener, save button functionality, character persistence between scenes, code reviews and testing.
 
-Fong Vang - 
+Fong Vang - Character attributes, battling system, character leveling, Player battle phase /UI, Character leveling UI, Exp UI, review and testing
 
 Jeffrey Cohn - EnemyAI implementation, CharacterBase implementation, EnemyDisplay implementation, enemy decision-making logic, character stat management, damage and healing functionality, code reviews, and testing.
 
