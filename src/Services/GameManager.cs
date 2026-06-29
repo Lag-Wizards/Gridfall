@@ -527,7 +527,7 @@ public partial class GameManager : Node
 
 	private async Task RunEnemyTurn()
 	{
-		GD.Print("GameManager: Starting Enemy Turn...");
+		GD.Print("GameManager: Starting Enemy Turn");
 
 		var sceneRoot = GetTree().CurrentScene;
 		var enemies = FindEnemyNodesRecursive(sceneRoot);

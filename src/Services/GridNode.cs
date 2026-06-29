@@ -32,8 +32,6 @@ public partial class GridNode : Node
 		{
 			GD.Print("Tile move cost at (0, 0): " + tileState.MovementCost);
 		}
-
-		EnsurePlayerController();
 	}
 
 	private void EnsurePlayerController()
