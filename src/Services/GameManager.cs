@@ -13,6 +13,8 @@ public partial class GameManager : Node
 {
 	public static GameManager Instance { get; private set; }
 
+	private EnemyAI _enemyAI = new EnemyAI();
+
 	public GamePhase CurrentPhase { get; private set; } = GamePhase.PlayerMovement;
 
 	private int _enemyCount = 0;
@@ -526,6 +528,7 @@ public partial class GameManager : Node
 	private async Task RunEnemyTurn()
 	{
 		GD.Print("GameManager: Starting Enemy Turn...");
+
 		var sceneRoot = GetTree().CurrentScene;
 		var enemies = FindEnemyNodesRecursive(sceneRoot);
 		var playerNode = FindPlayerCharacterNode();
@@ -535,22 +538,73 @@ public partial class GameManager : Node
 
 		foreach (var enemyNode in enemies)
 		{
-			if (!GodotObject.IsInstanceValid(enemyNode) || enemyNode.Stats == null || !enemyNode.Stats.IsAlive())
-				continue;
-
-			Vector2I enemyTile = GridManager.WorldToMap(enemyNode.GlobalPosition);
-			Vector2I playerTile = playerNode.CurrentTile;
-			int range = enemyNode.Stats.EquippedWeapon?.Range ?? 1;
-			int distance = Mathf.Abs(playerTile.X - enemyTile.X) + Mathf.Abs(playerTile.Y - enemyTile.Y);
-
-			if (distance <= range)
+			if (!GodotObject.IsInstanceValid(enemyNode) ||
+			    enemyNode.Stats == null ||
+			    !enemyNode.Stats.IsAlive())
 			{
-				GD.Print($"GameManager: Enemy {enemyNode.Stats.UnitName} is in range! Attacking player.");
-				await PromptEnemyAttack(enemyNode.Stats, playerNode.Stats);
+				continue;
 			}
-		}
 
-		GD.Print("GameManager: Enemy Turn completed.");
+			Vector2I enemyTile =
+				GridManager.WorldToMap(enemyNode.GlobalPosition);
+
+			Vector2I playerTile =
+				playerNode.CurrentTile;
+
+			string action =
+				_enemyAI.DetermineAction(enemyTile, playerTile);
+
+			if (action == "Attack")
+			{
+				GD.Print(
+					$"{enemyNode.Stats.UnitName} attacks the player.");
+
+				await PromptEnemyAttack(
+					enemyNode.Stats,
+					playerNode.Stats);
+			}
+			else if (action == "Move")
+			{
+				int movement = enemyNode.Stats.MoveDistance;
+
+				for (int i = 0; i < movement; i++)
+				{
+					Vector2I move = _enemyAI.DetermineMove(enemyTile, playerTile);
+					Vector2I destination = enemyTile + move;
+
+					var tileState = GridManager.GetTileStateAt(destination);
+
+					if (tileState == null || tileState.CurrentOccupant != null)
+						break;
+
+					// clear old tile
+					var currentTile = GridManager.GetTileStateAt(enemyTile);
+					if (currentTile != null)
+						currentTile.CurrentOccupant = null;
+
+					// move
+					tileState.CurrentOccupant = enemyNode;
+					enemyTile = destination;
+
+					enemyNode.GlobalPosition = GridManager.MapToWorld(enemyTile);
+
+					await ToSignal(GetTree().CreateTimer(0.15f), SceneTreeTimer.SignalName.Timeout);
+
+					// check attack again after moving
+					int distance =
+						Mathf.Abs(playerTile.X - enemyTile.X) +
+						Mathf.Abs(playerTile.Y - enemyTile.Y);
+
+					if (distance <= 1)
+					{
+
+						await PromptEnemyAttack(enemyNode.Stats, playerNode.Stats);
+						break;
+					}
+				}
+			}
+			GD.Print("GameManager: Enemy Turn completed.");
+		}
 	}
 
 	private List<EnemyNode> FindEnemyNodesRecursive(Node node)

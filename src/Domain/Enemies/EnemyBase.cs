@@ -34,7 +34,7 @@ namespace Gridfall.Domain.Enemies
 
 		public bool IsAlive => Health > 0;
 
-		protected EnemyBase(string name, int level, int maxHp, int attack, int defense, int speed, int skill, int constitution, int resistance, int luck, Weapon equippedWeapon)
+		protected EnemyBase(string name, int level, int maxHp, int attack, int defense, int speed, int skill, int constitution, int resistance, int luck, Weapon equippedWeapon, int moveDistance)
 		{
 			UnitName = name;
 			Level = Math.Max(1, level);
@@ -48,6 +48,7 @@ namespace Gridfall.Domain.Enemies
 			Resistance = Math.Max(0, resistance);
 			Luck = Math.Max(0, luck);
 			EquippedWeapon = equippedWeapon;
+			MoveDistance = moveDistance;
 		}
 
 		public virtual void TakeDamage(int amount, bool isMagic)
