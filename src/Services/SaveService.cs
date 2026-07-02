@@ -28,6 +28,7 @@ public class SaveService : ISaveService
 			Resistance = character.Resistance,
 			IsMagic = character.IsMagic,
 			Experience = character.Experience,
+			Coins = character.Coins,
 
 			WeaponType = character.EquippedWeapon != null ? (int)character.EquippedWeapon.Type : 0,
 			WeaponDamage = character.EquippedWeapon != null ? character.EquippedWeapon.Damage : 0,

@@ -20,12 +20,7 @@ namespace Gridfall.Characters.Domain
 			set => MoveDistance = value;
 		}
 		public int Experience { get; set; }
-
-		// Declaring event handler for when exp changes so UI can update
-		[Signal]
-		public delegate void ExpChangedEventHandler(int exp);
-
-		public void LoadFromSave(SaveData saveData)
+	public int Coins { get; set; }
 		{
 			CharacterName = saveData.CharacterName;
 			Level = saveData.Level;
@@ -41,6 +36,7 @@ namespace Gridfall.Characters.Domain
 			Resistance = saveData.Resistance;
 			IsMagic = saveData.IsMagic;
 			Experience = saveData.Experience;
+			Coins = saveData.Coins;
 
 			EquippedWeapon = new Weapon(
 				(WeaponType)saveData.WeaponType,
@@ -67,6 +63,8 @@ namespace Gridfall.Characters.Domain
 			Defense = 3 + level;
 			Speed = 4 + level;
 			MovementRange = 5;
+			Experience = 0;
+			Coins = 0;
 			
 			EquippedWeapon = weapon;
 			
