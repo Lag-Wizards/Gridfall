@@ -539,8 +539,8 @@ public partial class GameManager : Node
 		foreach (var enemyNode in enemies)
 		{
 			if (!GodotObject.IsInstanceValid(enemyNode) ||
-			    enemyNode.Stats == null ||
-			    !enemyNode.Stats.IsAlive())
+				enemyNode.Stats == null ||
+				!enemyNode.Stats.IsAlive())
 			{
 				continue;
 			}
