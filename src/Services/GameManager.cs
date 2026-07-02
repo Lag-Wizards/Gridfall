@@ -31,13 +31,17 @@ public partial class GameManager : Node
 	private Label _playerHealthLabel;
 	private Label _playerLevelLabel;
 	private Label _movementRemainingLabel;
+	private Label _playerCoinLabel;
 	private Button _nextPhaseButton;
+	private int _coinCount = 0;
+	private RandomNumberGenerator _coinRandomizer = new RandomNumberGenerator();
 	private string _currentPhaseText = "Phase: Player Movement";
 	private Color _currentPhaseColor = Colors.LimeGreen;
 
 	public override void _Ready()
 	{
 		Instance = this;
+		_coinRandomizer.Randomize();
 
 		Events.OnEnemySpawn += HandleEnemySpawn;
 		Events.OnPlayerDeath += HandlePlayerDeath;
@@ -169,11 +173,17 @@ public partial class GameManager : Node
 
 	public void HandlePlayerDeath()
 	{
+		_coinCount = 0;
+		UpdateHud();
 		GetTree().ChangeSceneToFile("res://resources/scenes/game_over.tscn");
 	}
 	
 	public void HandleEnemyDeath()
 	{
+		int coinsEarned = _coinRandomizer.RandiRange(1, 10);
+		_coinCount += coinsEarned;
+		GD.Print($"Enemy defeated! Earned {coinsEarned} coins. Total coins: {_coinCount}");
+
 		_enemyCount--;
 		if (_enemyCount <= 0)
 		{
@@ -183,6 +193,7 @@ public partial class GameManager : Node
 				GD.PrintErr($"Failed to change scene to victory.tscn, Error: {error}");
 			}
 		}
+		UpdateHud();
 	}
 
 	public void RegisterPlayerController(PlayerController pc)
@@ -403,6 +414,14 @@ public partial class GameManager : Node
 		};
 		panel.AddChild(_movementRemainingLabel);
 
+		_playerCoinLabel = new Label
+		{
+			Name = "PlayerCoinLabel",
+			Text = "Coins: 0",
+			Position = new Vector2(10, 122)
+		};
+		panel.AddChild(_playerCoinLabel);
+
 		_nextPhaseButton = new Button
 		{
 			Name = "NextPhaseButton",
@@ -433,6 +452,11 @@ public partial class GameManager : Node
 		if (GodotObject.IsInstanceValid(_movementRemainingLabel) && pc != null && playerNode?.Stats != null)
 		{
 			_movementRemainingLabel.Text = $"Move: {pc.RemainingMovement}/{playerNode.Stats.MovementRange}";
+		}
+
+		if (GodotObject.IsInstanceValid(_playerCoinLabel))
+		{
+			_playerCoinLabel.Text = $"Coins: {_coinCount}";
 		}
 		
 		if (GodotObject.IsInstanceValid(_movementPhaseLabel))
