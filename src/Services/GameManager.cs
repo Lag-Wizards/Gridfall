@@ -31,17 +31,13 @@ public partial class GameManager : Node
 	private Label _playerHealthLabel;
 	private Label _playerLevelLabel;
 	private Label _movementRemainingLabel;
-	private Label _playerCoinLabel;
 	private Button _nextPhaseButton;
 	private string _currentPhaseText = "Phase: Player Movement";
 	private Color _currentPhaseColor = Colors.LimeGreen;
-	private RandomNumberGenerator _coinRandomizer = new RandomNumberGenerator();
 
 	public override void _Ready()
 	{
 		Instance = this;
-
-		_coinRandomizer.Randomize();
 
 		Events.OnEnemySpawn += HandleEnemySpawn;
 		Events.OnPlayerDeath += HandlePlayerDeath;
@@ -173,27 +169,12 @@ public partial class GameManager : Node
 
 	public void HandlePlayerDeath()
 	{
-		if (CurrentCharacter != null)
-		{
-			CurrentCharacter.Coins = 0;
-			SaveCurrentCharacter();
-		}
-		UpdateHud();
 		GetTree().ChangeSceneToFile("res://resources/scenes/game_over.tscn");
 	}
 	
 	public void HandleEnemyDeath()
 	{
-		if (CurrentCharacter != null)
-		{
-			int coinsEarned = _coinRandomizer.RandiRange(1, 10);
-			CurrentCharacter.Coins += coinsEarned;
-			GD.Print($"Enemy defeated! Earned {coinsEarned} coins. Total coins: {CurrentCharacter.Coins}");
-		}
-
 		_enemyCount--;
-		UpdateHud();
-
 		if (_enemyCount <= 0)
 		{
 			var error = GetTree().ChangeSceneToFile("res://resources/scenes/victory.tscn");
@@ -385,7 +366,7 @@ public partial class GameManager : Node
 		var panel = new Panel
 		{
 			Name = "PlayerUiPanel",
-			Size = new Vector2(240, 188),
+			Size = new Vector2(240, 160),
 			Position = new Vector2(8, 8)
 		};
 		_playerUi.AddChild(panel);
@@ -422,19 +403,11 @@ public partial class GameManager : Node
 		};
 		panel.AddChild(_movementRemainingLabel);
 
-		_playerCoinLabel = new Label
-		{
-			Name = "PlayerCoinLabel",
-			Text = "Coins: 0",
-			Position = new Vector2(10, 122)
-		};
-		panel.AddChild(_playerCoinLabel);
-
 		_nextPhaseButton = new Button
 		{
 			Name = "NextPhaseButton",
 			Text = "Next Phase",
-			Position = new Vector2(10, 150)
+			Position = new Vector2(10, 122)
 		};
 		panel.AddChild(_nextPhaseButton);
 		_nextPhaseButton.Pressed += OnNextPhasePressed;
@@ -461,12 +434,7 @@ public partial class GameManager : Node
 		{
 			_movementRemainingLabel.Text = $"Move: {pc.RemainingMovement}/{playerNode.Stats.MovementRange}";
 		}
-
-		if (GodotObject.IsInstanceValid(_playerCoinLabel) && CurrentCharacter != null)
-		{
-			_playerCoinLabel.Text = $"Coins: {CurrentCharacter.Coins}";
-		}
-
+		
 		if (GodotObject.IsInstanceValid(_movementPhaseLabel))
 		{
 			_movementPhaseLabel.Text = _currentPhaseText;
