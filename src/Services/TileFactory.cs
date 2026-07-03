@@ -13,28 +13,27 @@ public class TileFactory : ITileFactory
 	public TileState CreateTile(TileData cellData)
 	{
 		if (cellData != null)
-			{
-				TileState tileState = new TileState();
-
-				int rawInt = cellData.GetCustomData("terrain_type").AsInt32();
-
-				tileState.Terrain = (TerrainType)rawInt;
-
-				tileState.MovementCost = tileState.Terrain switch
-				{
-					TerrainType.Grass => 1,
-					_ => 999
-				};
-
-				return tileState;
-			}
-			else
-			{
-				return new TileState
-				{
-					Terrain = TerrainType.Void,
-					MovementCost = 999
-				};
-			}
+		{
+			TileState tileState = new TileState();
+			
+			int rawInt = cellData.GetCustomData("terrain_type").AsInt32();
+			
+			tileState.Terrain = (TerrainType)rawInt;
+			
+			tileState.MovementCost = tileState.Terrain switch 
+			{ 
+				TerrainType.Grass => 1, 
+				_ => 999
+			}; 
+			tileState.IsWalkable = tileState.MovementCost < 999; 
+			return tileState;
+		}
+		else
+		{
+			return new TileState {
+				Terrain = TerrainType.Void, 
+				MovementCost = 999
+			};
+		}
 	}
 }

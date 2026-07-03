@@ -9,4 +9,6 @@ public class TileState
 	public int MovementCost { get; set; } = 1;
 	public Node2D CurrentOccupant { get; set; } = null;
 	public bool IsOccupied => CurrentOccupant != null;
+	
+	public bool IsWalkable {get; set;} = true;
 }
