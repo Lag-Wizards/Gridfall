@@ -92,4 +92,13 @@ public partial class LevelUpUi : Control
 				break;
 		}
 	}
+
+	public override void _ExitTree()
+	{
+		base._ExitTree();
+		if (selectedCharacter != null)
+		{
+			selectedCharacter.StatChanged -= OnStatChanged;
+		}
+	}
 }

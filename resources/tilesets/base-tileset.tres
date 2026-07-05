@@ -1,6 +1,8 @@
 [gd_resource type="TileSet" format=3 uid="uid://lpxb84fk7sjf"]
 
 [ext_resource type="Texture2D" uid="uid://7k00o3t78h3t" path="res://assets/tileset/grass-tile.png" id="1_pi8i5"]
+[ext_resource type="Texture2D" uid="uid://xidquuj6n1p7" path="res://assets/tileset/mud-tile.png" id="2_dqy3e"]
+[ext_resource type="Texture2D" uid="uid://dm26qbcwdtbnc" path="res://assets/tileset/wall-tile.png" id="3_ib5kt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_67dni"]
 resource_name = "grass"
@@ -8,7 +10,20 @@ texture = ExtResource("1_pi8i5")
 0:0/0 = 0
 0:0/0/custom_data_0 = 1
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ib5kt"]
+resource_name = "mud"
+texture = ExtResource("2_dqy3e")
+0:0/0 = 0
+0:0/0/custom_data_0 = 2
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a20l8"]
+resource_name = "wall"
+texture = ExtResource("3_ib5kt")
+0:0/0 = 0
+
 [resource]
 custom_data_layer_0/name = "terrain_type"
 custom_data_layer_0/type = 2
 sources/1 = SubResource("TileSetAtlasSource_67dni")
+sources/2 = SubResource("TileSetAtlasSource_ib5kt")
+sources/3 = SubResource("TileSetAtlasSource_a20l8")

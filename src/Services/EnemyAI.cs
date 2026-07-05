@@ -6,9 +6,9 @@ public class EnemyAI
 {
 	public string DetermineAction(Vector2I enemyPosition, Vector2I playerPosition)
 	{
-		int distance =
-			Mathf.Abs(enemyPosition.X - playerPosition.X) +
-			Mathf.Abs(enemyPosition.Y - playerPosition.Y);
+		int distance = Mathf.Max(
+			Mathf.Abs(enemyPosition.X - playerPosition.X),
+			Mathf.Abs(enemyPosition.Y - playerPosition.Y));
 
 		if (distance <= 1)
 		{

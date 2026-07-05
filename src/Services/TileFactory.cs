@@ -23,6 +23,7 @@ public class TileFactory : ITileFactory
 				tileState.MovementCost = tileState.Terrain switch
 				{
 					TerrainType.Grass => 1,
+					TerrainType.Mud => 2,
 					_ => 999
 				};
 
