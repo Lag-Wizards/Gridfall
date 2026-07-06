@@ -81,4 +81,22 @@ public partial class SaveMenu : Control
 	{
 		GetTree().ChangeSceneToFile("res://resources/scenes/main_menu.tscn");
 	}
+	
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (@event.IsActionPressed("ui_cancel"))
+		{
+			GetViewport().SetInputAsHandled();
+			if (IsSaveMode)
+			{
+				QueueFree();
+				GD.Print("Save Menu overlay closed.");
+			}
+			else
+			{
+				GetTree().ChangeSceneToFile("res://resources/scenes/main_menu.tscn");
+			}
+		}
+	}
 }
