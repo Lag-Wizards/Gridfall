@@ -608,72 +608,53 @@ public partial class GameManager : Node
 				continue;
 			}
 
-			Vector2I enemyTile =
-				GridManager.WorldToMap(enemyNode.GlobalPosition);
+			Vector2I enemyTile = GridManager.WorldToMap(enemyNode.GlobalPosition);
 
-			Vector2I playerTile =
-				playerNode.CurrentTile;
+			Vector2I playerTile = playerNode.CurrentTile;
 
-			string action =
-				_enemyAI.DetermineAction(enemyTile, playerTile);
+			string action = _enemyAI.DetermineAction(enemyTile, playerTile);
 
 			if (action == "Attack")
 			{
 				GD.Print(
 					$"{enemyNode.Stats.UnitName} attacks the player.");
 
-				await PromptEnemyAttack(
-					enemyNode.Stats,
-					playerNode.Stats);
+				await PromptEnemyAttack(enemyNode.Stats, playerNode.Stats);
 			}
 			else if (action == "Move")
 			{
+				List<Vector2I> path = _enemyAI.FindPath(enemyTile, playerTile, GridManager);
+
+				if (path.Count <= 1)
+					continue;
+
 				int movement = enemyNode.Stats.MoveDistance;
 
-				for (int i = 0; i < movement; i++)
+				int steps = Mathf.Min(movement, path.Count - 1);
+
+				for (int i = 1; i <= steps; i++)
 				{
-					if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
-						return;
+					Vector2I destination = path[i];
 
-					if (!GodotObject.IsInstanceValid(playerNode) || !playerNode.Stats.IsAlive())
-						return;
+					TileState tileState = GridManager.GetTileStateAt(destination);
 
-					if (!GodotObject.IsInstanceValid(enemyNode))
+					if (tileState == null)
 						break;
 
-					Vector2I move = _enemyAI.DetermineMove(enemyTile, playerTile);
-					Vector2I destination = enemyTile + move;
+					TileState currentTile = GridManager.GetTileStateAt(enemyTile);
 
-					var tileState = GridManager.GetTileStateAt(destination);
-
-					if (tileState == null || tileState.CurrentOccupant != null)
-						break;
-
-					// clear old tile
-					var currentTile = GridManager.GetTileStateAt(enemyTile);
 					if (currentTile != null)
 						currentTile.CurrentOccupant = null;
 
-					// move
 					tileState.CurrentOccupant = enemyNode;
+
 					enemyTile = destination;
 
 					enemyNode.GlobalPosition = GridManager.MapToWorld(enemyTile);
 
 					await ToSignal(GetTree().CreateTimer(0.15f), SceneTreeTimer.SignalName.Timeout);
 
-					if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
-						return;
-
-					if (!GodotObject.IsInstanceValid(playerNode) || !playerNode.Stats.IsAlive())
-						return;
-
-					if (!GodotObject.IsInstanceValid(enemyNode))
-						break;
-
-					int distance = Mathf.Max(
-						Mathf.Abs(playerTile.X - enemyTile.X),
-						Mathf.Abs(playerTile.Y - enemyTile.Y));
+					int distance = Mathf.Abs(playerTile.X - enemyTile.X) + Mathf.Abs(playerTile.Y - enemyTile.Y);
 
 					if (distance <= 1)
 					{
