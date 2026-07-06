@@ -18,7 +18,7 @@ public partial class SaveMenu : Control
 	{
 		slotContainer = GetNode<VBoxContainer>("PanelContainer/VBoxContainer/SlotContainer");
 		backButton = GetNode<Button>("PanelContainer/VBoxContainer/BackButton");
-		saveService = new SaveService(); // Or fetch from a Service Locator/DI if you use one
+		saveService = new SaveService();
 		backButton.Pressed += OnBackPressed;
 		PopulateSlots();
 	}
