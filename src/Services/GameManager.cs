@@ -377,7 +377,7 @@ public partial class GameManager : Node
 		var panel = new Panel
 		{
 			Name = "PlayerUiPanel",
-			Size = new Vector2(240, 160),
+			Size = new Vector2(240, 190),
 			Position = new Vector2(8, 8)
 		};
 		_playerUi.AddChild(panel);
@@ -426,7 +426,7 @@ public partial class GameManager : Node
 		{
 			Name = "NextPhaseButton",
 			Text = "Next Phase",
-			Position = new Vector2(10, 122)
+			Position = new Vector2(10, 148)
 		};
 		panel.AddChild(_nextPhaseButton);
 		_nextPhaseButton.Pressed += OnNextPhasePressed;
