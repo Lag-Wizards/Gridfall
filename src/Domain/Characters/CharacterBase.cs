@@ -63,9 +63,11 @@ namespace Gridfall.Characters.Domain
 			MaxHealth = 25 + (level * 5);
 			Health = MaxHealth;
 
-			Strength = 5 + level;
+			Strength = 6 + level;
 			Defense = 3 + level;
 			Speed = 4 + level;
+			Skill = 3;
+			Resistance = 2;
 			MovementRange = 5;
 			
 			EquippedWeapon = weapon;

@@ -8,9 +8,9 @@ namespace Gridfall.Services;
 
 public class SaveService : ISaveService
 {
-	private const string SavePath = "user://savegame.json";
+	private const string SavePath = "user://savegame_{0}.json";
 
-	public void Save(CharacterBase character)
+	public void Save(CharacterBase character, int slot)
 	{
 		SaveData saveData = new SaveData
 		{
@@ -35,26 +35,42 @@ public class SaveService : ISaveService
 		};
 
 		string json = JsonSerializer.Serialize(saveData);
-
-		using var file = FileAccess.Open(SavePath, FileAccess.ModeFlags.Write);
+		string path = GetSavePath(slot);
+		
+		using var file = FileAccess.Open(path, FileAccess.ModeFlags.Write);
 		file.StoreString(json);
 	}
 
-	public SaveData Load()
+	public SaveData Load(int slot)
 	{
-		if (!SaveExists())
+		if (!SaveExists(slot))
 		{
 			return null;
 		}
-
-		using var file = FileAccess.Open(SavePath, FileAccess.ModeFlags.Read);
+		
+		string path = GetSavePath(slot);
+		using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
 		string json = file.GetAsText();
 
 		return JsonSerializer.Deserialize<SaveData>(json);
 	}
 
-	public bool SaveExists()
+	public void DeleteSave(int slot)
 	{
-		return FileAccess.FileExists(SavePath);
+		if (SaveExists(slot))
+		{
+			using var dir = DirAccess.Open("user://");
+			dir.Remove(System.IO.Path.GetFileName(GetSavePath(slot)));
+		}
+	}
+
+	public bool SaveExists(int slot)
+	{
+		return FileAccess.FileExists(GetSavePath(slot));
+	}
+
+	private string GetSavePath(int slot)
+	{
+		return string.Format(SavePath, slot);
 	}
 }

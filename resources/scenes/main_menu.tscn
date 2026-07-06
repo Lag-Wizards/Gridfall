@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bnhafth4d2scl"]
 
-[ext_resource type="Script" uid="uid://dsuqxx71fxtf" path="res://resources/scenes/main_menu.gd" id="1_l6cm7"]
+[ext_resource type="Script" uid="uid://d3ipntwnbc2le" path="res://resources/scenes/main_menu.gd" id="1_l6cm7"]
 
 [node name="MainMenu" type="Control" unique_id=890665601]
 layout_mode = 3
@@ -49,6 +49,10 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(250, 60)
 layout_mode = 2
 text = "Start Game"
+
+[node name="LoadButton" type="Button" parent="VBoxContainer" unique_id=1057893606]
+layout_mode = 2
+text = "Load Game"
 
 [node name="QuitButton" type="Button" parent="VBoxContainer" unique_id=289266318]
 custom_minimum_size = Vector2(250, 60)

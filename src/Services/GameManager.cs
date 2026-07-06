@@ -14,7 +14,7 @@ public partial class GameManager : Node
 	public static GameManager Instance { get; private set; }
 
 	private EnemyAI _enemyAI = new EnemyAI();
-
+	public int CurrentSaveSlot { get; set; } = 1;
 	public GamePhase CurrentPhase { get; private set; } = GamePhase.PlayerMovement;
 
 	private int _enemyCount = 0;
@@ -132,9 +132,9 @@ public partial class GameManager : Node
 
 	public void LoadCharacterData()
 	{
-		if (_saveService.SaveExists())
+		if (_saveService.SaveExists(CurrentSaveSlot))
 		{
-			SaveData saveData = _saveService.Load();
+			SaveData saveData = _saveService.Load(CurrentSaveSlot);
 
 			CurrentCharacter = new CharacterBase();
 			CurrentCharacter.LoadFromSave(saveData);
@@ -163,7 +163,7 @@ public partial class GameManager : Node
 			return;
 		}
 
-		_saveService.Save(CurrentCharacter);
+		_saveService.Save(CurrentCharacter, CurrentSaveSlot);
 		GD.Print("Current character saved.");
 	}
 
