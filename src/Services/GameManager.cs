@@ -69,10 +69,29 @@ public partial class GameManager : Node
 		}
 	}
 	
+	public int CurrentLevelNumber { get; set; } = 1;
+
 	public void RegisterGridManager(IGridManager gridManager)
 	{
 		GridManager = gridManager;
 		_enemyCount = 0;
+
+		var currentScene = GetTree()?.CurrentScene;
+		if (currentScene != null && !string.IsNullOrEmpty(currentScene.SceneFilePath))
+		{
+			string path = currentScene.SceneFilePath;
+			int dashIndex = path.LastIndexOf('-');
+			int dotIndex = path.LastIndexOf('.');
+			if (dashIndex != -1 && dotIndex != -1 && dotIndex > dashIndex + 1)
+			{
+				string numStr = path.Substring(dashIndex + 1, dotIndex - dashIndex - 1);
+				if (int.TryParse(numStr, out int levelNum))
+				{
+					CurrentLevelNumber = levelNum;
+					GD.Print($"Current level number: {CurrentLevelNumber}");
+				}
+			}
+		}
 
 		var playerNode = FindPlayerCharacterNode();
 		if (playerNode != null)
@@ -177,6 +196,11 @@ public partial class GameManager : Node
 		_enemyCount--;
 		if (_enemyCount <= 0)
 		{
+			if (CurrentCharacter != null)
+			{
+				CurrentCharacter.Heal(CurrentCharacter.MaxHealth);
+				GD.Print("GameManager: Player character fully healed upon victory!");
+			}
 			var error = GetTree().ChangeSceneToFile("res://resources/scenes/victory.tscn");
 			if (error != Error.Ok)
 			{
@@ -266,6 +290,9 @@ public partial class GameManager : Node
 
 	public async void TransitionToPhase(GamePhase nextPhase)
 	{
+		if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
+			return;
+
 		CurrentPhase = nextPhase;
 		
 		switch (CurrentPhase)
@@ -297,10 +324,10 @@ public partial class GameManager : Node
 				var playerNode = FindPlayerCharacterNode();
 				if (playerNode != null)
 				{
-					var enemy = playerNode.GetEnemyInRange();
-					if (enemy != null)
+					var enemies = playerNode.GetEnemiesInRange();
+					if (enemies != null && enemies.Count > 0)
 					{
-						bool playerFought = await PromptPlayerBattlePhase(playerNode.Stats, enemy.Stats);
+						bool playerFought = await PromptPlayerBattlePhase(playerNode.Stats, enemies);
 						GD.Print($"GameManager: Player finished battle (fought = {playerFought})");
 					}
 					else
@@ -309,6 +336,9 @@ public partial class GameManager : Node
 					}
 				}
 				
+				if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
+					return;
+
 				TransitionToPhase(GamePhase.EnemyBattle);
 				break;
 
@@ -323,6 +353,9 @@ public partial class GameManager : Node
 					pcEnemy.EndMovementPhase();
 
 				await RunEnemyTurn();
+
+				if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
+					return;
 
 				TransitionToPhase(GamePhase.PlayerMovement);
 				break;
@@ -450,7 +483,7 @@ public partial class GameManager : Node
 	}
 
 	// Combat UI Prompt Handlers
-	private Task<bool> PromptPlayerBattlePhase(CombatUnit player, CombatUnit enemy)
+	private Task<bool> PromptPlayerBattlePhase(CombatUnit player, List<EnemyNode> enemies)
 	{
 		var tcs = new TaskCompletionSource<bool>();
 
@@ -487,7 +520,7 @@ public partial class GameManager : Node
 		};
 
 		GetTree().CurrentScene.AddChild(canvasLayer);
-		battlePhaseNode.ShowBattle(player, enemy);
+		battlePhaseNode.ShowBattle(player, enemies);
 
 		return tcs.Task;
 	}
@@ -538,9 +571,15 @@ public partial class GameManager : Node
 
 		foreach (var enemyNode in enemies)
 		{
+			if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
+				return;
+
+			if (!GodotObject.IsInstanceValid(playerNode) || !playerNode.Stats.IsAlive())
+				return;
+
 			if (!GodotObject.IsInstanceValid(enemyNode) ||
-			    enemyNode.Stats == null ||
-			    !enemyNode.Stats.IsAlive())
+				enemyNode.Stats == null ||
+				!enemyNode.Stats.IsAlive())
 			{
 				continue;
 			}

@@ -82,6 +82,13 @@ public partial class CharacterNode : Node2D
 		var gridManager = GameManager.Instance?.GridManager;
 		if (gridManager == null) return;
 
+		_sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+		if (_sprite != null && _sprite.Position != Vector2.Zero)
+		{
+			GlobalPosition += _sprite.Position;
+			_sprite.Position = Vector2.Zero;
+		}
+
 		CurrentTile = gridManager.WorldToMap(GlobalPosition);
 		GlobalPosition = gridManager.MapToWorld(CurrentTile);
 		RegisterOccupantAt(CurrentTile);
@@ -113,11 +120,12 @@ public partial class CharacterNode : Node2D
 		return true;
 	}
 
-	public EnemyNode GetEnemyInRange()
+	public List<EnemyNode> GetEnemiesInRange()
 	{
+		var list = new List<EnemyNode>();
 		var gridManager = GameManager.Instance?.GridManager;
 		if (gridManager == null || _character == null)
-			return null;
+			return list;
 
 		int range = _character.EquippedWeapon?.Range ?? 1;
 		var sceneRoot = GetTree().CurrentScene;
@@ -129,14 +137,20 @@ public partial class CharacterNode : Node2D
 				continue;
 
 			Vector2I enemyTile = gridManager.WorldToMap(enemyNode.GlobalPosition);
-			int distance = Mathf.Abs(CurrentTile.X - enemyTile.X) + Mathf.Abs(CurrentTile.Y - enemyTile.Y);
+			int distance = Mathf.Max(Mathf.Abs(CurrentTile.X - enemyTile.X), Mathf.Abs(CurrentTile.Y - enemyTile.Y));
 			if (distance <= range)
 			{
-				return enemyNode;
+				list.Add(enemyNode);
 			}
 		}
 
-		return null;
+		return list;
+	}
+
+	public EnemyNode GetEnemyInRange()
+	{
+		var enemies = GetEnemiesInRange();
+		return enemies.Count > 0 ? enemies[0] : null;
 	}
 
 	private List<EnemyNode> FindEnemyNodesRecursive(Node node)

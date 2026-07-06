@@ -36,4 +36,13 @@ public partial class ExpUI : Control
 	{
 		ExpBar.Value = exp;
 	}
+
+	public override void _ExitTree()
+	{
+		base._ExitTree();
+		if (selectedCharacter != null)
+		{
+			selectedCharacter.ExpChanged -= UpdateCharacter;
+		}
+	}
 }

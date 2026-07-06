@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cqqw7wuackxww"]
 
-[ext_resource type="Script" uid="uid://cymhmgkilxdb2" path="res://resources/scenes/victory.gd" id="1_q23pb"]
+[ext_resource type="Script" uid="uid://bke31vxammjgl" path="res://resources/scenes/victory.gd" id="1_q23pb"]
 
 [node name="Victory" type="Control" unique_id=1535494273]
 layout_mode = 3
@@ -48,7 +48,7 @@ offset_right = 703.0
 offset_bottom = 407.0
 text = "Save"
 
-[node name="Next Level" type="Button" parent="." unique_id=172304736]
+[node name="NextLevel" type="Button" parent="." unique_id=172304736]
 custom_minimum_size = Vector2(250, 60)
 layout_mode = 0
 offset_left = 452.0
