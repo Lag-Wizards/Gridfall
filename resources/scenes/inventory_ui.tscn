@@ -15,12 +15,17 @@ script = ExtResource("1_7mcrn")
 [node name="Panel" type="Panel" parent="." unique_id=907199249]
 custom_minimum_size = Vector2(350, 220)
 layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -220.0
-offset_right = 350.0
-grow_vertical = 0
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -502.0
+offset_top = -224.0
+offset_right = -152.0
+offset_bottom = -4.0
+grow_horizontal = 0
+grow_vertical = 2
 offset_transform_position = Vector2(400, 150)
 offset_transform_scale = Vector2(0, 0)
 
