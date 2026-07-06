@@ -16,8 +16,7 @@ offset_bottom = -290.95203
 size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_f76d1")
-_saveSlotScene = ExtResource("2_idc4b")
-_totalSlots = 5
+saveSlotScene = ExtResource("2_idc4b")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=173876177]
 layout_mode = 1
