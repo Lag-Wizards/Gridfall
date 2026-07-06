@@ -14,6 +14,9 @@ public partial class PlayerController : Node2D
 	private bool _movementActive;
 	private int _remainingMovement;
 
+	private PackedScene _inventoryScene = GD.Load<PackedScene>("res://resources/scenes/inventory_ui.tscn");
+	private CanvasLayer _inventoryCanvasLayer;
+
 	public int RemainingMovement => _remainingMovement;
 
 	public override void _Ready()
@@ -24,7 +27,7 @@ public partial class PlayerController : Node2D
 			GD.PrintErr("PlayerController must be a child of CharacterNode.");
 			return;
 		}
-		
+
 		GameManager.Instance?.RegisterPlayerController(this);
 	}
 
@@ -44,6 +47,12 @@ public partial class PlayerController : Node2D
 	{
 		if (!(@event is InputEventKey keyEvent) || !keyEvent.IsPressed())
 			return;
+
+		if (keyEvent.Keycode == Key.I)
+		{
+			ToggleInventory();
+			return;
+		}
 
 		if (!_movementActive || GameManager.Instance?.CurrentPhase != GamePhase.PlayerMovement)
 			return;
@@ -68,6 +77,32 @@ public partial class PlayerController : Node2D
 			return;
 
 		TryMove(dir);
+	}
+
+	private void ToggleInventory()
+	{
+		if (_inventoryCanvasLayer != null && IsInstanceValid(_inventoryCanvasLayer))
+		{
+			_inventoryCanvasLayer.QueueFree();
+			_inventoryCanvasLayer = null;
+			return;
+		}
+
+		OpenInventory();
+	}
+
+	private void OpenInventory()
+	{
+		if (_inventoryScene == null || _parentUnit == null)
+			return;
+
+		_inventoryCanvasLayer = new CanvasLayer();
+		InventoryUi inventoryUi = _inventoryScene.Instantiate<InventoryUi>();
+
+		_inventoryCanvasLayer.AddChild(inventoryUi);
+		GetTree().CurrentScene.AddChild(_inventoryCanvasLayer);
+
+		inventoryUi.SetSelectedCharacter(_parentUnit.Stats);
 	}
 
 	private void TryMove(Vector2I direction)
