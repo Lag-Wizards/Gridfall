@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://cerid4vioik2h"]
+
+[ext_resource type="Script" uid="uid://bnx187t24pftv" path="res://resources/scenes/ShopUi.cs" id="1_y0n0t"]
+
+[node name="ShopUi" type="Control" unique_id=1715289848]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_y0n0t")
