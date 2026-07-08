@@ -9,33 +9,33 @@ namespace Gridfall.Services;
 // Class to create tile states based on tile data
 public class TileFactory : ITileFactory
 {
-	
 	public TileState CreateTile(TileData cellData)
 	{
 		if (cellData != null)
+		{
+			TileState tileState = new TileState();
+
+			int rawInt = cellData.GetCustomData("terrain_type").AsInt32();
+
+			tileState.Terrain = (TerrainType)rawInt;
+
+			tileState.MovementCost = tileState.Terrain switch
 			{
-				TileState tileState = new TileState();
+				TerrainType.Grass => 1,
+				TerrainType.Mud => 2,
+				TerrainType.Shop => 1,
+				_ => 999
+			};
 
-				int rawInt = cellData.GetCustomData("terrain_type").AsInt32();
-
-				tileState.Terrain = (TerrainType)rawInt;
-
-				tileState.MovementCost = tileState.Terrain switch
-				{
-					TerrainType.Grass => 1,
-					TerrainType.Mud => 2,
-					_ => 999
-				};
-
-				return tileState;
-			}
-			else
+			return tileState;
+		}
+		else
+		{
+			return new TileState
 			{
-				return new TileState
-				{
-					Terrain = TerrainType.Void,
-					MovementCost = 999
-				};
-			}
+				Terrain = TerrainType.Void,
+				MovementCost = 999
+			};
+		}
 	}
 }

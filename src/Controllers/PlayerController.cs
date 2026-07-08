@@ -3,7 +3,7 @@ using System;
 using Gridfall.Characters.Domain;
 using Gridfall.Services;
 using Gridfall.Domain.Enums;
-
+using Gridfall.Domain;
 namespace Gridfall.Controllers;
 
 public partial class PlayerController : Node2D
@@ -16,6 +16,9 @@ public partial class PlayerController : Node2D
 
 	private PackedScene _inventoryScene = GD.Load<PackedScene>("res://resources/scenes/inventory_ui.tscn");
 	private CanvasLayer _inventoryCanvasLayer;
+
+	private PackedScene _shopScene = GD.Load<PackedScene>("res://resources/scenes/shop_ui.tscn");
+	private CanvasLayer _shopCanvasLayer;
 
 	public int RemainingMovement => _remainingMovement;
 
@@ -51,6 +54,12 @@ public partial class PlayerController : Node2D
 		if (keyEvent.Keycode == Key.I)
 		{
 			ToggleInventory();
+			return;
+		}
+
+		if (keyEvent.Keycode == Key.S)
+		{
+			ToggleShop();
 			return;
 		}
 
@@ -105,6 +114,32 @@ public partial class PlayerController : Node2D
 		inventoryUi.SetSelectedCharacter(_parentUnit.Stats);
 	}
 
+	private void ToggleShop()
+	{
+		if (_shopCanvasLayer != null && IsInstanceValid(_shopCanvasLayer))
+		{
+			_shopCanvasLayer.QueueFree();
+			_shopCanvasLayer = null;
+			return;
+		}
+
+		OpenShop();
+	}
+
+	private void OpenShop()
+	{
+		if (_shopScene == null || _parentUnit == null)
+			return;
+
+		_shopCanvasLayer = new CanvasLayer();
+		ShopUi shopUi = _shopScene.Instantiate<ShopUi>();
+
+		_shopCanvasLayer.AddChild(shopUi);
+		GetTree().CurrentScene.AddChild(_shopCanvasLayer);
+
+		shopUi.SetSelectedCharacter(_parentUnit.Stats);
+	}
+
 	private void TryMove(Vector2I direction)
 	{
 		if (_parentUnit == null)
@@ -114,6 +149,13 @@ public partial class PlayerController : Node2D
 		{
 			_remainingMovement -= cost;
 			GameManager.Instance?.UpdateHud();
+
+			TileState currentTile = GameManager.Instance?.GridManager?.GetTileStateAt(_parentUnit.CurrentTile);
+
+			if (currentTile != null && currentTile.Terrain == TerrainType.Shop)
+			{
+				OpenShop();
+			}
 
 			if (_remainingMovement <= 0)
 			{
