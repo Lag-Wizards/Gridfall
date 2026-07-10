@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Gridfall.Domain;
+using Gridfall.Domain.Enemies;
 using Gridfall.Domain.Enums;
 using Gridfall.Services;
 using Gridfall.Characters.Domain;
@@ -33,6 +34,9 @@ public partial class GameManager : Node
 	private Label _movementRemainingLabel;
 	private Label _playerCoinLabel;
 	private Button _nextPhaseButton;
+	private CanvasLayer _enemyStatCanvas;
+	private EnemyStatSheet _enemyStatSheet;
+	private EnemyNode _currentStatEnemyNode;
 	private int _coinCount = 0;
 	private RandomNumberGenerator _coinRandomizer = new RandomNumberGenerator();
 	private string _currentPhaseText = "Phase: Player Movement";
@@ -48,6 +52,7 @@ public partial class GameManager : Node
 		Events.OnEnemyDeath += HandleEnemyDeath;
 
 		ProcessMode = ProcessModeEnum.Always;
+		SetProcessUnhandledInput(true);
 
 		GD.Print("!!!!!!!! GAME MANAGER READY !!!!!!!!");
 		LoadCharacterData();
@@ -71,6 +76,109 @@ public partial class GameManager : Node
 				_playerUi.Visible = false;
 			}
 		}
+	}
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (!(@event is InputEventMouseButton mouseEvent) || !mouseEvent.Pressed)
+			return;
+
+		if (mouseEvent.ButtonIndex != MouseButton.Left)
+			return;
+
+		var clickedEnemy = FindEnemyNodeAtScreenPosition(GetViewport().GetMousePosition());
+
+		if (clickedEnemy != null)
+		{
+			if (_currentStatEnemyNode == clickedEnemy)
+			{
+				HideEnemyStatSheet();
+				return;
+			}
+
+			ShowEnemyStatSheet(clickedEnemy);
+		}
+		else if (_enemyStatCanvas != null)
+		{
+			HideEnemyStatSheet();
+		}
+	}
+
+	private Camera2D FindCamera()
+	{
+		var sceneRoot = GetTree()?.CurrentScene;
+		if (sceneRoot == null) return null;
+		return sceneRoot.GetNodeOrNull<Camera2D>("Camera2D") ?? FindNodeRecursive<Camera2D>(sceneRoot);
+	}
+
+	private EnemyNode FindEnemyNodeAtScreenPosition(Vector2 screenPosition)
+	{
+		var camera = FindCamera();
+		Vector2 worldPosition = screenPosition;
+		if (GodotObject.IsInstanceValid(camera))
+		{
+			var viewport = GetViewport();
+			var viewSize = viewport.GetVisibleRect().Size;
+			var viewportCenter = viewSize / 2f;
+			worldPosition = camera.GlobalPosition + (screenPosition - viewportCenter) * camera.Zoom;
+		}
+
+		var sceneRoot = GetTree().CurrentScene;
+		if (sceneRoot == null)
+			return null;
+
+		var enemies = FindEnemyNodesRecursive(sceneRoot);
+		for (int i = enemies.Count - 1; i >= 0; i--)
+		{
+			var enemyNode = enemies[i];
+			if (!GodotObject.IsInstanceValid(enemyNode) || enemyNode.Stats == null || !enemyNode.Stats.IsAlive())
+				continue;
+
+			var sprite = enemyNode.GetNodeOrNull<Sprite2D>("Sprite2D");
+			if (sprite == null || sprite.Texture == null)
+				continue;
+
+			Vector2 localPoint = sprite.ToLocal(worldPosition);
+			var size = sprite.Texture.GetSize();
+			var rect = new Rect2(Vector2.Zero, size);
+			if (rect.HasPoint(localPoint))
+				return enemyNode;
+		}
+
+		return null;
+	}
+
+	private void ShowEnemyStatSheet(EnemyNode enemyNode)
+	{
+		if (enemyNode == null || enemyNode.Stats == null)
+			return;
+
+		HideEnemyStatSheet();
+
+		_enemyStatCanvas = new CanvasLayer
+		{
+			Name = "EnemyStatCanvas",
+			Layer = 10,
+			ProcessMode = ProcessModeEnum.Always
+		};
+
+		_enemyStatSheet = new EnemyStatSheet();
+		_enemyStatSheet.SetEnemy(enemyNode.Stats);
+		_enemyStatCanvas.AddChild(_enemyStatSheet);
+
+		GetTree().CurrentScene.AddChild(_enemyStatCanvas);
+		_currentStatEnemyNode = enemyNode;
+	}
+
+	private void HideEnemyStatSheet()
+	{
+		_currentStatEnemyNode = null;
+		_enemyStatSheet = null;
+		if (GodotObject.IsInstanceValid(_enemyStatCanvas))
+		{
+			_enemyStatCanvas.QueueFree();
+		}
+		_enemyStatCanvas = null;
 	}
 	
 	public int CurrentLevelNumber { get; set; } = 1;
