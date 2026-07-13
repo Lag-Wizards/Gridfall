@@ -33,8 +33,6 @@ public partial class EnemyNode : Node2D
 			_enemy.OnUnitDeath += Die;
 		}
 
-		CreateInteractionArea();
-
 		var sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
 		if (sprite != null && sprite.Position != Vector2.Zero)
 		{
@@ -56,54 +54,24 @@ public partial class EnemyNode : Node2D
 		}
 	}
 
-	private void CreateInteractionArea()
+	public override void _Input(InputEvent @event)
 	{
-		var area = new Area2D
-		{
-			Name = "EnemyInteractionArea",
-			InputPickable = true
-		};
+		base._Input(@event);
 
-		var collision = new CollisionShape2D
+		if (@event is not InputEventMouseButton mouseButton || !mouseButton.Pressed || mouseButton.ButtonIndex != MouseButton.Left)
 		{
-			Name = "EnemyCollisionShape"
-		};
+			return;
+		}
 
-		var shape = new RectangleShape2D();
 		var sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
-		if (sprite != null && sprite.Texture != null)
+		if (sprite == null)
 		{
-			var textureSize = sprite.Texture.GetSize();
-			shape.Size = textureSize * 0.75f;
-		}
-		else
-		{
-			shape.Size = new Vector2(32, 32);
+			return;
 		}
 
-		collision.Shape = shape;
-		collision.Position = sprite?.Position ?? Vector2.Zero;
-
-		area.AddChild(collision);
-		area.MouseEntered += OnInteractionMouseEntered;
-		area.MouseExited += OnInteractionMouseExited;
-		area.InputEvent += OnInteractionInputEvent;
-		AddChild(area);
-	}
-
-	private void OnInteractionMouseEntered()
-	{
-		GameManager.Instance?.ShowEnemyPreview(this);
-	}
-
-	private void OnInteractionMouseExited()
-	{
-		GameManager.Instance?.HideEnemyPreview(this);
-	}
-
-	private void OnInteractionInputEvent(Node viewport, InputEvent @event, long shapeIdx)
-	{
-		if (@event is InputEventMouseButton mouseButton && mouseButton.Pressed && mouseButton.ButtonIndex == MouseButton.Left)
+		var localMousePosition = sprite.ToLocal(GetGlobalMousePosition());
+		var spriteRect = sprite.GetRect();
+		if (spriteRect.HasPoint(localMousePosition))
 		{
 			GameManager.Instance?.ShowEnemyPreview(this);
 		}
