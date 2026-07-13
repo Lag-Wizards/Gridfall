@@ -31,6 +31,8 @@ public partial class EnemyNode : Node2D
 		if (_enemy != null)
 		{
 			_enemy.OnUnitDeath += Die;
+			var healthBar = new EnemyHealthBar(_enemy);
+			AddChild(healthBar);
 		}
 
 		var sprite = GetNodeOrNull<Sprite2D>("Sprite2D");

@@ -36,12 +36,14 @@ namespace Gridfall.Domain
 		};
 
 		public event Action OnUnitDeath;
+		public event Action OnHealthChanged;
 
 		public bool IsAlive() => Health > 0;
 
 		public virtual void TakeDamage(int damageAmount)
 		{
 			Health = Math.Max(0, Health - damageAmount);
+			OnHealthChanged?.Invoke();
 			if (Health == 0)
 			{
 				OnUnitDeath?.Invoke();
@@ -55,6 +57,7 @@ namespace Gridfall.Domain
 			{
 				Health = MaxHealth;
 			}
+			OnHealthChanged?.Invoke();
 		}
 	}
 }

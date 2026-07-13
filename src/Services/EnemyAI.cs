@@ -57,8 +57,8 @@ public class EnemyAI
 		if (state == null)
 			return false;
 
-		// Wall or blocked terrain
-		if (!state.IsWalkable)
+		// Wall, blocked terrain, or impassable movement cost
+		if (!state.IsWalkable || state.MovementCost >= 999)
 			return false;
 
 		// Allow the goal tile even if occupied
@@ -91,73 +91,69 @@ public class EnemyAI
 	}
 	
 	public List<Vector2I> FindPath(Vector2I start, Vector2I goal, IGridManager grid)
-        {
-            List<PathNode> openList = new();
-            HashSet<Vector2I> closedList = new();
+		{
+			List<PathNode> openList = new();
+			HashSet<Vector2I> closedList = new();
 
-            PathNode startNode = new(start)
-            {
-                GCost = 0,
-                HCost = Heuristic(start, goal)
-            };
+			PathNode startNode = new(start)
+			{
+				GCost = 0,
+				HCost = Heuristic(start, goal)
+			};
 
-            openList.Add(startNode);
+			openList.Add(startNode);
 
-            while (openList.Count > 0)
-            {
-                // Find node with the lowest F cost
-                PathNode current = openList[0];
+			while (openList.Count > 0)
+			{
+				PathNode current = openList[0];
 
-                foreach (PathNode node in openList)
-                {
-                    if (node.FCost < current.FCost || (node.FCost == current.FCost && node.HCost < current.HCost))
-                    {
-                        current = node;
-                    }
-                }
-                
-                if (current.Position == goal)
-                {
-                    return TracePath(current);
-                }
+				foreach (PathNode node in openList)
+				{
+					if (node.FCost < current.FCost || (node.FCost == current.FCost && node.HCost < current.HCost))
+					{
+						current = node;
+					}
+				}
+				
+				if (current.Position == goal)
+				{
+					return TracePath(current);
+				}
 
-                openList.Remove(current);
-                closedList.Add(current.Position);
+				openList.Remove(current);
+				closedList.Add(current.Position);
 
-                foreach (Vector2I neighbor in GetNeighbors(current.Position))
-                {
-                    // Already searched
-                    if (closedList.Contains(neighbor))
-                        continue;
+				foreach (Vector2I neighbor in GetNeighbors(current.Position))
+				{
+					if (closedList.Contains(neighbor))
+						continue;
 
-                    // Ignore walls or occupied tiles
-                    if (!IsWalkable(neighbor, goal, grid))
-                        continue;
+					if (!IsWalkable(neighbor, goal, grid))
+						continue;
 
-                    TileState neighborState = grid.GetTileStateAt(neighbor);
-                    int costToNeighbor = current.GCost + neighborState.MovementCost;
+					TileState neighborState = grid.GetTileStateAt(neighbor);
+					int costToNeighbor = current.GCost + neighborState.MovementCost;
 
-                    PathNode existing = openList.Find(n => n.Position == neighbor);
+					PathNode existing = openList.Find(n => n.Position == neighbor);
 
-                    if (existing == null)
-                    {
-                        existing = new PathNode(neighbor)
-                        {
-                            Parent = current,
-                            GCost = costToNeighbor,
-                            HCost = Heuristic(neighbor, goal)
-                        };
+					if (existing == null)
+					{
+						existing = new PathNode(neighbor)
+						{
+							Parent = current,
+							GCost = costToNeighbor,
+							HCost = Heuristic(neighbor, goal)
+						};
 
-                        openList.Add(existing);
-                    }
-                    else if (costToNeighbor < existing.GCost)
-                    {
-                        existing.Parent = current;
-                        existing.GCost = costToNeighbor;
-                    }
-                }
-            }
-            // No path found
-            return new List<Vector2I>();
-        }
+						openList.Add(existing);
+					}
+					else if (costToNeighbor < existing.GCost)
+					{
+						existing.Parent = current;
+						existing.GCost = costToNeighbor;
+					}
+				}
+			}
+			return new List<Vector2I>();
+		}
 }

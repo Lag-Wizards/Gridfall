@@ -69,7 +69,7 @@ script = ExtResource("4_ypdn4")
 EnemyType = "Slime"
 
 [node name="Sprite2D" type="Sprite2D" parent="Slime2" unique_id=340699174]
-position = Vector2(-24, -25)
+position = Vector2(-39, -70)
 texture = ExtResource("5_fjnyl")
 
 [node name="Slime3" type="Node2D" parent="." unique_id=247207901]

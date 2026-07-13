@@ -19,7 +19,11 @@ namespace Gridfall.Characters.Domain
 			get => MoveDistance;
 			set => MoveDistance = value;
 		}
+
 		public int Experience { get; set; }
+
+		// Inventory of weapons
+		public List<Weapon> Inventory { get; set; } = new List<Weapon>();
 
 		// Declaring event handler for when exp changes so UI can update
 		[Signal]
@@ -47,8 +51,11 @@ namespace Gridfall.Characters.Domain
 				saveData.WeaponDamage,
 				saveData.WeaponRange
 			);
+
+			Inventory.Clear();
+			Inventory.Add(EquippedWeapon);
 		}
-	
+
 		public override void _Ready()
 		{
 			// Cleaned up the debug auto-damage timers.
@@ -67,9 +74,12 @@ namespace Gridfall.Characters.Domain
 			Defense = 3 + level;
 			Speed = 4 + level;
 			MovementRange = 5;
-			
+
 			EquippedWeapon = weapon;
-			
+
+			Inventory.Clear();
+			Inventory.Add(weapon);
+
 			if (customGrowthRates != null)
 			{
 				foreach (var growth in customGrowthRates)
@@ -82,12 +92,33 @@ namespace Gridfall.Characters.Domain
 			}
 		}
 
+		public void AddWeaponToInventory(Weapon weapon)
+		{
+			if (weapon == null)
+				return;
+
+			Inventory.Add(weapon);
+			GD.Print("Added weapon to inventory: " + weapon.Name);
+		}
+
+		public void EquipWeapon(Weapon weapon)
+		{
+			if (weapon == null)
+				return;
+
+			if (!Inventory.Contains(weapon))
+				return;
+
+			EquippedWeapon = weapon;
+			
+		}
+
 		public void AddExperience(int amount)
 		{
 			Experience += amount;
 			EmitSignal(SignalName.ExpChanged, Experience);
 		}
-		
+
 		public void ModifyStat(string stat, int amount)
 		{
 			switch (stat)
@@ -96,7 +127,7 @@ namespace Gridfall.Characters.Domain
 					Level += amount;
 					EmitSignal(SignalName.StatChanged, stat, Level);
 					break;
-				
+
 				case "HP":
 					MaxHealth += amount;
 					EmitSignal(SignalName.StatChanged, stat, MaxHealth);
@@ -116,21 +147,21 @@ namespace Gridfall.Characters.Domain
 					Defense += amount;
 					EmitSignal(SignalName.StatChanged, stat, Defense);
 					break;
-				
+
 				case "LUCK":
 					Luck += amount;
 					EmitSignal(SignalName.StatChanged, stat, Luck);
 					break;
-				
+
 				case "SKILL":
 					Skill += amount;
 					EmitSignal(SignalName.StatChanged, stat, Skill);
 					break;
+
 				case "RES":
 					Resistance += amount;
 					EmitSignal(SignalName.StatChanged, stat, Resistance);
 					break;
-				
 			}
 		}
 	}

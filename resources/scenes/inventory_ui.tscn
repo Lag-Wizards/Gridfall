@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://cqto1k3rse55j"]
+
+[ext_resource type="Script" uid="uid://cpvh67fw5vfx7" path="res://resources/scenes/InventoryUi.cs" id="1_7mcrn"]
+
+[node name="InventoryUi" type="Control" unique_id=2088362684]
+custom_minimum_size = Vector2(420, 180)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_7mcrn")
+
+[node name="Panel" type="Panel" parent="." unique_id=907199249]
+custom_minimum_size = Vector2(350, 220)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -502.0
+offset_top = -224.0
+offset_right = -152.0
+offset_bottom = -4.0
+grow_horizontal = 0
+grow_vertical = 2
+offset_transform_position = Vector2(400, 150)
+offset_transform_scale = Vector2(0, 0)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=667862106]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="ItemList" type="VBoxContainer" parent="Panel/VBoxContainer" unique_id=574961073]
+layout_mode = 2
+
+[node name="DetailsLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1341077962]
+layout_mode = 2
+
+[node name="EquipButton" type="Button" parent="Panel/VBoxContainer" unique_id=679596113]
+layout_mode = 2
+text = "Equip"
+
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer" unique_id=1835767329]
+layout_mode = 2
+text = "Close"
