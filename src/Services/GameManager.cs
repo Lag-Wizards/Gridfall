@@ -628,11 +628,9 @@ public partial class GameManager : Node
 				if (path.Count <= 1)
 					continue;
 
-				int movement = enemyNode.Stats.MoveDistance;
+				int remainingMovement = enemyNode.Stats.MoveDistance;
 
-				int steps = Mathf.Min(movement, path.Count - 1);
-
-				for (int i = 1; i <= steps; i++)
+				for (int i = 1; i < path.Count; i++)
 				{
 					Vector2I destination = path[i];
 
@@ -640,6 +638,11 @@ public partial class GameManager : Node
 
 					if (tileState == null)
 						break;
+
+					if (remainingMovement < tileState.MovementCost)
+						break;
+
+					remainingMovement -= tileState.MovementCost;
 
 					TileState currentTile = GridManager.GetTileStateAt(enemyTile);
 
