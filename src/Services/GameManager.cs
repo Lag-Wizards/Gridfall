@@ -39,7 +39,7 @@ public partial class GameManager : Node
 	private Label _enemyPreviewStatsLabel;
 	private EnemyNode _currentPreviewEnemy;
 	private double _previewHideTimer = 0.0;
-	private const double PreviewDisplayDuration = 7.0;
+	private const double PreviewDisplayDuration = 1.5;
 	private int _coinCount = 0;
 	private RandomNumberGenerator _coinRandomizer = new RandomNumberGenerator();
 	private string _currentPhaseText = "Phase: Player Movement";

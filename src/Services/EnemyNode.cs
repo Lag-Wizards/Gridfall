@@ -19,13 +19,7 @@ public partial class EnemyNode : Node2D
 	public override void _EnterTree()
 	{
 		base._EnterTree();
-		var enemyLevel = Math.Max(1, Level);
-		if (GameManager.Instance != null)
-		{
-			enemyLevel = Math.Max(enemyLevel, GameManager.Instance.CurrentLevelNumber);
-		}
-		Level = enemyLevel;
-		_enemy = EnemyManager.CreateEnemy(EnemyType, enemyLevel);
+		_enemy = EnemyManager.CreateEnemy(EnemyType, Level);
 	}
 
 	public override void _Ready()
