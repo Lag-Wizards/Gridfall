@@ -19,5 +19,14 @@ func _on_quit_pressed():
 	get_tree().quit()
 
 func _on_save_pressed():
-	GameManager.SaveCurrentCharacter()
-	print("Save button pressed.")
+	var save_menu_template = load("res://resources/scenes/SaveMenu.tscn")
+	
+	if save_menu_template:
+		var save_menu_instance = save_menu_template.instantiate()
+		
+		save_menu_instance.IsSaveMode = true
+		
+		add_child(save_menu_instance)
+		print("Opened save menu in savemode.")
+	else:
+		push_error("Failed to load SaveMenu.tscn")

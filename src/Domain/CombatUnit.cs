@@ -11,7 +11,7 @@ namespace Gridfall.Domain
 
 		public string UnitName { get; set; }
 		public int Level { get; set; }
-		public int Health { get; protected set; }
+		public int Health { get; set; }
 		public int MaxHealth { get; protected set; }
 		public int Strength { get; set; }
 		public int Defense { get; set; }

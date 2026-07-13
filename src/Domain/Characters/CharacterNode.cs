@@ -28,20 +28,20 @@ public partial class CharacterNode : Node2D
 	{
 		base._EnterTree();
 
-		SaveService saveService = new SaveService();
+		GameManager.Instance?.LoadCharacterData();
 
-		if (saveService.SaveExists())
+		if (GameManager.Instance?.CurrentCharacter != null)
 		{
-			GD.Print("Attempting to load save data");
-			SaveData saveData = saveService.Load();
-			saveData.Health = saveData.MaxHealth;
-			_character.LoadFromSave(saveData);
-			GD.Print("Loaded character data from save.");
+			_character = GameManager.Instance.CurrentCharacter;
+			_character.Health = _character.MaxHealth;
+      
+			GD.Print($"CharacterNode synced with GameManager tracking: {_character.CharacterName}");
 		}
 		else
 		{
 			Weapon starterWeapon = new Weapon(WeaponType.Slash, 5, 1);
 			_character.SetupCharacter(CharacterName, Level, starterWeapon);
+			GameManager.Instance?.SetCurrentCharacter(_character);
 			GD.Print("No save found. Created default character.");
 		}
 

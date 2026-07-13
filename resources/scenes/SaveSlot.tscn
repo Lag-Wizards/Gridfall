@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://c6ydvfbmmf7rw"]
+
+[ext_resource type="Script" uid="uid://wi6kuvh2rwng" path="res://resources/scenes/SaveSlot.cs" id="1_7tofa"]
+
+[node name="SaveSlot" type="Button" unique_id=869759008]
+custom_minimum_size = Vector2(400, 60)
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_7tofa")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=105044405]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 6.0
+offset_right = 198.0
+offset_bottom = 37.0
+
+[node name="SlotNumberLabel" type="Label" parent="HBoxContainer" unique_id=2086833881]
+layout_mode = 2
+text = "Slot 1:"
+
+[node name="DetailsLabel" type="Label" parent="HBoxContainer" unique_id=1329234795]
+layout_mode = 2
+text = "Something"
+
+[node name="DeleteButton" type="Button" parent="HBoxContainer" unique_id=1646119131]
+layout_mode = 2
+text = "Delete"
