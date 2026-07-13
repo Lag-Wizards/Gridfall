@@ -38,6 +38,8 @@ public partial class GameManager : Node
 	private Label _enemyPreviewTitleLabel;
 	private Label _enemyPreviewStatsLabel;
 	private EnemyNode _currentPreviewEnemy;
+	private double _previewHideTimer = 0.0;
+	private const double PreviewDisplayDuration = 1.5;
 	private int _coinCount = 0;
 	private RandomNumberGenerator _coinRandomizer = new RandomNumberGenerator();
 	private string _currentPhaseText = "Phase: Player Movement";
@@ -80,6 +82,16 @@ public partial class GameManager : Node
 		if (GodotObject.IsInstanceValid(_enemyPreviewUi) && _enemyPreviewPanel != null && _enemyPreviewPanel.Visible)
 		{
 			UpdateEnemyPreviewPosition();
+
+			if (_currentPreviewEnemy != null)
+			{
+				_previewHideTimer -= delta;
+				if (_previewHideTimer <= 0.0)
+				{
+					_enemyPreviewPanel.Hide();
+					_currentPreviewEnemy = null;
+				}
+			}
 		}
 	}
 	
@@ -526,6 +538,7 @@ public partial class GameManager : Node
 
 		EnsureEnemyPreviewUi();
 		_currentPreviewEnemy = enemyNode;
+		_previewHideTimer = PreviewDisplayDuration;
 		PopulateEnemyPreview(enemyNode);
 		_enemyPreviewPanel.Visible = true;
 		UpdateEnemyPreviewPosition();
@@ -536,6 +549,7 @@ public partial class GameManager : Node
 		if (_currentPreviewEnemy == enemyNode)
 		{
 			_currentPreviewEnemy = null;
+			_previewHideTimer = 0.0;
 			_enemyPreviewPanel?.Hide();
 		}
 	}
