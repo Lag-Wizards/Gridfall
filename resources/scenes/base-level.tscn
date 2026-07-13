@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://c8toiphshaqox" path="res://src/Services/GridNode.cs" id="3_w8wmq"]
 [ext_resource type="Script" uid="uid://bny54mgvct3qc" path="res://src/Services/EnemyNode.cs" id="4_ypdn4"]
 [ext_resource type="Texture2D" uid="uid://bapth5fg7rekp" path="res://assets/sprites/slime.png" id="5_fjnyl"]
-[ext_resource type="Script" uid="uid://cx74el5t8vfuf" path="res://src/Domain/Characters/CharacterNode.cs" id="6_tatbj"]
+[ext_resource type="Script" uid="uid://ducar2mool8ds" path="res://src/Domain/Characters/CharacterNode.cs" id="6_tatbj"]
 [ext_resource type="Texture2D" uid="uid://3e370uhe0u38" path="res://assets/sprites/Character.png" id="6_yh8fr"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0jp7s"]

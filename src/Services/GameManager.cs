@@ -33,6 +33,11 @@ public partial class GameManager : Node
 	private Label _movementRemainingLabel;
 	private Label _playerCoinLabel;
 	private Button _nextPhaseButton;
+	private CanvasLayer _enemyPreviewUi;
+	private PanelContainer _enemyPreviewPanel;
+	private Label _enemyPreviewTitleLabel;
+	private Label _enemyPreviewStatsLabel;
+	private EnemyNode _currentPreviewEnemy;
 	private int _coinCount = 0;
 	private RandomNumberGenerator _coinRandomizer = new RandomNumberGenerator();
 	private string _currentPhaseText = "Phase: Player Movement";
@@ -70,6 +75,11 @@ public partial class GameManager : Node
 			{
 				_playerUi.Visible = false;
 			}
+		}
+
+		if (GodotObject.IsInstanceValid(_enemyPreviewUi) && _enemyPreviewPanel != null && _enemyPreviewPanel.Visible)
+		{
+			UpdateEnemyPreviewPosition();
 		}
 	}
 	
@@ -464,7 +474,127 @@ public partial class GameManager : Node
 		panel.AddChild(_nextPhaseButton);
 		_nextPhaseButton.Pressed += OnNextPhasePressed;
 
+		EnsureEnemyPreviewUi();
 		GD.Print("GameManager: EnsureUiNodes completed.");
+	}
+
+	private void EnsureEnemyPreviewUi()
+	{
+		if (GodotObject.IsInstanceValid(_enemyPreviewUi))
+		{
+			return;
+		}
+
+		_enemyPreviewUi = new CanvasLayer
+		{
+			Name = "EnemyPreviewUi",
+			Layer = 3
+		};
+		AddChild(_enemyPreviewUi);
+
+		_enemyPreviewPanel = new PanelContainer
+		{
+			Name = "EnemyPreviewPanel",
+			Visible = false
+		};
+		_enemyPreviewUi.AddChild(_enemyPreviewPanel);
+
+		var previewVBox = new VBoxContainer();
+		_enemyPreviewPanel.AddChild(previewVBox);
+
+		_enemyPreviewTitleLabel = new Label
+		{
+			Text = "Enemy Preview",
+			HorizontalAlignment = HorizontalAlignment.Center
+		};
+		previewVBox.AddChild(_enemyPreviewTitleLabel);
+
+		_enemyPreviewStatsLabel = new Label
+		{
+			Text = "",
+			CustomMinimumSize = new Vector2(220, 0)
+		};
+		previewVBox.AddChild(_enemyPreviewStatsLabel);
+	}
+
+	public void ShowEnemyPreview(EnemyNode enemyNode)
+	{
+		if (enemyNode == null || enemyNode.Stats == null)
+		{
+			return;
+		}
+
+		EnsureEnemyPreviewUi();
+		_currentPreviewEnemy = enemyNode;
+		PopulateEnemyPreview(enemyNode);
+		_enemyPreviewPanel.Visible = true;
+		UpdateEnemyPreviewPosition();
+	}
+
+	public void HideEnemyPreview(EnemyNode enemyNode)
+	{
+		if (_currentPreviewEnemy == enemyNode)
+		{
+			_currentPreviewEnemy = null;
+			_enemyPreviewPanel?.Hide();
+		}
+	}
+
+	private void PopulateEnemyPreview(EnemyNode enemyNode)
+	{
+		if (enemyNode?.Stats == null)
+		{
+			return;
+		}
+
+		var playerNode = FindPlayerCharacterNode();
+		var player = playerNode?.Stats;
+		var enemy = enemyNode.Stats;
+		var battleCalculation = new BattleCalculation();
+		Gridfall.Services.CombatReport? previewReport = null;
+
+		if (player != null)
+		{
+			previewReport = battleCalculation.CalculateStats(player, enemy);
+		}
+
+		if (_enemyPreviewTitleLabel != null)
+		{
+			_enemyPreviewTitleLabel.Text = $"{enemy.Name} L{enemy.Level}";
+		}
+
+		if (_enemyPreviewStatsLabel != null)
+		{
+			var previewText = $"HP: {enemy.Health}/{enemy.MaxHealth}\n";
+			previewText += $"STR: {enemy.Strength}\n";
+			previewText += $"DEF: {enemy.Defense}\n";
+			previewText += $"SPD: {enemy.Speed}\n";
+			if (previewReport is not null)
+			{
+				var report = previewReport.Value;
+				previewText += $"DMG: {report.EnemyDamage}\n";
+				previewText += $"HIT: {report.EnemyFinalHit}%\n";
+				previewText += $"DBL: {report.EnemyDoubles}";
+			}
+			_enemyPreviewStatsLabel.Text = previewText;
+		}
+	}
+
+	private void UpdateEnemyPreviewPosition()
+	{
+		if (_enemyPreviewPanel == null || !_enemyPreviewPanel.Visible)
+		{
+			return;
+		}
+
+		var viewport = GetViewport();
+		if (viewport == null)
+		{
+			return;
+		}
+
+		Vector2 mousePosition = viewport.GetMousePosition();
+		_enemyPreviewPanel.Position = mousePosition + new Vector2(16, 16);
 	}
 
 	public void UpdateHud()
