@@ -39,6 +39,9 @@ public partial class GameManager : Node
 	private Label _movementRemainingLabel;
 	private Label _playerCoinLabel;
 	private Button _nextPhaseButton;
+	private Button _characterStatsButton;
+	private PanelContainer _characterStatsPanel;
+	private Label _characterStatsLabel;
 	private int _coinCount = 0;
 	private RandomNumberGenerator _coinRandomizer = new RandomNumberGenerator();
 	private string _currentPhaseText = "Phase: Player Movement";
@@ -478,7 +481,80 @@ public partial class GameManager : Node
 		panel.AddChild(_nextPhaseButton);
 		_nextPhaseButton.Pressed += OnNextPhasePressed;
 
+		_characterStatsButton = new Button
+		{
+			Name = "CharacterStatsButton",
+			Text = "Character Stats",
+			Position = new Vector2(120, 122)
+		};
+
+		panel.AddChild(_characterStatsButton);
+		_characterStatsButton.Pressed += ToggleCharacterStatSheet;
+
+		_characterStatsPanel = new PanelContainer
+		{
+			Name = "CharacterStatsPanel",
+			Visible = false,
+			Position = new Vector2(260, 8),
+			CustomMinimumSize = new Vector2(220, 0)
+		};
+
+		_playerUi.AddChild(_characterStatsPanel);
+
+		var characterStatsBox = new VBoxContainer();
+		_characterStatsPanel.AddChild(characterStatsBox);
+
+		var characterStatsTitle = new Label
+		{
+			Text = "Character Stats",
+			HorizontalAlignment = HorizontalAlignment.Center
+		};
+
+		characterStatsBox.AddChild(characterStatsTitle);
+
+		_characterStatsLabel = new Label
+		{
+			Text = ""
+		};
+
+		characterStatsBox.AddChild(_characterStatsLabel);
 		GD.Print("GameManager: EnsureUiNodes completed.");
+	}
+
+	private void ToggleCharacterStatSheet()
+	{
+		if (_characterStatsPanel == null)
+		{
+			return;
+		}
+
+		_characterStatsPanel.Visible = !_characterStatsPanel.Visible;
+
+		if (_characterStatsPanel.Visible)
+		{
+			PopulateCharacterStatSheet();
+		}
+	}
+
+	private void PopulateCharacterStatSheet()
+	{
+		var playerNode = FindPlayerCharacterNode();
+
+		if (playerNode?.Stats == null || _characterStatsLabel == null)
+		{
+			return;
+		}
+
+		var stats = playerNode.Stats;
+
+		_characterStatsLabel.Text =
+			$"Name: {stats.CharacterName}\n" +
+			$"Level: {stats.Level}\n" +
+			$"HP: {stats.Health}/{stats.MaxHealth}\n" +
+			$"Strength: {stats.Strength}\n" +
+			$"Defense: {stats.Defense}\n" +
+			$"Speed: {stats.Speed}\n" +
+			$"Movement: {stats.MovementRange}";
 	}
 
 	public void UpdateHud()
@@ -510,6 +586,11 @@ public partial class GameManager : Node
 		{
 			_movementPhaseLabel.Text = _currentPhaseText;
 			_movementPhaseLabel.Modulate = _currentPhaseColor;
+		}
+
+		if (_characterStatsPanel != null && _characterStatsPanel.Visible)
+		{
+			PopulateCharacterStatSheet();
 		}
 	}
 
