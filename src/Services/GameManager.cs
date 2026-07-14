@@ -8,6 +8,7 @@ using Gridfall.Services;
 using Gridfall.Characters.Domain;
 using Gridfall.Contracts;
 using Gridfall.Controllers;
+using Gridfall.resources.scenes;
 
 public partial class GameManager : Node
 {
@@ -15,6 +16,11 @@ public partial class GameManager : Node
 
 	private EnemyAI _enemyAI = new EnemyAI();
 	public int CurrentSaveSlot { get; set; } = 1;
+	private EnemyNode selectedEnemy;
+	
+	private RangeIndicatorService rangeIndicatorService = new RangeIndicatorService();
+	private GridOverlay rangeOverlay;
+
 	public GamePhase CurrentPhase { get; private set; } = GamePhase.PlayerMovement;
 
 	private int _enemyCount = 0;
@@ -81,6 +87,14 @@ public partial class GameManager : Node
 		_enemyCount = 0;
 
 		var currentScene = GetTree()?.CurrentScene;
+		
+		rangeOverlay = currentScene?.GetNodeOrNull<GridOverlay>("GridOverlay");
+
+		if (rangeOverlay == null)
+		{
+			GD.PrintErr("GameManager: Could not find the GridOverlay node in the scene tree!");
+		}
+		
 		if (currentScene != null && !string.IsNullOrEmpty(currentScene.SceneFilePath))
 		{
 			string path = currentScene.SceneFilePath;
@@ -684,5 +698,73 @@ public partial class GameManager : Node
 			}
 		}
 		return list;
+	}
+	
+	public void ShowEnemyRange(EnemyNode enemy)
+	{
+		if (rangeOverlay == null || GridManager == null)
+			return;
+		
+		Vector2I enemyTile = GridManager.WorldToMap(enemy.GlobalPosition);
+
+		var movement = rangeIndicatorService.GetMovementRange(enemyTile, enemy.Stats.MoveDistance, GridManager);
+		var attack = rangeIndicatorService.GetAttackRange(movement, 1, enemy.Stats.EquippedWeapon.Range);
+		GD.Print($"Calculated {movement.Count} movement tiles and {attack.Count} attack tiles for enemy.");
+		rangeOverlay.ClearRanges();
+		rangeOverlay.DrawMovement(movement);
+		rangeOverlay.DrawAttack(attack);
+	}
+	
+	public void SelectEnemy(EnemyNode enemy)
+	{
+		
+		if (selectedEnemy == enemy)
+			return;
+		selectedEnemy = enemy;
+
+		ShowEnemyRange(enemy);
+	}
+	
+	public void DeselectEnemy()
+	{
+		selectedEnemy = null;
+		rangeOverlay.ClearRanges();
+	}
+	
+	private void SelectEnemyWithMouse()
+	{
+		Viewport viewport = GetViewport();
+		if (viewport == null) return;
+
+		Vector2 mousePosition = viewport.GetCanvasTransform().AffineInverse() * viewport.GetMousePosition();
+
+		var enemyGroupNodes = GetTree().GetNodesInGroup("enemies");
+		bool enemyClicked = false;
+		foreach (var node in enemyGroupNodes)
+		{
+			if (node is not EnemyNode enemy || !GodotObject.IsInstanceValid(enemy))
+				continue;
+			
+			Rect2 rect = new Rect2(enemy.GlobalPosition - new Vector2(16, 16), new Vector2(32, 32));
+
+			if (rect.HasPoint(mousePosition))
+			{
+				SelectEnemy(enemy);
+				enemyClicked = true;
+				break; 
+			}
+		}
+		if (!enemyClicked)
+		{
+			DeselectEnemy();
+		}
+	}
+	
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (@event is InputEventMouseButton mouse && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
+		{
+			SelectEnemyWithMouse();
+		}
 	}
 }
