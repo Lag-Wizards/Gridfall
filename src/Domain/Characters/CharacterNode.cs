@@ -34,7 +34,7 @@ public partial class CharacterNode : Node2D
 		{
 			_character = GameManager.Instance.CurrentCharacter;
 			_character.Health = _character.MaxHealth;
-      
+	  
 			GD.Print($"CharacterNode synced with GameManager tracking: {_character.CharacterName}");
 		}
 		else
