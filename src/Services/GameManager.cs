@@ -69,16 +69,16 @@ public partial class GameManager : Node
 		if (GodotObject.IsInstanceValid(_playerUi) && _playerUi.Visible)
 		{
 			var currentScene = GetTree().CurrentScene;
-			if (currentScene != null && (currentScene.SceneFilePath == "res://resources/scenes/main_menu.tscn" || 
-				currentScene.Name == "MainMenu" || 
-				currentScene.Name == "Victory" || 
+			if (currentScene != null && (currentScene.SceneFilePath == "res://resources/scenes/main_menu.tscn" ||
+				currentScene.Name == "MainMenu" ||
+				currentScene.Name == "Victory" ||
 				currentScene.Name == "GameOver"))
 			{
 				_playerUi.Visible = false;
 			}
 		}
 	}
-	
+
 	public int CurrentLevelNumber { get; set; } = 1;
 
 	public void RegisterGridManager(IGridManager gridManager)
@@ -138,14 +138,14 @@ public partial class GameManager : Node
 					var canvas = new CanvasLayer
 					{
 						Name = "PauseUI",
-						Layer = 20, 
+						Layer = 20,
 						ProcessMode = ProcessModeEnum.Always
 					};
 					AddChild(canvas);
 
 					var pauseNode = pauseScene.Instantiate<Control>();
 					canvas.AddChild(pauseNode);
-					
+
 					pauseNode.Visible = false;
 					_pauseMenu = pauseNode;
 				}
@@ -210,7 +210,7 @@ public partial class GameManager : Node
 		UpdateHud();
 		GetTree().ChangeSceneToFile("res://resources/scenes/game_over.tscn");
 	}
-	
+
 	public void HandleEnemyDeath()
 	{
 		int coinsEarned = _coinRandomizer.RandiRange(1, 10);
@@ -319,33 +319,33 @@ public partial class GameManager : Node
 			return;
 
 		CurrentPhase = nextPhase;
-		
+
 		switch (CurrentPhase)
 		{
 			case GamePhase.PlayerMovement:
 				GD.Print("GameManager: Entering Player Movement Phase");
 				SetPhaseLabel("Phase: Player Movement", Colors.LimeGreen);
-				
+
 				var pc = FindPlayerController();
 				if (pc != null)
 				{
 					pc.StartMovementPhase();
 				}
 				UpdateHud();
-				if (GodotObject.IsInstanceValid(_nextPhaseButton)) 
+				if (GodotObject.IsInstanceValid(_nextPhaseButton))
 					_nextPhaseButton.Visible = true;
 				break;
 
 			case GamePhase.PlayerBattle:
 				GD.Print("GameManager: Entering Player Battle Phase");
 				SetPhaseLabel("Phase: Player Battle", Colors.OrangeRed);
-				if (GodotObject.IsInstanceValid(_nextPhaseButton)) 
+				if (GodotObject.IsInstanceValid(_nextPhaseButton))
 					_nextPhaseButton.Visible = false;
-				
+
 				var pcBattle = FindPlayerController();
-				if (pcBattle != null) 
+				if (pcBattle != null)
 					pcBattle.EndMovementPhase();
-				
+
 				var playerNode = FindPlayerCharacterNode();
 				if (playerNode != null)
 				{
@@ -360,7 +360,7 @@ public partial class GameManager : Node
 						GD.Print("GameManager: No enemy in range for player attack.");
 					}
 				}
-				
+
 				if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
 					return;
 
@@ -370,11 +370,11 @@ public partial class GameManager : Node
 			case GamePhase.EnemyBattle:
 				GD.Print("GameManager: Entering Enemy Battle Phase");
 				SetPhaseLabel("Phase: Enemy Battle", Colors.Red);
-				if (GodotObject.IsInstanceValid(_nextPhaseButton)) 
+				if (GodotObject.IsInstanceValid(_nextPhaseButton))
 					_nextPhaseButton.Visible = false;
-				
+
 				var pcEnemy = FindPlayerController();
-				if (pcEnemy != null) 
+				if (pcEnemy != null)
 					pcEnemy.EndMovementPhase();
 
 				await RunEnemyTurn();
@@ -397,7 +397,7 @@ public partial class GameManager : Node
 		if (CurrentPhase == GamePhase.PlayerMovement)
 		{
 			var pc = FindPlayerController();
-			if (pc != null) 
+			if (pc != null)
 				pc.EndMovementPhase();
 			EndPlayerMovementPhase();
 		}
@@ -490,12 +490,12 @@ public partial class GameManager : Node
 		{
 			_playerLevelLabel.Text = $"Level: {playerNode.Stats.Level}";
 		}
-		
+
 		if (GodotObject.IsInstanceValid(_playerHealthLabel) && playerNode?.Stats != null)
 		{
 			_playerHealthLabel.Text = $"HP: {playerNode.Stats.Health}/{playerNode.Stats.MaxHealth}";
 		}
-		
+
 		if (GodotObject.IsInstanceValid(_movementRemainingLabel) && pc != null && playerNode?.Stats != null)
 		{
 			_movementRemainingLabel.Text = $"Move: {pc.RemainingMovement}/{playerNode.Stats.MovementRange}";
@@ -505,12 +505,33 @@ public partial class GameManager : Node
 		{
 			_playerCoinLabel.Text = $"Coins: {_coinCount}";
 		}
-		
+
 		if (GodotObject.IsInstanceValid(_movementPhaseLabel))
 		{
 			_movementPhaseLabel.Text = _currentPhaseText;
 			_movementPhaseLabel.Modulate = _currentPhaseColor;
 		}
+	}
+
+	public int GetCoinCount()
+	{
+		return _coinCount;
+	}
+
+	public bool SpendCoins(int amount)
+	{
+		if (_coinCount < amount)
+			return false;
+
+		_coinCount -= amount;
+		UpdateHud();
+		return true;
+	}
+
+	public void AddCoins(int amount)
+	{
+		_coinCount += amount;
+		UpdateHud();
 	}
 
 	private void SetPhaseLabel(string text, Color color)

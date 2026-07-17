@@ -1,0 +1,73 @@
+[gd_scene format=3 uid="uid://c5618nwv8jewq"]
+
+[ext_resource type="Script" uid="uid://bnx187t24pftv" path="res://resources/scenes/ShopUi.cs" id="1_y0n0t"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ib5kt"]
+bg_color = Color(0.33324954, 0.0047400366, 0.050801396, 1)
+border_color = Color(0.29411766, 0.33333334, 0.3882353, 1)
+corner_detail = 10
+
+[node name="ShopUi" type="Control" unique_id=1715289848]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_y0n0t")
+
+[node name="Panel" type="Panel" parent="." unique_id=1433841445]
+custom_minimum_size = Vector2(450, 400)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -225.0
+offset_top = -200.0
+offset_right = 225.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ib5kt")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel" unique_id=1808060789]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1316915158]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Equipment Shop"
+
+[node name="CoinLabel" type="Label" parent="Panel/VBoxContainer" unique_id=1075736100]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9831093, 0.793338, 0, 1)
+text = "Coins: 0"
+
+[node name="ItemList" type="VBoxContainer" parent="Panel/VBoxContainer" unique_id=1921236943]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+
+[node name="DetailsLabel" type="Label" parent="Panel/VBoxContainer" unique_id=2142820590]
+layout_mode = 2
+size_flags_vertical = 6
+theme_override_colors/font_color = Color(0.6030478, 0.55693746, 0.4844268, 1)
+text = "Select an item to purchase."
+
+[node name="BuyButton" type="Button" parent="Panel/VBoxContainer" unique_id=1475180458]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Buy"
+
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer" unique_id=289914017]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "Close"
