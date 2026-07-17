@@ -12,12 +12,12 @@ config_version=5
 
 config/name="Gridfall"
 run/main_scene="uid://bnhafth4d2scl"
-config/features=PackedStringArray("4.6", "C#", "GL Compatibility")
+config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameManager="*uid://bmg6ahve1f87x"
+GameManager="*uid://dqo6n8qyom0wv"
 
 [dotnet]
 
