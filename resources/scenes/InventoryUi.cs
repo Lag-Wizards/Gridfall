@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using Gridfall.Characters.Domain;
 using Gridfall.Domain;
 
@@ -11,6 +10,7 @@ public partial class InventoryUi : Control
 	private Button closeButton;
 	private CharacterBase selectedCharacter;
 	private Weapon selectedWeapon;
+	private bool healthPotionSelected;
 
 	public override void _Ready()
 	{
@@ -19,7 +19,7 @@ public partial class InventoryUi : Control
 		equipButton = GetNode<Button>("Panel/VBoxContainer/EquipButton");
 		closeButton = GetNode<Button>("Panel/VBoxContainer/CloseButton");
 
-		equipButton.Pressed += OnEquipPressed;
+		equipButton.Pressed += OnActionPressed;
 		closeButton.Pressed += OnClosePressed;
 	}
 
@@ -27,6 +27,7 @@ public partial class InventoryUi : Control
 	{
 		selectedCharacter = character;
 		selectedWeapon = null;
+		healthPotionSelected = false;
 		RefreshInventory();
 	}
 
@@ -40,35 +41,101 @@ public partial class InventoryUi : Control
 		if (selectedCharacter == null)
 		{
 			detailsLabel.Text = "No character selected.";
+			equipButton.Disabled = true;
 			return;
 		}
 
-		if (selectedCharacter.Inventory.Count == 0)
+		bool hasWeapons = selectedCharacter.Inventory.Count > 0;
+		bool hasPotions = selectedCharacter.HealthPotionCount > 0;
+
+		if (!hasWeapons && !hasPotions)
 		{
 			detailsLabel.Text = "Inventory is empty.";
+			equipButton.Disabled = true;
 			return;
 		}
 
 		foreach (Weapon weapon in selectedCharacter.Inventory)
 		{
 			Button itemButton = new Button();
-			itemButton.Text = $"{weapon.Name} | DMG: {weapon.Damage} | RNG: {weapon.Range}";
+			itemButton.Text =
+				$"{weapon.Name} | DMG: {weapon.Damage} | RNG: {weapon.Range}";
 			itemButton.Pressed += () => SelectWeapon(weapon);
 			itemList.AddChild(itemButton);
 		}
 
+		if (hasPotions)
+		{
+			Button potionButton = new Button();
+			potionButton.Text =
+				$"Health Potion x{selectedCharacter.HealthPotionCount}";
+			potionButton.Pressed += SelectHealthPotion;
+			itemList.AddChild(potionButton);
+		}
+
+		selectedWeapon = null;
+		healthPotionSelected = false;
+		equipButton.Text = "Equip";
+		equipButton.Disabled = true;
 		detailsLabel.Text = "Select an item.";
 	}
 
 	private void SelectWeapon(Weapon weapon)
 	{
 		selectedWeapon = weapon;
-		detailsLabel.Text = $"Selected: {weapon.Name}\nType: {weapon.Type}\nDamage: {weapon.Damage}\nRange: {weapon.Range}\nHit: {weapon.HitRate}";
+		healthPotionSelected = false;
+
+		equipButton.Text = "Equip";
+		equipButton.Disabled = false;
+
+		detailsLabel.Text =
+			$"Selected: {weapon.Name}\n" +
+			$"Type: {weapon.Type}\n" +
+			$"Damage: {weapon.Damage}\n" +
+			$"Range: {weapon.Range}\n" +
+			$"Hit: {weapon.HitRate}";
 	}
 
-	private void OnEquipPressed()
+	private void SelectHealthPotion()
 	{
-		if (selectedCharacter == null || selectedWeapon == null)
+		selectedWeapon = null;
+		healthPotionSelected = true;
+
+		equipButton.Text = "Use";
+		equipButton.Disabled = false;
+
+		detailsLabel.Text =
+			$"Selected: Health Potion\n" +
+			$"Quantity: {selectedCharacter.HealthPotionCount}\n" +
+			"Restores 10 HP.";
+	}
+
+	private void OnActionPressed()
+	{
+		if (selectedCharacter == null)
+			return;
+
+		if (healthPotionSelected)
+		{
+			bool potionUsed = selectedCharacter.UseHealthPotion();
+
+			if (potionUsed)
+			{
+				detailsLabel.Text =
+					$"Health potion used.\n" +
+					$"HP: {selectedCharacter.Health}/{selectedCharacter.MaxHealth}";
+				RefreshInventory();
+			}
+			else
+			{
+				detailsLabel.Text =
+					"Potion could not be used. Health may already be full.";
+			}
+
+			return;
+		}
+
+		if (selectedWeapon == null)
 			return;
 
 		selectedCharacter.EquipWeapon(selectedWeapon);

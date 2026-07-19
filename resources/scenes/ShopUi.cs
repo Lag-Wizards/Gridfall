@@ -19,9 +19,10 @@ public partial class ShopUi : Control
 
 	private List<ShopItem> _shopItems = new List<ShopItem>
 	{
-		new ShopItem("Iron Sword", WeaponType.Slash, 8, 1, 2, 80, 10),
-		new ShopItem("Steel Sword", WeaponType.Slash, 12, 1, 4, 75, 20),
-		new ShopItem("Iron Lance", WeaponType.Pierce, 10, 1, 3, 75, 15)
+	new ShopItem("Iron Sword", WeaponType.Slash, 8, 1, 2, 80, 10),
+	new ShopItem("Steel Sword", WeaponType.Slash, 12, 1, 4, 75, 20),
+	new ShopItem("Iron Lance", WeaponType.Pierce, 10, 1, 3, 75, 15),
+	new ShopItem("Health Potion", 5)
 	};
 
 	public override void _Ready()
@@ -72,6 +73,15 @@ public partial class ShopUi : Control
 	{
 		_selectedItem = item;
 
+		if (item.IsHealthPotion)
+		{
+			_detailsLabel.Text =
+				$"Selected: {item.Name}\n" +
+				$"Price: {item.Price} coins\n" +
+				"Restores 10 HP.";
+			return;
+		}
+
 		_detailsLabel.Text =
 			$"Selected: {item.Name}\n" +
 			$"Price: {item.Price} coins\n" +
@@ -101,16 +111,23 @@ public partial class ShopUi : Control
 			return;
 		}
 
-		Weapon purchasedWeapon = new Weapon(
-			_selectedItem.Type,
-			_selectedItem.Name,
-			_selectedItem.Damage,
-			_selectedItem.Range,
-			_selectedItem.Weight,
-			_selectedItem.HitRate
-		);
+		if (_selectedItem.IsHealthPotion)
+		{
+			_selectedCharacter.AddHealthPotion();
+		}
+		else
+		{
+			Weapon purchasedWeapon = new Weapon(
+				_selectedItem.Type,
+				_selectedItem.Name,
+				_selectedItem.Damage,
+				_selectedItem.Range,
+				_selectedItem.Weight,
+				_selectedItem.HitRate
+			);
 
-		_selectedCharacter.AddWeaponToInventory(purchasedWeapon);
+			_selectedCharacter.AddWeaponToInventory(purchasedWeapon);
+		}
 		_coinLabel.Text = $"Coins: {GameManager.Instance.GetCoinCount()}";
 		_detailsLabel.Text = $"Purchased: {_selectedItem.Name}";
 	}
@@ -129,8 +146,16 @@ public partial class ShopUi : Control
 		public int Weight { get; }
 		public int HitRate { get; }
 		public int Price { get; }
+		public bool IsHealthPotion { get; }
 
-		public ShopItem(string name, WeaponType type, int damage, int range, int weight, int hitRate, int price)
+		public ShopItem(
+			string name,
+			WeaponType type,
+			int damage,
+			int range,
+			int weight,
+			int hitRate,
+			int price)
 		{
 			Name = name;
 			Type = type;
@@ -139,6 +164,14 @@ public partial class ShopUi : Control
 			Weight = weight;
 			HitRate = hitRate;
 			Price = price;
+			IsHealthPotion = false;
+		}
+
+		public ShopItem(string name, int price)
+		{
+			Name = name;
+			Price = price;
+			IsHealthPotion = true;
 		}
 	}
 }
