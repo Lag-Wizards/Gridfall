@@ -56,6 +56,29 @@ public partial class EnemyNode : Node2D
 		}
 	}
 
+	public override void _Input(InputEvent @event)
+	{
+		base._Input(@event);
+
+		if (@event is not InputEventMouseButton mouseButton || !mouseButton.Pressed || mouseButton.ButtonIndex != MouseButton.Left)
+		{
+			return;
+		}
+
+		var sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+		if (sprite == null)
+		{
+			return;
+		}
+
+		var localMousePosition = sprite.ToLocal(GetGlobalMousePosition());
+		var spriteRect = sprite.GetRect();
+		if (spriteRect.HasPoint(localMousePosition))
+		{
+			GameManager.Instance?.ShowEnemyPreview(this);
+		}
+	}
+
 	private void UpdateName()
 	{
 		if (_enemy != null)
