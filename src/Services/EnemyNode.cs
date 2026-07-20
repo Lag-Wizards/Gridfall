@@ -19,7 +19,19 @@ public partial class EnemyNode : Node2D
 	public override void _EnterTree()
 	{
 		base._EnterTree();
-		_enemy = EnemyManager.CreateEnemy(EnemyType, Level);
+		int effectiveLevel = GameManager.Instance?.CurrentLevelNumber ?? Level;
+		var resolvedType = ResolveEnemyType(EnemyType, effectiveLevel);
+		_enemy = EnemyManager.CreateEnemy(resolvedType, effectiveLevel);
+	}
+
+	private string ResolveEnemyType(string baseType, int level)
+	{
+		if (level >= 5 && (string.IsNullOrEmpty(baseType) || baseType.Equals("Slime", StringComparison.OrdinalIgnoreCase)))
+		{
+			return "NormalSlime";
+		}
+
+		return baseType;
 	}
 
 	public override void _Ready()
