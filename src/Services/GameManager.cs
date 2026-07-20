@@ -56,7 +56,6 @@ public partial class GameManager : Node
 		ProcessMode = ProcessModeEnum.Always;
 
 		GD.Print("!!!!!!!! GAME MANAGER READY !!!!!!!!");
-		LoadCharacterData();
 	}
 
 	public override void _Process(double delta)
@@ -175,6 +174,7 @@ public partial class GameManager : Node
 
 			CurrentCharacter = new CharacterBase();
 			CurrentCharacter.LoadFromSave(saveData);
+			_coinCount = saveData.Coins;
 
 			GD.Print("GameManager loaded saved character data.");
 			GD.Print(CurrentCharacter.CharacterName);

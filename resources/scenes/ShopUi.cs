@@ -15,14 +15,12 @@ public partial class ShopUi : Control
 	private Button _closeButton;
 
 	private CharacterBase _selectedCharacter;
-	private ShopItem _selectedItem;
+	private Equipment _selectedItem;
 
-	private List<ShopItem> _shopItems = new List<ShopItem>
-	{
-		new ShopItem("Iron Sword", WeaponType.Slash, 8, 1, 2, 80, 10),
-		new ShopItem("Steel Sword", WeaponType.Slash, 12, 1, 4, 75, 20),
-		new ShopItem("Iron Lance", WeaponType.Pierce, 10, 1, 3, 75, 15)
-	};
+	[Export]
+	public string[] ShopItemNames { get; set; } = new string[] { "Iron Sword", "Steel Sword", "Iron Lance", "Iron Armor" };
+
+	private List<Equipment> _shopItems = new List<Equipment>();
 
 	public override void _Ready()
 	{
@@ -40,7 +38,24 @@ public partial class ShopUi : Control
 		_buyButton.Pressed += OnBuyPressed;
 		_closeButton.Pressed += OnClosePressed;
 
+		InitializeShopItems();
 		RefreshShop();
+	}
+
+	private void InitializeShopItems()
+	{
+		_shopItems.Clear();
+		if (ShopItemNames != null)
+		{
+			foreach (var name in ShopItemNames)
+			{
+				var item = ItemFactory.CreateEquipment(name);
+				if (item != null)
+				{
+					_shopItems.Add(item);
+				}
+			}
+		}
 	}
 
 	public void SetSelectedCharacter(CharacterBase character)
@@ -59,7 +74,7 @@ public partial class ShopUi : Control
 		_coinLabel.Text = $"Coins: {GameManager.Instance?.GetCoinCount() ?? 0}";
 		_detailsLabel.Text = "Select an item.";
 
-		foreach (ShopItem item in _shopItems)
+		foreach (Equipment item in _shopItems)
 		{
 			Button itemButton = new Button();
 			itemButton.Text = $"{item.Name} - {item.Price} coins";
@@ -68,17 +83,46 @@ public partial class ShopUi : Control
 		}
 	}
 
-	private void SelectItem(ShopItem item)
+	private void SelectItem(Equipment item)
 	{
 		_selectedItem = item;
 
-		_detailsLabel.Text =
-			$"Selected: {item.Name}\n" +
-			$"Price: {item.Price} coins\n" +
-			$"Type: {item.Type}\n" +
-			$"Damage: {item.Damage}\n" +
-			$"Range: {item.Range}\n" +
-			$"Hit: {item.HitRate}";
+		if (item is Weapon weapon)
+		{
+			string bonusesStr = GetBonusesString(weapon);
+			_detailsLabel.Text =
+				$"Selected: {weapon.Name} (Weapon)\n" +
+				$"Price: {weapon.Price} coins\n" +
+				$"Type: {weapon.Type}\n" +
+				$"Damage: {weapon.Damage}\n" +
+				$"Range: {weapon.Range}\n" +
+				$"Hit: {weapon.HitRate}\n" +
+				(string.IsNullOrEmpty(bonusesStr) ? "" : $"Bonuses: {bonusesStr}");
+		}
+		else if (item is Armor armor)
+		{
+			string bonusesStr = GetBonusesString(armor);
+			_detailsLabel.Text =
+				$"Selected: {armor.Name} (Armor)\n" +
+				$"Price: {armor.Price} coins\n" +
+				$"Weight: {armor.Weight}\n" +
+				(string.IsNullOrEmpty(bonusesStr) ? "" : $"Bonuses: {bonusesStr}");
+		}
+	}
+
+	private string GetBonusesString(Equipment item)
+	{
+		List<string> list = new List<string>();
+		if (item.HpBonus != 0) list.Add($"HP {(item.HpBonus > 0 ? "+" : "")}{item.HpBonus}");
+		if (item.StrengthBonus != 0) list.Add($"STR {(item.StrengthBonus > 0 ? "+" : "")}{item.StrengthBonus}");
+		if (item.DefenseBonus != 0) list.Add($"DEF {(item.DefenseBonus > 0 ? "+" : "")}{item.DefenseBonus}");
+		if (item.SpeedBonus != 0) list.Add($"SPD {(item.SpeedBonus > 0 ? "+" : "")}{item.SpeedBonus}");
+		if (item.LuckBonus != 0) list.Add($"LUCK {(item.LuckBonus > 0 ? "+" : "")}{item.LuckBonus}");
+		if (item.SkillBonus != 0) list.Add($"SKILL {(item.SkillBonus > 0 ? "+" : "")}{item.SkillBonus}");
+		if (item.ResistanceBonus != 0) list.Add($"RES {(item.ResistanceBonus > 0 ? "+" : "")}{item.ResistanceBonus}");
+		if (item.MovementBonus != 0) list.Add($"MOV {(item.MovementBonus > 0 ? "+" : "")}{item.MovementBonus}");
+		if (item.ConstitutionBonus != 0) list.Add($"CON {(item.ConstitutionBonus > 0 ? "+" : "")}{item.ConstitutionBonus}");
+		return string.Join(", ", list);
 	}
 
 	private void OnBuyPressed()
@@ -101,16 +145,10 @@ public partial class ShopUi : Control
 			return;
 		}
 
-		Weapon purchasedWeapon = new Weapon(
-			_selectedItem.Type,
-			_selectedItem.Name,
-			_selectedItem.Damage,
-			_selectedItem.Range,
-			_selectedItem.Weight,
-			_selectedItem.HitRate
-		);
+		// Recreate the item so buying multiple copies creates new distinct instances in inventory
+		Equipment purchasedItem = ItemFactory.CreateEquipment(_selectedItem.Name);
 
-		_selectedCharacter.AddWeaponToInventory(purchasedWeapon);
+		_selectedCharacter.AddEquipmentToInventory(purchasedItem);
 		_coinLabel.Text = $"Coins: {GameManager.Instance.GetCoinCount()}";
 		_detailsLabel.Text = $"Purchased: {_selectedItem.Name}";
 	}
@@ -118,27 +156,5 @@ public partial class ShopUi : Control
 	private void OnClosePressed()
 	{
 		GetParent()?.QueueFree();
-	}
-
-	private class ShopItem
-	{
-		public string Name { get; }
-		public WeaponType Type { get; }
-		public int Damage { get; }
-		public int Range { get; }
-		public int Weight { get; }
-		public int HitRate { get; }
-		public int Price { get; }
-
-		public ShopItem(string name, WeaponType type, int damage, int range, int weight, int hitRate, int price)
-		{
-			Name = name;
-			Type = type;
-			Damage = damage;
-			Range = range;
-			Weight = weight;
-			HitRate = hitRate;
-			Price = price;
-		}
 	}
 }

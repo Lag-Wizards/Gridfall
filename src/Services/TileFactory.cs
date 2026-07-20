@@ -23,9 +23,11 @@ public class TileFactory : ITileFactory
 			{
 				TerrainType.Grass => 1,
 				TerrainType.Mud => 2,
-				TerrainType.Shop => 1,
+				TerrainType.Shop => 0,
 				_ => 999
 			};
+
+
 
 			return tileState;
 		}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Gridfall.Domain
 {
@@ -19,8 +20,14 @@ namespace Gridfall.Domain
 		public int Resistance { get; set; }
 		public bool IsMagic { get; set; }
 		public int Experience { get; set; }
+		public int Coins { get; set; }
 
-		// Weapon fields are serialized as ints/values to keep the DTO simple.
+		// New Equipment Fields (Serialized by name to dynamically reconstruct using ItemFactory)
+		public string EquippedWeaponName { get; set; }
+		public string EquippedArmorName { get; set; }
+		public List<string> InventoryItemNames { get; set; } = new List<string>();
+
+		// Legacy Weapon fields (Serialized as ints/values for backwards compatibility)
 		public int WeaponType { get; set; }
 		public int WeaponDamage { get; set; }
 		public int WeaponRange { get; set; }

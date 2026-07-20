@@ -23,6 +23,7 @@ texture = ExtResource("3_ib5kt")
 0:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c8155"]
+resource_name = "shop"
 texture = ExtResource("4_a20l8")
 0:0/0 = 0
 0:0/0/custom_data_0 = 3

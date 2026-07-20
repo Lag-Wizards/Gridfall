@@ -28,7 +28,10 @@ public partial class CharacterNode : Node2D
 	{
 		base._EnterTree();
 
-		GameManager.Instance?.LoadCharacterData();
+		if (GameManager.Instance != null && GameManager.Instance.CurrentCharacter == null)
+		{
+			GameManager.Instance.LoadCharacterData();
+		}
 
 		if (GameManager.Instance?.CurrentCharacter != null)
 		{
@@ -39,10 +42,10 @@ public partial class CharacterNode : Node2D
 		}
 		else
 		{
-			Weapon starterWeapon = new Weapon(WeaponType.Slash, 5, 1);
-			_character.SetupCharacter(CharacterName, Level, starterWeapon);
+			Weapon starterWeapon = ItemFactory.CreateEquipment("Copper Sword") as Weapon;
+			_character.SetupCharacter(CharacterName, Level, starterWeapon, null);
 			GameManager.Instance?.SetCurrentCharacter(_character);
-			GD.Print("No save found. Created default character.");
+			GD.Print("No save found. Created default character with Copper Sword.");
 		}
 
 		_character.OnUnitDeath += OnPlayerDeath;

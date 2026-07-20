@@ -66,6 +66,7 @@ public partial class SaveMenu : Control
 			{
 				GD.Print($"Loading Save Slot {slotNumber} and entering world...");
 				GameManager.Instance.LoadCharacterData();
+				GetTree().ChangeSceneToFile("res://resources/scenes/level-1.tscn");
 			}
 		}
 	}
