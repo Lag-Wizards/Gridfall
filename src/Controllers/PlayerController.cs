@@ -13,6 +13,7 @@ public partial class PlayerController : Node2D
 	private CharacterNode _parentUnit;
 	private bool _movementActive;
 	private int _remainingMovement;
+	public bool IsActive { get; private set; }
 
 	private PackedScene _inventoryScene = GD.Load<PackedScene>("res://resources/scenes/inventory_ui.tscn");
 	private CanvasLayer _inventoryCanvasLayer;
@@ -33,18 +34,28 @@ public partial class PlayerController : Node2D
 
 	public void StartMovementPhase()
 	{
+		if (_parentUnit == null || _parentUnit.Stats == null)
+		{
+			GD.Print("PlayerController: Tried to start movement phase, but parent unit or stats are not linked yet.");
+			return; 
+		}
+		GD.Print($"PlayerController: _parentUnit is {(_parentUnit == null ? "NULL" : _parentUnit.Name)}");
 		_movementActive = true;
-		_remainingMovement = _parentUnit?.Stats?.MovementRange ?? MovementRange;
+		_remainingMovement = _parentUnit.RemainingMovement;
+		GD.Print($"{_parentUnit.Name} movement activated");
 		GameManager.Instance?.UpdateHud();
 	}
 
 	public void EndMovementPhase()
 	{
 		_movementActive = false;
+		GD.Print($"{_parentUnit.Name} movement disabled");
 	}
 
 	public override void _Input(InputEvent @event)
 	{
+		if (!IsActive)
+			return;
 		if (!(@event is InputEventKey keyEvent) || !keyEvent.IsPressed())
 			return;
 
@@ -54,13 +65,13 @@ public partial class PlayerController : Node2D
 			return;
 		}
 
-		if (!_movementActive || GameManager.Instance?.CurrentPhase != GamePhase.PlayerMovement)
+		if (!_movementActive || GameManager.Instance?.CurrentPhase != GamePhase.PlayerTurn)
 			return;
 
 		if (keyEvent.Keycode == Key.M)
 		{
 			EndMovementPhase();
-			GameManager.Instance?.EndPlayerMovementPhase();
+			GameManager.Instance?.FinishCurrentCharacterTurn();
 			return;
 		}
 
@@ -113,13 +124,26 @@ public partial class PlayerController : Node2D
 		if (_parentUnit.TryMove(direction, _remainingMovement, out int cost))
 		{
 			_remainingMovement -= cost;
+			_parentUnit.RemainingMovement = _remainingMovement;
 			GameManager.Instance?.UpdateHud();
 
 			if (_remainingMovement <= 0)
 			{
 				EndMovementPhase();
-				GameManager.Instance?.EndPlayerMovementPhase();
+				GameManager.Instance?.FinishCurrentCharacterTurn();
 			}
 		}
+	}
+	
+	public void Activate()
+	{
+		IsActive = true;
+		StartMovementPhase();
+	}
+
+	public void Deactivate()
+	{
+		IsActive = false;
+		EndMovementPhase();
 	}
 }

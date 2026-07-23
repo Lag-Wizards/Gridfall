@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using Godot;
 using System.Text.Json;
 using Gridfall.Contracts;
 using Gridfall.Domain;
 using Gridfall.Characters.Domain;
+using Gridfall.Domain.Enums;
 
 namespace Gridfall.Services;
 
@@ -10,29 +12,34 @@ public class SaveService : ISaveService
 {
 	private const string SavePath = "user://savegame_{0}.json";
 
-	public void Save(CharacterBase character, int slot)
+	public void Save(List<CharacterBase> characters, int slot)
 	{
-		SaveData saveData = new SaveData
+		SaveData saveData = new SaveData();
+		foreach (var character in characters)
 		{
-			CharacterName = character.CharacterName,
-			Level = character.Level,
-			Health = character.Health,
-			MaxHealth = character.MaxHealth,
-			Strength = character.Strength,
-			Defense = character.Defense,
-			Speed = character.Speed,
-			MovementRange = character.MovementRange,
-			Luck = character.Luck,
-			Skill = character.Skill,
-			Constitution = character.Constitution,
-			Resistance = character.Resistance,
-			IsMagic = character.IsMagic,
-			Experience = character.Experience,
+			CharacterSaveData characterData = new CharacterSaveData
+			{
+				CharacterName = character.CharacterName,
+				Level = character.Level,
+				Health = character.Health,
+				MaxHealth = character.MaxHealth,
+				Strength = character.Strength,
+				Defense = character.Defense,
+				Speed = character.Speed,
+				MovementRange = character.MovementRange,
+				Luck = character.Luck,
+				Skill = character.Skill,
+				Constitution = character.Constitution,
+				Resistance = character.Resistance,
+				IsMagic = character.IsMagic,
+				Experience = character.Experience,
+				WeaponType = character.EquippedWeapon != null ? (int)character.EquippedWeapon.Type : 0,
+				WeaponDamage = character.EquippedWeapon != null ? character.EquippedWeapon.Damage : 0,
+				WeaponRange = character.EquippedWeapon != null ? character.EquippedWeapon.Range : 0
+			};
 
-			WeaponType = character.EquippedWeapon != null ? (int)character.EquippedWeapon.Type : 0,
-			WeaponDamage = character.EquippedWeapon != null ? character.EquippedWeapon.Damage : 0,
-			WeaponRange = character.EquippedWeapon != null ? character.EquippedWeapon.Range : 0
-		};
+			saveData.Characters.Add(characterData);
+		}
 
 		string json = JsonSerializer.Serialize(saveData);
 		string path = GetSavePath(slot);

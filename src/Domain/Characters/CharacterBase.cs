@@ -29,27 +29,27 @@ namespace Gridfall.Characters.Domain
 		[Signal]
 		public delegate void ExpChangedEventHandler(int exp);
 
-		public void LoadFromSave(SaveData saveData)
+		public void LoadFromSave(CharacterSaveData savedCharacter)
 		{
-			CharacterName = saveData.CharacterName;
-			Level = saveData.Level;
-			Health = saveData.Health;
-			MaxHealth = saveData.MaxHealth;
-			Strength = saveData.Strength;
-			Defense = saveData.Defense;
-			Speed = saveData.Speed;
-			MovementRange = saveData.MovementRange;
-			Luck = saveData.Luck;
-			Skill = saveData.Skill;
-			Constitution = saveData.Constitution;
-			Resistance = saveData.Resistance;
-			IsMagic = saveData.IsMagic;
-			Experience = saveData.Experience;
+			CharacterName = savedCharacter.CharacterName;
+			Level = savedCharacter.Level;
+			Health = savedCharacter.Health;
+			MaxHealth = savedCharacter.MaxHealth;
+			Strength = savedCharacter.Strength;
+			Defense = savedCharacter.Defense;
+			Speed = savedCharacter.Speed;
+			MovementRange = savedCharacter.MovementRange;
+			Luck = savedCharacter.Luck;
+			Skill = savedCharacter.Skill;
+			Constitution = savedCharacter.Constitution;
+			Resistance = savedCharacter.Resistance;
+			IsMagic = savedCharacter.IsMagic;
+			Experience = savedCharacter.Experience;
 
 			EquippedWeapon = new Weapon(
-				(WeaponType)saveData.WeaponType,
-				saveData.WeaponDamage,
-				saveData.WeaponRange
+				(WeaponType)savedCharacter.WeaponType,
+				savedCharacter.WeaponDamage,
+				savedCharacter.WeaponRange
 			);
 
 			Inventory.Clear();

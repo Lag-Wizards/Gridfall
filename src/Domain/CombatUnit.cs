@@ -22,6 +22,7 @@ namespace Gridfall.Domain
 		public int Constitution { get; set; }
 		public bool IsMagic { get; set; }
 		public int MoveDistance { get; set; }
+		public int Coins { get; set; }
 		public Weapon EquippedWeapon { get; set; }
 
 		public Dictionary<string, int> GrowthRates { get; set; } = new Dictionary<string, int>

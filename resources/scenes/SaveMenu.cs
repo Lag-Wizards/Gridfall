@@ -61,11 +61,11 @@ public partial class SaveMenu : Control
 		}
 		else
 		{
-			// Load Game if save exists
 			if (saveService.SaveExists(slotNumber))
 			{
-				GD.Print($"Loading Save Slot {slotNumber} and entering world...");
-				GameManager.Instance.LoadCharacterData();
+				GD.Print($"Selected Save Slot {slotNumber}");
+
+				GameManager.Instance.CurrentSaveSlot = slotNumber;
 			}
 		}
 	}
