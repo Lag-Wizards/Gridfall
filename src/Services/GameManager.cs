@@ -29,7 +29,7 @@ public partial class GameManager : Node
 
 	private SaveService _saveService = new SaveService();
 	private Control _pauseMenu;
-
+	private Camera2d camera;
 	private PlayerController _playerController;
 	private CharacterNode _playerCharacterNode;
 	private CanvasLayer _playerUi;
@@ -108,6 +108,16 @@ public partial class GameManager : Node
 		_enemyCount = 0;
 
 		var currentScene = GetTree()?.CurrentScene;
+		
+		if (currentScene != null)
+		{
+			camera = currentScene.GetNodeOrNull<Camera2d>("Camera2d");
+			if (camera == null)
+			{
+				GD.Print("GameManager: No Camera2D found in the current level root layout.");
+			}
+		}
+
 		
 		rangeOverlay = currentScene?.GetNodeOrNull<GridOverlay>("GridOverlay");
 

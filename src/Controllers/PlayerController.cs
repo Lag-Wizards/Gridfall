@@ -57,7 +57,7 @@ public partial class PlayerController : Node2D
 			return;
 		}
 
-		if (keyEvent.Keycode == Key.S)
+		if (keyEvent.Keycode == Key.U)
 		{
 			ToggleShop();
 			return;

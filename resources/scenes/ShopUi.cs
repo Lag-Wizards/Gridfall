@@ -37,7 +37,7 @@ public partial class ShopUi : Control
 
 		_buyButton.Pressed += OnBuyPressed;
 		_closeButton.Pressed += OnClosePressed;
-
+		GD.Print("SHOP CREATED FROM:\n" + System.Environment.StackTrace);
 		InitializeShopItems();
 		RefreshShop();
 	}
