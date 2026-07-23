@@ -18,7 +18,7 @@ public partial class ShopUi : Control
 	private Equipment _selectedItem;
 
 	[Export]
-	public string[] ShopItemNames { get; set; } = new string[] { "Iron Sword", "Steel Sword", "Iron Lance", "Iron Armor" };
+	public string[] ShopItemNames { get; set; } = new string[] { "Iron Sword", "Steel Sword", "Iron Lance", "Iron Armor", "Health Potion" };
 
 	private List<Equipment> _shopItems = new List<Equipment>();
 
@@ -108,6 +108,13 @@ public partial class ShopUi : Control
 				$"Weight: {armor.Weight}\n" +
 				(string.IsNullOrEmpty(bonusesStr) ? "" : $"Bonuses: {bonusesStr}");
 		}
+		else if (item is Consumable consumable)
+		{
+			_detailsLabel.Text =
+				$"Selected: {consumable.Name}\n" +
+				$"Price: {consumable.Price} coins\n" +
+				$"{consumable.Description}";
+		}
 	}
 
 	private string GetBonusesString(Equipment item)
@@ -145,10 +152,16 @@ public partial class ShopUi : Control
 			return;
 		}
 
-		// Recreate the item so buying multiple copies creates new distinct instances in inventory
-		Equipment purchasedItem = ItemFactory.CreateEquipment(_selectedItem.Name);
-
-		_selectedCharacter.AddEquipmentToInventory(purchasedItem);
+		if (_selectedItem is Consumable consumable && consumable.Name.ToLower() == "health potion")
+		{
+			_selectedCharacter.AddHealthPotion();
+		}
+		else
+		{
+			// Recreate the item so buying multiple copies creates new distinct instances in inventory
+			Equipment purchasedItem = ItemFactory.CreateEquipment(_selectedItem.Name);
+			_selectedCharacter.AddEquipmentToInventory(purchasedItem);
+		}
 		_coinLabel.Text = $"Coins: {GameManager.Instance.GetCoinCount()}";
 		_detailsLabel.Text = $"Purchased: {_selectedItem.Name}";
 	}
@@ -157,4 +170,5 @@ public partial class ShopUi : Control
 	{
 		GetParent()?.QueueFree();
 	}
+
 }
