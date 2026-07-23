@@ -18,12 +18,14 @@ public partial class InventoryUi : Control
 	{
 		itemList = GetNode<VBoxContainer>("Panel/VBoxContainer/ItemList");
 		detailsLabel = GetNode<Label>("Panel/VBoxContainer/DetailsLabel");
-		equipButton = GetNode<Button>("Panel/VBoxContainer/EquipButton");
-		closeButton = GetNode<Button>("Panel/VBoxContainer/CloseButton");
+
+		equipButton = GetNode<Button>("Panel/VBoxContainer/ButtonRow/EquipButton");
+		closeButton = GetNode<Button>("Panel/VBoxContainer/ButtonRow/CloseButton");
 
 		equipButton.Pressed += OnActionPressed;
 		closeButton.Pressed += OnClosePressed;
 	}
+
 
 	public void SetSelectedCharacter(CharacterBase character)
 	{
@@ -67,7 +69,7 @@ public partial class InventoryUi : Control
 		{
 			Button itemButton = new Button();
 			bool isEquipped = item == selectedCharacter.EquippedWeapon || item == selectedCharacter.EquippedArmor;
-			
+
 			if (item is Weapon weapon)
 			{
 				itemButton.Text = $"{weapon.Name} (Weapon) [DMG: {weapon.Damage}]" + (isEquipped ? " *Equipped*" : "");
@@ -113,7 +115,7 @@ public partial class InventoryUi : Control
 		if (item is Weapon weapon)
 		{
 			string bonusesStr = GetBonusesString(weapon);
-			detailsLabel.Text = 
+			detailsLabel.Text =
 				$"Selected: {weapon.Name} (Weapon)\n" +
 				$"Type: {weapon.Type}\n" +
 				$"Damage: {weapon.Damage}\n" +
@@ -125,7 +127,7 @@ public partial class InventoryUi : Control
 		else if (item is Armor armor)
 		{
 			string bonusesStr = GetBonusesString(armor);
-			detailsLabel.Text = 
+			detailsLabel.Text =
 				$"Selected: {armor.Name} (Armor)\n" +
 				$"Weight: {armor.Weight}\n" +
 				(string.IsNullOrEmpty(bonusesStr) ? "" : $"Bonuses: {bonusesStr}\n") +
