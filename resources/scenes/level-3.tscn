@@ -28,12 +28,7 @@ texture = ExtResource("2_1vx3q")
 texture = ExtResource("3_0ix3x")
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0jp7s"]
-texture = ExtResource("2_svnkc")
-0:0/0 = 0
-
 [sub_resource type="TileSet" id="TileSet_eempa"]
-sources/2 = SubResource("TileSetAtlasSource_0jp7s")
 sources/1 = SubResource("TileSetAtlasSource_0ix3x")
 sources/0 = SubResource("TileSetAtlasSource_1vx3q")
 
