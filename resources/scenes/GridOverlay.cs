@@ -7,11 +7,11 @@ namespace Gridfall.resources.scenes;
 public partial class GridOverlay : TileMapLayer
 {
 	[Export]
-	public int BlueSourceId = 0;
+	public int BlueSourceId = 1;
 	[Export]
 	public Vector2I BlueAtlasCoords = Vector2I.Zero;
 	[Export]
-	public int RedSourceId = 1;
+	public int RedSourceId = 0;
 	[Export]
 	public Vector2I RedAtlasCoords = Vector2I.Right;
 

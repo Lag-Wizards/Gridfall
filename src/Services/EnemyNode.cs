@@ -88,6 +88,8 @@ public partial class EnemyNode : Node2D
 		if (spriteRect.HasPoint(localMousePosition))
 		{
 			GameManager.Instance?.ShowEnemyPreview(this);
+			GameManager.Instance?.SelectEnemy(this);
+			GetViewport().SetInputAsHandled();
 		}
 	}
 

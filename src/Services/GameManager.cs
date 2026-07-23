@@ -505,7 +505,7 @@ public partial class GameManager : Node
 		{
 			Name = "NextPhaseButton",
 			Text = "Next Phase",
-			Position = new Vector2(10, 122)
+			Position = new Vector2(10, 180)
 		};
 		panel.AddChild(_nextPhaseButton);
 		_nextPhaseButton.Pressed += OnNextPhasePressed;
@@ -906,40 +906,11 @@ public partial class GameManager : Node
 		rangeOverlay.ClearRanges();
 	}
 	
-	private void SelectEnemyWithMouse()
-	{
-		Viewport viewport = GetViewport();
-		if (viewport == null) return;
-
-		Vector2 mousePosition = viewport.GetCanvasTransform().AffineInverse() * viewport.GetMousePosition();
-
-		var enemyGroupNodes = GetTree().GetNodesInGroup("enemies");
-		bool enemyClicked = false;
-		foreach (var node in enemyGroupNodes)
-		{
-			if (node is not EnemyNode enemy || !GodotObject.IsInstanceValid(enemy))
-				continue;
-			
-			Rect2 rect = new Rect2(enemy.GlobalPosition - new Vector2(16, 16), new Vector2(32, 32));
-
-			if (rect.HasPoint(mousePosition))
-			{
-				SelectEnemy(enemy);
-				enemyClicked = true;
-				break; 
-			}
-		}
-		if (!enemyClicked)
-		{
-			DeselectEnemy();
-		}
-	}
-	
 	public override void _UnhandledInput(InputEvent @event)
 	{
 		if (@event is InputEventMouseButton mouse && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
 		{
-			SelectEnemyWithMouse();
+			DeselectEnemy();
 		}
 	}
 }
