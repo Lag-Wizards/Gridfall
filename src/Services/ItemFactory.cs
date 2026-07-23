@@ -36,6 +36,9 @@ namespace Gridfall.Services
 					ironArmor.SpeedBonus = -1;
 					return ironArmor;
 
+				case "health potion":
+					return new Consumable("Health Potion", 5, "Restores 10 HP.");
+
 				default:
 					// Fallback weapon
 					return new Weapon(WeaponType.Slash, name, 5, 1, 1, 85, 5);

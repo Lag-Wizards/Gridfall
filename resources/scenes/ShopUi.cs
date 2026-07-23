@@ -18,13 +18,7 @@ public partial class ShopUi : Control
 	private Equipment _selectedItem;
 
 	[Export]
-	public string[] ShopItemNames { get; set; } =
-	{
-		"Iron Sword",
-		"Steel Sword",
-		"Iron Lance",
-		"Iron Armor"
-	};
+	public string[] ShopItemNames { get; set; } = new string[] { "Iron Sword", "Steel Sword", "Iron Lance", "Iron Armor", "Health Potion" };
 
 	private readonly List<Equipment> _shopItems = new();
 
@@ -151,6 +145,13 @@ public partial class ShopUi : Control
 					? ""
 					: $"Bonuses: {bonuses}");
 		}
+		else if (item is Consumable consumable)
+		{
+			_detailsLabel.Text =
+				$"Selected: {consumable.Name}\n" +
+				$"Price: {consumable.Price} coins\n" +
+				$"{consumable.Description}";
+		}
 	}
 
 	private string GetBonusesString(Equipment item)
@@ -236,26 +237,23 @@ public partial class ShopUi : Control
 			return;
 		}
 
-		Equipment purchasedItem =
-			ItemFactory.CreateEquipment(_selectedItem.Name);
-
-		if (purchasedItem == null)
+		if (_selectedItem is Consumable consumable && consumable.Name.ToLower() == "health potion")
 		{
-			_detailsLabel.Text = "Unable to purchase this item.";
-			return;
+			_selectedCharacter.AddHealthPotion();
 		}
-
-		_selectedCharacter.AddEquipmentToInventory(purchasedItem);
-
-		_coinLabel.Text =
-			$"Coins: {GameManager.Instance.GetCoinCount()}";
-
-		_detailsLabel.Text =
-			$"Purchased: {_selectedItem.Name}";
+		else
+		{
+			// Recreate the item so buying multiple copies creates new distinct instances in inventory
+			Equipment purchasedItem = ItemFactory.CreateEquipment(_selectedItem.Name);
+			_selectedCharacter.AddEquipmentToInventory(purchasedItem);
+		}
+		_coinLabel.Text = $"Coins: {GameManager.Instance.GetCoinCount()}";
+		_detailsLabel.Text = $"Purchased: {_selectedItem.Name}";
 	}
 
 	private void OnClosePressed()
 	{
 		QueueFree();
 	}
+
 }
