@@ -26,6 +26,26 @@ namespace Gridfall.Characters.Domain
 		// Inventory of generic equipment (weapons & armor)
 		public List<Equipment> Inventory { get; set; } = new List<Equipment>();
 
+		public int HealthPotionCount { get; private set; }
+
+		public void AddHealthPotion()
+		{
+			HealthPotionCount++;
+			GD.Print($"Health potion added. Total: {HealthPotionCount}");
+		}
+
+		public bool UseHealthPotion()
+		{
+			if (HealthPotionCount <= 0 || Health >= MaxHealth)
+				return false;
+
+			HealthPotionCount--;
+			Heal(10);
+			GD.Print($"Health potion used. Remaining: {HealthPotionCount}");
+			return true;
+		}
+
+
 		// Declaring event handler for when exp changes so UI can update
 		[Signal]
 		public delegate void ExpChangedEventHandler(int exp);

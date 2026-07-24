@@ -12,22 +12,26 @@ public partial class InventoryUi : Control
 	private Button closeButton;
 	private CharacterBase selectedCharacter;
 	private Equipment selectedItem;
+	private bool healthPotionSelected;
 
 	public override void _Ready()
 	{
 		itemList = GetNode<VBoxContainer>("Panel/VBoxContainer/ItemList");
 		detailsLabel = GetNode<Label>("Panel/VBoxContainer/DetailsLabel");
-		equipButton = GetNode<Button>("Panel/VBoxContainer/EquipButton");
-		closeButton = GetNode<Button>("Panel/VBoxContainer/CloseButton");
 
-		equipButton.Pressed += OnEquipPressed;
+		equipButton = GetNode<Button>("Panel/VBoxContainer/ButtonRow/EquipButton");
+		closeButton = GetNode<Button>("Panel/VBoxContainer/ButtonRow/CloseButton");
+
+		equipButton.Pressed += OnActionPressed;
 		closeButton.Pressed += OnClosePressed;
 	}
+
 
 	public void SetSelectedCharacter(CharacterBase character)
 	{
 		selectedCharacter = character;
 		selectedItem = null;
+		healthPotionSelected = false;
 		RefreshInventory();
 	}
 
@@ -41,6 +45,7 @@ public partial class InventoryUi : Control
 		if (selectedCharacter == null)
 		{
 			detailsLabel.Text = "No character selected.";
+			equipButton.Disabled = true;
 			return;
 		}
 
@@ -50,9 +55,13 @@ public partial class InventoryUi : Control
 			GD.Print($" - Item: {item.Name} | Equipped Weapon: {selectedCharacter.EquippedWeapon?.Name} | Equipped Armor: {selectedCharacter.EquippedArmor?.Name}");
 		}
 
-		if (selectedCharacter.Inventory.Count == 0)
+		bool hasEquipment = selectedCharacter.Inventory.Count > 0;
+		bool hasPotions = selectedCharacter.HealthPotionCount > 0;
+
+		if (!hasEquipment && !hasPotions)
 		{
 			detailsLabel.Text = "Inventory is empty.";
+			equipButton.Disabled = true;
 			return;
 		}
 
@@ -60,7 +69,7 @@ public partial class InventoryUi : Control
 		{
 			Button itemButton = new Button();
 			bool isEquipped = item == selectedCharacter.EquippedWeapon || item == selectedCharacter.EquippedArmor;
-			
+
 			if (item is Weapon weapon)
 			{
 				itemButton.Text = $"{weapon.Name} (Weapon) [DMG: {weapon.Damage}]" + (isEquipped ? " *Equipped*" : "");
@@ -78,18 +87,35 @@ public partial class InventoryUi : Control
 			itemList.AddChild(itemButton);
 		}
 
+		if (hasPotions)
+		{
+			Button potionButton = new Button();
+			potionButton.Text = $"Health Potion x{selectedCharacter.HealthPotionCount}";
+			potionButton.Pressed += SelectHealthPotion;
+			itemList.AddChild(potionButton);
+		}
+
+		selectedItem = null;
+		healthPotionSelected = false;
+		equipButton.Text = "Equip";
+		equipButton.Disabled = true;
 		detailsLabel.Text = "Select an item.";
 	}
 
 	private void SelectItem(Equipment item)
 	{
 		selectedItem = item;
+		healthPotionSelected = false;
+
+		equipButton.Text = "Equip";
+		equipButton.Disabled = false;
+
 		bool isEquipped = item == selectedCharacter.EquippedWeapon || item == selectedCharacter.EquippedArmor;
 
 		if (item is Weapon weapon)
 		{
 			string bonusesStr = GetBonusesString(weapon);
-			detailsLabel.Text = 
+			detailsLabel.Text =
 				$"Selected: {weapon.Name} (Weapon)\n" +
 				$"Type: {weapon.Type}\n" +
 				$"Damage: {weapon.Damage}\n" +
@@ -101,7 +127,7 @@ public partial class InventoryUi : Control
 		else if (item is Armor armor)
 		{
 			string bonusesStr = GetBonusesString(armor);
-			detailsLabel.Text = 
+			detailsLabel.Text =
 				$"Selected: {armor.Name} (Armor)\n" +
 				$"Weight: {armor.Weight}\n" +
 				(string.IsNullOrEmpty(bonusesStr) ? "" : $"Bonuses: {bonusesStr}\n") +
@@ -124,9 +150,46 @@ public partial class InventoryUi : Control
 		return string.Join(", ", list);
 	}
 
-	private void OnEquipPressed()
+	private void SelectHealthPotion()
 	{
-		if (selectedCharacter == null || selectedItem == null)
+		selectedItem = null;
+		healthPotionSelected = true;
+
+		equipButton.Text = "Use";
+		equipButton.Disabled = false;
+
+		detailsLabel.Text =
+			$"Selected: Health Potion\n" +
+			$"Quantity: {selectedCharacter.HealthPotionCount}\n" +
+			"Restores 10 HP.";
+	}
+
+	private void OnActionPressed()
+	{
+		if (selectedCharacter == null)
+			return;
+
+		if (healthPotionSelected)
+		{
+			bool potionUsed = selectedCharacter.UseHealthPotion();
+
+			if (potionUsed)
+			{
+				detailsLabel.Text =
+					$"Health potion used.\n" +
+					$"HP: {selectedCharacter.Health}/{selectedCharacter.MaxHealth}";
+				RefreshInventory();
+			}
+			else
+			{
+				detailsLabel.Text =
+					"Potion could not be used. Health may already be full.";
+			}
+
+			return;
+		}
+
+		if (selectedItem == null)
 			return;
 
 		if (selectedItem is Weapon weapon)

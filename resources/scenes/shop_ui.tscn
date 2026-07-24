@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c5618nwv8jewq"]
 
-[ext_resource type="Script" uid="uid://dcvirv5l7vgjl" path="res://resources/scenes/ShopUi.cs" id="1_y0n0t"]
+[ext_resource type="Script" uid="uid://d2dakyik11nge" path="res://resources/scenes/ShopUi.cs" id="1_y0n0t"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ib5kt"]
 bg_color = Color(0.33324954, 0.0047400366, 0.050801396, 1)
@@ -27,7 +27,7 @@ anchor_bottom = 0.5
 offset_left = -225.0
 offset_top = -200.0
 offset_right = 225.0
-offset_bottom = 200.0
+offset_bottom = 320.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_ib5kt")
@@ -62,12 +62,17 @@ size_flags_vertical = 6
 theme_override_colors/font_color = Color(0.6030478, 0.55693746, 0.4844268, 1)
 text = "Select an item to purchase."
 
-[node name="BuyButton" type="Button" parent="Panel/VBoxContainer" unique_id=1475180458]
-custom_minimum_size = Vector2(0, 36)
+[node name="ButtonRow" type="HBoxContainer" parent="Panel/VBoxContainer" unique_id=2146889050]
+layout_mode = 2
+theme_override_constants/separation = 13
+alignment = 1
+
+[node name="BuyButton" type="Button" parent="Panel/VBoxContainer/ButtonRow" unique_id=1475180458]
+custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 text = "Buy"
 
-[node name="CloseButton" type="Button" parent="Panel/VBoxContainer" unique_id=289914017]
-custom_minimum_size = Vector2(0, 36)
+[node name="CloseButton" type="Button" parent="Panel/VBoxContainer/ButtonRow" unique_id=289914017]
+custom_minimum_size = Vector2(150, 40)
 layout_mode = 2
 text = "Close"
