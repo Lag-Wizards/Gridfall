@@ -39,6 +39,7 @@ public partial class GameManager : Node
 	private Label _movementRemainingLabel;
 	private Label _playerCoinLabel;
 	private Button _nextPhaseButton;
+	private Button _inventoryButton;
 	private CanvasLayer _enemyPreviewUi;
 	private PanelContainer _enemyPreviewPanel;
 	private Label _enemyPreviewTitleLabel;
@@ -456,7 +457,7 @@ public partial class GameManager : Node
 		var panel = new Panel
 		{
 			Name = "PlayerUiPanel",
-			Size = new Vector2(240, 160),
+			Size = new Vector2(240, 220),
 			Position = new Vector2(8, 8)
 		};
 		_playerUi.AddChild(panel);
@@ -505,13 +506,31 @@ public partial class GameManager : Node
 		{
 			Name = "NextPhaseButton",
 			Text = "Next Phase",
-			Position = new Vector2(10, 180)
+			Position = new Vector2(10, 150)
 		};
 		panel.AddChild(_nextPhaseButton);
 		_nextPhaseButton.Pressed += OnNextPhasePressed;
 
+		_inventoryButton = new Button
+		{
+			Name = "InventoryButton",
+			Text = "Inventory (I)",
+			Position = new Vector2(10, 185)
+		};
+		panel.AddChild(_inventoryButton);
+		_inventoryButton.Pressed += OnInventoryPressed;
+
 		EnsureEnemyPreviewUi();
 		GD.Print("GameManager: EnsureUiNodes completed.");
+	}
+
+	private void OnInventoryPressed()
+	{
+		var pc = FindPlayerController();
+		if (pc != null)
+		{
+			pc.ToggleInventory();
+		}
 	}
 
 	private void EnsureEnemyPreviewUi()

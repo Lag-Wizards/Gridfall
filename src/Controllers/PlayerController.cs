@@ -88,7 +88,7 @@ public partial class PlayerController : Node2D
 		TryMove(dir);
 	}
 
-	private void ToggleInventory()
+	public void ToggleInventory()
 	{
 		if (_inventoryCanvasLayer != null && IsInstanceValid(_inventoryCanvasLayer))
 		{
