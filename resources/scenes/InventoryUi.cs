@@ -16,7 +16,7 @@ public partial class InventoryUi : Control
 
 	public override void _Ready()
 	{
-		itemList = GetNode<VBoxContainer>("Panel/VBoxContainer/ItemList");
+		itemList = GetNode<VBoxContainer>("Panel/VBoxContainer/ScrollContainer/ItemList");
 		detailsLabel = GetNode<Label>("Panel/VBoxContainer/DetailsLabel");
 
 		equipButton = GetNode<Button>("Panel/VBoxContainer/ButtonRow/EquipButton");
@@ -67,7 +67,12 @@ public partial class InventoryUi : Control
 
 		foreach (Equipment item in selectedCharacter.Inventory)
 		{
-			Button itemButton = new Button();
+			Button itemButton = new Button
+			{
+				CustomMinimumSize = new Vector2(0, 36),
+				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+				TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis
+			};
 			bool isEquipped = item == selectedCharacter.EquippedWeapon || item == selectedCharacter.EquippedArmor;
 
 			if (item is Weapon weapon)
@@ -89,8 +94,13 @@ public partial class InventoryUi : Control
 
 		if (hasPotions)
 		{
-			Button potionButton = new Button();
-			potionButton.Text = $"Health Potion x{selectedCharacter.HealthPotionCount}";
+			Button potionButton = new Button
+			{
+				CustomMinimumSize = new Vector2(0, 36),
+				SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+				TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis,
+				Text = $"Health Potion x{selectedCharacter.HealthPotionCount}"
+			};
 			potionButton.Pressed += SelectHealthPotion;
 			itemList.AddChild(potionButton);
 		}
