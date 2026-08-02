@@ -20,9 +20,10 @@ public partial class GameManager : Node
 	
 	private RangeIndicatorService rangeIndicatorService = new RangeIndicatorService();
 	private GridOverlay rangeOverlay;
-
-	public GamePhase CurrentPhase { get; private set; } = GamePhase.PlayerMovement;
-
+	private List<CharacterNode> _playerCharacterNodes = new();
+	private List<CharacterBase> playerCharacters = new();
+	public GamePhase CurrentPhase { get; private set; } = GamePhase.PlayerTurn;
+	private bool loadedCharacters = false;
 	private int _enemyCount = 0;
 	public CharacterBase CurrentCharacter { get; private set; }
 	public IGridManager GridManager { get; private set; }
@@ -118,7 +119,6 @@ public partial class GameManager : Node
 				GD.Print("GameManager: No Camera2D found in the current level root layout.");
 			}
 		}
-
 		
 		rangeOverlay = currentScene?.GetNodeOrNull<GridOverlay>("GridOverlay");
 
@@ -148,7 +148,7 @@ public partial class GameManager : Node
 		{
 			playerNode.InitializeGridPosition();
 		}
-
+		TryLoadCharacters();
 		StartGamePhases();
 	}
 
@@ -204,10 +204,25 @@ public partial class GameManager : Node
 		if (_saveService.SaveExists(CurrentSaveSlot))
 		{
 			SaveData saveData = _saveService.Load(CurrentSaveSlot);
-
-			CurrentCharacter = new CharacterBase();
-			CurrentCharacter.LoadFromSave(saveData);
 			_coinCount = saveData.Coins;
+			playerCharacters.Clear();
+			for (int i = 0; i < saveData.Characters.Count; i++)
+			{
+				CharacterBase savedChar = new CharacterBase();
+				savedChar.LoadFromSave(saveData.Characters[i]);
+				playerCharacters.Add(savedChar);
+
+				if (i < _playerCharacterNodes.Count && GodotObject.IsInstanceValid(_playerCharacterNodes[i]))
+				{
+					_playerCharacterNodes[i].LinkStats(savedChar);
+				}
+			}
+			
+			if (playerCharacters.Count > 0)
+			{
+				CurrentCharacter = playerCharacters[0];
+			}
+			UpdateHud();
 
 			GD.Print("GameManager loaded saved character data.");
 			GD.Print(CurrentCharacter.CharacterName);
@@ -227,13 +242,16 @@ public partial class GameManager : Node
 
 	public void SaveCurrentCharacter()
 	{
-		if (CurrentCharacter == null)
+		if (playerCharacters == null)
 		{
-			GD.Print("No current character to save.");
+			GD.Print("No current characters to save.");
 			return;
 		}
+		
+		SaveData dataToSave = new SaveData();
+		dataToSave.Characters = new System.Collections.Generic.List<CharacterSaveData>();
 
-		_saveService.Save(CurrentCharacter, CurrentSaveSlot);
+		_saveService.Save(playerCharacters, _coinCount, CurrentSaveSlot);
 		GD.Print("Current character saved.");
 	}
 
@@ -271,7 +289,7 @@ public partial class GameManager : Node
 	{
 		_playerController = pc;
 		GD.Print("GameManager: PlayerController registered.");
-		if (CurrentPhase == GamePhase.PlayerMovement)
+		if (CurrentPhase == GamePhase.PlayerTurn)
 		{
 			pc.StartMovementPhase();
 		}
@@ -280,8 +298,34 @@ public partial class GameManager : Node
 
 	public void RegisterPlayerCharacterNode(CharacterNode node)
 	{
-		_playerCharacterNode = node;
-		GD.Print("GameManager: Player CharacterNode registered.");
+		if (node == null || !GodotObject.IsInstanceValid(node)) 
+			return;
+
+		if (!_playerCharacterNodes.Contains(node))
+		{
+			_playerCharacterNodes.Add(node);
+		}
+		int partyIndex = _playerCharacterNodes.IndexOf(node);
+
+		if (partyIndex < playerCharacters.Count)
+		{
+			node.LinkStats(playerCharacters[partyIndex]);
+			GD.Print($"GameManager: Linked {node.Name} to saved party slot [{partyIndex}] ({playerCharacters[partyIndex].CharacterName})");
+		}
+		else
+		{
+			var uniqueStats = new CharacterBase();
+	  
+			uniqueStats.SetupCharacter($"Recruit {partyIndex + 1}", 1, new Weapon(WeaponType.Slash, 5, 1));
+			node.LinkStats(uniqueStats);
+			playerCharacters.Add(uniqueStats);
+	  
+			GD.Print($"GameManager: No save data for party slot [{partyIndex}]. Assigned {node.Name} unique default stats.");
+		}
+		if (CurrentCharacter == null && playerCharacters.Count > 0)
+		{
+			CurrentCharacter = playerCharacters[0];
+		}
 		UpdateHud();
 	}
 
@@ -303,22 +347,60 @@ public partial class GameManager : Node
 	{
 		if (_playerController == null || !GodotObject.IsInstanceValid(_playerController))
 		{
-			var sceneRoot = GetSceneRoot();
-			_playerController = FindNodeRecursive<PlayerController>(sceneRoot);
+			var activeChar = FindPlayerCharacterNode();
+			if (activeChar != null)
+			{
+				_playerController = FindNodeRecursive<PlayerController>(activeChar);
+			}
 		}
 		return _playerController;
 	}
 
 	private CharacterNode FindPlayerCharacterNode()
 	{
-		if (_playerCharacterNode == null || !GodotObject.IsInstanceValid(_playerCharacterNode))
+		if (_playerCharacterNode != null &&
+			GodotObject.IsInstanceValid(_playerCharacterNode))
 		{
-			var sceneRoot = GetSceneRoot();
-			_playerCharacterNode = sceneRoot?.GetNodeOrNull<CharacterNode>("Character");
+			return _playerCharacterNode;
 		}
+
+		_playerCharacterNodes.RemoveAll(c => !GodotObject.IsInstanceValid(c));
+
+		if (_playerCharacterNodes.Count > 0)
+			_playerCharacterNode = _playerCharacterNodes[0];
+
 		return _playerCharacterNode;
 	}
 
+	private List<CharacterNode> FindPlayerCharacterNodes()
+	{
+		_playerCharacterNodes.RemoveAll(c => !GodotObject.IsInstanceValid(c));
+		return _playerCharacterNodes;
+	}
+	
+	public void SetCurrentPlayerCharacter(CharacterNode node)
+	{
+		if (node == null)
+			return;
+		
+		var oldController = FindPlayerController();
+		if (oldController != null)
+			oldController.Deactivate();
+
+
+		_playerCharacterNode = node;
+
+		var newController = FindNodeRecursive<PlayerController>(node);
+
+		if (newController != null)
+		{
+			_playerController = newController;
+			newController.Activate();
+		}
+		UpdateHud();
+		GD.Print($"Active character changed to {node.Name}");
+	}
+	
 	private T FindNodeRecursive<T>(Node node) where T : Node
 	{
 		if (node is T target)
@@ -343,7 +425,7 @@ public partial class GameManager : Node
 	private void StartGamePhases()
 	{
 		EnsureUiNodes();
-		TransitionToPhase(GamePhase.PlayerMovement);
+		TransitionToPhase(GamePhase.PlayerTurn);
 	}
 
 	public async void TransitionToPhase(GamePhase nextPhase)
@@ -355,9 +437,16 @@ public partial class GameManager : Node
 
 		switch (CurrentPhase)
 		{
-			case GamePhase.PlayerMovement:
-				GD.Print("GameManager: Entering Player Movement Phase");
-				SetPhaseLabel("Phase: Player Movement", Colors.LimeGreen);
+			case GamePhase.PlayerTurn:
+				GD.Print("GameManager: Entering Player Turn");
+				foreach (var player in FindPlayerCharacterNodes())
+				{
+					if (!player.Stats.IsAlive())
+						continue;
+
+					player.BeginTurn();
+				}
+				SetPhaseLabel("Phase: Player Turn", Colors.LimeGreen);
 
 				var pc = FindPlayerController();
 				if (pc != null)
@@ -369,38 +458,7 @@ public partial class GameManager : Node
 					_nextPhaseButton.Visible = true;
 				break;
 
-			case GamePhase.PlayerBattle:
-				GD.Print("GameManager: Entering Player Battle Phase");
-				SetPhaseLabel("Phase: Player Battle", Colors.OrangeRed);
-				if (GodotObject.IsInstanceValid(_nextPhaseButton))
-					_nextPhaseButton.Visible = false;
-
-				var pcBattle = FindPlayerController();
-				if (pcBattle != null)
-					pcBattle.EndMovementPhase();
-
-				var playerNode = FindPlayerCharacterNode();
-				if (playerNode != null)
-				{
-					var enemies = playerNode.GetEnemiesInRange();
-					if (enemies != null && enemies.Count > 0)
-					{
-						bool playerFought = await PromptPlayerBattlePhase(playerNode.Stats, enemies);
-						GD.Print($"GameManager: Player finished battle (fought = {playerFought})");
-					}
-					else
-					{
-						GD.Print("GameManager: No enemy in range for player attack.");
-					}
-				}
-
-				if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
-					return;
-
-				TransitionToPhase(GamePhase.EnemyBattle);
-				break;
-
-			case GamePhase.EnemyBattle:
+			case GamePhase.EnemyTurn:
 				GD.Print("GameManager: Entering Enemy Battle Phase");
 				SetPhaseLabel("Phase: Enemy Battle", Colors.Red);
 				if (GodotObject.IsInstanceValid(_nextPhaseButton))
@@ -415,24 +473,54 @@ public partial class GameManager : Node
 				if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
 					return;
 
-				TransitionToPhase(GamePhase.PlayerMovement);
+				TransitionToPhase(GamePhase.PlayerTurn);
 				break;
 		}
 	}
 
-	public void EndPlayerMovementPhase()
+	public async Task FinishCurrentCharacterTurn()
 	{
-		TransitionToPhase(GamePhase.PlayerBattle);
+		var player = FindPlayerCharacterNode();
+
+		if (player == null)
+			return;
+
+		var enemies = player.GetEnemiesInRange();
+
+		if (enemies.Count > 0)
+		{
+			await PromptPlayerBattlePhase(player.Stats, enemies);
+		}
+		player.EndTurn();
+
+		if (AllPlayersFinished())
+		{
+			TransitionToPhase(GamePhase.EnemyTurn);
+		}
+	}
+	
+	private bool AllPlayersFinished()
+	{
+		foreach (var player in FindPlayerCharacterNodes())
+		{
+			if (!player.Stats.IsAlive())
+				continue;
+
+			if (player.TurnState != UnitTurnState.Done)
+				return false;
+		}
+
+		return true;
 	}
 
 	private void OnNextPhasePressed()
 	{
-		if (CurrentPhase == GamePhase.PlayerMovement)
+		if (CurrentPhase == GamePhase.PlayerTurn)
 		{
 			var pc = FindPlayerController();
 			if (pc != null)
 				pc.EndMovementPhase();
-			EndPlayerMovementPhase();
+			FinishCurrentCharacterTurn();
 		}
 	}
 
@@ -505,7 +593,7 @@ public partial class GameManager : Node
 		_nextPhaseButton = new Button
 		{
 			Name = "NextPhaseButton",
-			Text = "Next Phase",
+			Text = "Attack/Wait (M)",
 			Position = new Vector2(10, 150)
 		};
 		panel.AddChild(_nextPhaseButton);
@@ -796,13 +884,13 @@ public partial class GameManager : Node
 
 		var sceneRoot = GetTree().CurrentScene;
 		var enemies = FindEnemyNodesRecursive(sceneRoot);
-		var playerNode = FindPlayerCharacterNode();
-
-		if (playerNode == null)
-			return;
 
 		foreach (var enemyNode in enemies)
 		{
+			CharacterNode playerNode = FindClosestPlayer(enemyNode);
+
+			if (playerNode == null)
+				return;
 			if (!GodotObject.IsInstanceValid(GridManager?.GridMap))
 				return;
 
@@ -929,7 +1017,117 @@ public partial class GameManager : Node
 	{
 		if (@event is InputEventMouseButton mouse && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
 		{
-			DeselectEnemy();
+			Viewport viewport = GetViewport();
+			if (viewport == null) return;
+			Vector2 mousePosition = viewport.GetCanvasTransform().AffineInverse() * viewport.GetMousePosition();
+	  
+			ProcessLeftClick(mousePosition);
 		}
+	}
+	
+	private CharacterNode FindClosestPlayer(EnemyNode enemy)
+	{
+		if (GridManager == null)
+			return null;
+
+		CharacterNode closest = null;
+		int bestDistance = int.MaxValue;
+
+		Vector2I enemyTile = GridManager.WorldToMap(enemy.GlobalPosition);
+
+		foreach (var player in FindPlayerCharacterNodes())
+		{
+			if (!GodotObject.IsInstanceValid(player))
+				continue;
+
+			if (!player.Stats.IsAlive())
+				continue;
+
+			int distance = Mathf.Abs(player.CurrentTile.X - enemyTile.X) + Mathf.Abs(player.CurrentTile.Y - enemyTile.Y);
+			if (distance < bestDistance)
+			{
+				bestDistance = distance;
+				closest = player;
+			}
+		}
+		return closest;
+	}
+	
+	private void ProcessLeftClick(Vector2 mousePosition)
+	{
+		var players = FindPlayerCharacterNodes();
+		
+		foreach (var player in players)
+		{
+		   if (player.TurnState == UnitTurnState.Done)
+			  continue;
+		   if (!GodotObject.IsInstanceValid(player))
+		   {
+			  continue;
+		   }
+
+		   Rect2 clickBoundary = new Rect2(player.GlobalPosition - new Vector2(16, 16), new Vector2(32, 32));
+		   
+		   if (clickBoundary.HasPoint(mousePosition))
+		   {
+			  SetCurrentPlayerCharacter(player);
+		 
+			  var pc = player.GetNodeOrNull<PlayerController>("PlayerController") ?? FindPlayerController();
+			  
+			  if (pc != null && CurrentPhase == GamePhase.PlayerTurn)
+			  {
+				 pc.StartMovementPhase();
+			  }
+
+			  GD.Print($"Selected active player: {player.Name}");
+			  DeselectEnemy();
+			  return; 
+		   }
+		}
+		
+		bool enemyClicked = false;
+		var enemyGroupNodes = GetTree().GetNodesInGroup("enemies");
+
+		foreach (var node in enemyGroupNodes)
+		{
+		   if (node is not EnemyNode enemy || !GodotObject.IsInstanceValid(enemy))
+			  continue;
+	  
+		   if (enemy.IsMouseOver(mousePosition))
+		   {
+			  SelectEnemy(enemy);
+			  ShowEnemyPreview(enemy);
+			  enemyClicked = true;
+			  break; 
+		   }
+		}
+		if (!enemyClicked)
+		{
+		   if (_currentPreviewEnemy != null)
+		   {
+			  HideEnemyPreview(_currentPreviewEnemy);
+		   }
+		   DeselectEnemy();
+		}
+		
+	}
+	
+	public void UnregisterPlayerCharacterNode(CharacterNode node)
+	{
+		_playerCharacterNodes.Remove(node);
+	}
+	
+	private void TryLoadCharacters()
+	{
+		if (loadedCharacters)
+			return;
+		
+		if (_playerCharacterNodes.Count == 0)
+
+			return;
+		
+		LoadCharacterData();
+
+		loadedCharacters = true;
 	}
 }

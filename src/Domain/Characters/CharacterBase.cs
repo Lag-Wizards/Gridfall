@@ -50,32 +50,32 @@ namespace Gridfall.Characters.Domain
 		[Signal]
 		public delegate void ExpChangedEventHandler(int exp);
 
-		public void LoadFromSave(SaveData saveData)
+		public void LoadFromSave(CharacterSaveData savedCharacter)
 		{
-			CharacterName = saveData.CharacterName;
-			Level = saveData.Level;
+			CharacterName = savedCharacter.CharacterName;
+			Level = savedCharacter.Level;
 
 			// Base stats initialized (without equipment bonuses since EquippedWeapon/Armor are null right now)
 			EquippedWeapon = null;
 			EquippedArmor = null;
 
-			MaxHealth = saveData.MaxHealth;
-			Strength = saveData.Strength;
-			Defense = saveData.Defense;
-			Speed = saveData.Speed;
-			MovementRange = saveData.MovementRange;
-			Luck = saveData.Luck;
-			Skill = saveData.Skill;
-			Constitution = saveData.Constitution;
-			Resistance = saveData.Resistance;
-			IsMagic = saveData.IsMagic;
-			Experience = saveData.Experience;
+			MaxHealth = savedCharacter.MaxHealth;
+			Strength = savedCharacter.Strength;
+			Defense = savedCharacter.Defense;
+			Speed = savedCharacter.Speed;
+			MovementRange = savedCharacter.MovementRange;
+			Luck = savedCharacter.Luck;
+			Skill = savedCharacter.Skill;
+			Constitution = savedCharacter.Constitution;
+			Resistance = savedCharacter.Resistance;
+			IsMagic = savedCharacter.IsMagic;
+			Experience = savedCharacter.Experience;
 
 			GD.Print($"[CharacterBase LoadFromSave] Loaded character: {CharacterName}, Level: {Level}");
-			GD.Print($"[CharacterBase LoadFromSave] Weapon in save: {saveData.EquippedWeaponName}, Armor in save: {saveData.EquippedArmorName}");
-			if (saveData.InventoryItemNames != null)
+			GD.Print($"[CharacterBase LoadFromSave] Weapon in save: {savedCharacter.EquippedWeaponName}, Armor in save: {savedCharacter.EquippedArmorName}");
+			if (savedCharacter.InventoryItemNames != null)
 			{
-				GD.Print($"[CharacterBase LoadFromSave] Inventory items in save: {string.Join(", ", saveData.InventoryItemNames)}");
+				GD.Print($"[CharacterBase LoadFromSave] Inventory items in save: {string.Join(", ", savedCharacter.InventoryItemNames)}");
 			}
 			else
 			{
@@ -85,9 +85,9 @@ namespace Gridfall.Characters.Domain
 			Inventory.Clear();
 
 			// 1. Load Inventory Items first
-			if (saveData.InventoryItemNames != null && saveData.InventoryItemNames.Count > 0)
+			if (savedCharacter.InventoryItemNames != null && savedCharacter.InventoryItemNames.Count > 0)
 			{
-				foreach (var itemName in saveData.InventoryItemNames)
+				foreach (var itemName in savedCharacter.InventoryItemNames)
 				{
 					var item = ItemFactory.CreateEquipment(itemName);
 					if (item != null)
@@ -98,36 +98,36 @@ namespace Gridfall.Characters.Domain
 			}
 
 			// 2. Load Equipped Weapon (linking it to the instance in the inventory)
-			if (!string.IsNullOrEmpty(saveData.EquippedWeaponName))
+			if (!string.IsNullOrEmpty(savedCharacter.EquippedWeaponName))
 			{
-				EquippedWeapon = Inventory.Find(item => item is Weapon && item.Name == saveData.EquippedWeaponName) as Weapon;
+				EquippedWeapon = Inventory.Find(item => item is Weapon && item.Name == savedCharacter.EquippedWeaponName) as Weapon;
 				if (EquippedWeapon == null)
 				{
-					EquippedWeapon = ItemFactory.CreateEquipment(saveData.EquippedWeaponName) as Weapon;
+					EquippedWeapon = ItemFactory.CreateEquipment(savedCharacter.EquippedWeaponName) as Weapon;
 					if (EquippedWeapon != null)
 					{
 						Inventory.Add(EquippedWeapon);
 					}
 				}
 			}
-			else if (saveData.WeaponDamage > 0)
+			else if (savedCharacter.WeaponDamage > 0)
 			{
 				// Legacy weapon fallback
 				EquippedWeapon = new Weapon(
-					(WeaponType)saveData.WeaponType,
-					saveData.WeaponDamage,
-					saveData.WeaponRange
+					(WeaponType)savedCharacter.WeaponType,
+					savedCharacter.WeaponDamage,
+					savedCharacter.WeaponRange
 				);
 				Inventory.Add(EquippedWeapon);
 			}
 
 			// 3. Load Equipped Armor (linking it to the instance in the inventory)
-			if (!string.IsNullOrEmpty(saveData.EquippedArmorName))
+			if (!string.IsNullOrEmpty(savedCharacter.EquippedArmorName))
 			{
-				EquippedArmor = Inventory.Find(item => item is Armor && item.Name == saveData.EquippedArmorName) as Armor;
+				EquippedArmor = Inventory.Find(item => item is Armor && item.Name == savedCharacter.EquippedArmorName) as Armor;
 				if (EquippedArmor == null)
 				{
-					EquippedArmor = ItemFactory.CreateEquipment(saveData.EquippedArmorName) as Armor;
+					EquippedArmor = ItemFactory.CreateEquipment(savedCharacter.EquippedArmorName) as Armor;
 					if (EquippedArmor != null)
 					{
 						Inventory.Add(EquippedArmor);
@@ -149,7 +149,7 @@ namespace Gridfall.Characters.Domain
 			}
 
 			// Set HP last to clamp correctly against loaded max health + loaded bonuses
-			Health = saveData.Health;
+			Health = savedCharacter.Health;
 		}
 
 		public override void _Ready()

@@ -15,7 +15,7 @@ public partial class CharacterNode : Node2D
 
 	[Export]
 	public int Level = 1;
-
+	public int RemainingMovement { get; set; }
 	private CharacterBase _character = new CharacterBase();
 	private Sprite2D _sprite;
 	private IMovementService _movementService;
@@ -24,33 +24,40 @@ public partial class CharacterNode : Node2D
 
 	public Vector2I CurrentTile { get; set; }
 
+	public bool IsInitialized { get; private set; }
+	// Track unit Turn State
+	private UnitTurnState _turnState = UnitTurnState.Ready;
+	public UnitTurnState TurnState 
+	{ 
+		get => _turnState; 
+		set 
+		{
+			_turnState = value;
+			UpdateVisualState();
+		}
+	}
 	public override void _EnterTree()
 	{
 		base._EnterTree();
+		
+		_character = new CharacterBase();
 
-		if (GameManager.Instance != null && GameManager.Instance.CurrentCharacter == null)
-		{
-			GameManager.Instance.LoadCharacterData();
-		}
-
-		if (GameManager.Instance?.CurrentCharacter != null)
-		{
-			_character = GameManager.Instance.CurrentCharacter;
-			_character.Health = _character.MaxHealth;
-	  
-			GD.Print($"CharacterNode synced with GameManager tracking: {_character.CharacterName}");
-		}
-		else
+		try
 		{
 			Weapon starterWeapon = ItemFactory.CreateEquipment("Copper Sword") as Weapon;
 			_character.SetupCharacter(CharacterName, Level, starterWeapon, null);
-			GameManager.Instance?.SetCurrentCharacter(_character);
-			GD.Print("No save found. Created default character with Copper Sword.");
+		}
+		catch (Exception ex)
+		{
+			Weapon fallbackWeapon = new Weapon(WeaponType.Slash, 5, 1); 
+			_character.SetupCharacter(CharacterName, Level, fallbackWeapon, null);
 		}
 
 		_character.OnUnitDeath += OnPlayerDeath;
-		GameManager.Instance?.SetCurrentCharacter(_character);
-		GameManager.Instance?.RegisterPlayerCharacterNode(this);
+		if (GameManager.Instance != null)
+		{
+			GameManager.Instance.RegisterPlayerCharacterNode(this);
+		}
 	}
 
 	public override void _Ready()
@@ -62,7 +69,7 @@ public partial class CharacterNode : Node2D
 		{
 			CreateSprite();
 		}
-
+		UpdateVisualState();
 		UpdateName();
 		InitializeGridPosition();
 	}
@@ -198,5 +205,49 @@ public partial class CharacterNode : Node2D
 	{
 		GD.Print("CharacterNode: Player has died! Emitting player death event.");
 		Events.EmitPlayerDied();
+	}
+	
+	public void EndTurn()
+	{
+		TurnState = UnitTurnState.Done;
+	}
+
+	public void BeginTurn()
+	{
+		RemainingMovement = Stats.MovementRange;
+		TurnState = UnitTurnState.Ready;
+	}
+	
+	public override void _ExitTree()
+	{
+		base._ExitTree();
+		GameManager.Instance?.UnregisterPlayerCharacterNode(this);
+	}
+	
+	public void LinkStats(CharacterBase loadedStats)
+	{
+		if (_character != null)
+		{
+			_character.OnUnitDeath -= OnPlayerDeath;
+		}
+		
+		_character = loadedStats;
+		_character.Health = _character.MaxHealth;
+		
+		_character.OnUnitDeath += OnPlayerDeath;
+		
+		IsInitialized = true;
+	
+		UpdateVisualState();
+		
+		GD.Print($"{Name} successfully linked to loaded save data!");
+	}
+	
+	private void UpdateVisualState()
+	{
+		if (_sprite == null) return;
+		
+		// grays out character after turn expended
+		_sprite.Modulate = TurnState == UnitTurnState.Done ? new Color(0.4f, 0.4f, 0.4f, 1.0f) : Colors.White;
 	}
 }

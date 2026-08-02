@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bapth5fg7rekp" path="res://assets/sprites/slime.png" id="5_vjd2m"]
 [ext_resource type="Script" uid="uid://dfeuhs6aae8nx" path="res://src/Domain/Characters/CharacterNode.cs" id="6_g4asw"]
 [ext_resource type="Texture2D" uid="uid://3e370uhe0u38" path="res://assets/sprites/Character.png" id="7_qqyn2"]
+[ext_resource type="Script" uid="uid://y8w2jeqglvlc" path="res://src/Controllers/PlayerController.cs" id="12_ton4a"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ton4a"]
 texture = ExtResource("2_tph03")
@@ -73,6 +74,21 @@ script = ExtResource("6_g4asw")
 [node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=876553366]
 position = Vector2(49, -18)
 texture = ExtResource("7_qqyn2")
+
+[node name="PlayerController" type="Node2D" parent="Character" unique_id=1519821457]
+script = ExtResource("12_ton4a")
+
+[node name="Character2" type="Node2D" parent="." unique_id=1499353636]
+position = Vector2(-72, 9)
+script = ExtResource("6_g4asw")
+CharacterName = "Hero2"
+
+[node name="Sprite2D" type="Sprite2D" parent="Character2" unique_id=1464739552]
+position = Vector2(48, 15)
+texture = ExtResource("7_qqyn2")
+
+[node name="PlayerController" type="Node2D" parent="Character2" unique_id=39954653]
+script = ExtResource("12_ton4a")
 
 [node name="Slime2" type="Node2D" parent="." unique_id=1660121052]
 script = ExtResource("4_3qqyq")

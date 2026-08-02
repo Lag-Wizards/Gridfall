@@ -35,7 +35,12 @@ public partial class SaveSlot : Button
 
 		if (saveData != null)
 		{
-			detailsLabel.Text = $"{saveData.CharacterName} - Lv. {saveData.Level}";
+			int characterCount = saveData.Characters.Count;
+
+			string firstCharacterName = saveData.Characters[0].CharacterName;
+			int firstCharacterLevel = saveData.Characters[0].Level;
+
+			detailsLabel.Text = $"{characterCount} Characters\n" + $"{firstCharacterName} Lv. {firstCharacterLevel}";
 			deleteButton.Visible = true;
 		}
 		else

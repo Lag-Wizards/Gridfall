@@ -67,7 +67,7 @@ public partial class EnemyNode : Node2D
 			}
 		}
 	}
-
+	
 	public override void _Input(InputEvent @event)
 	{
 		base._Input(@event);
@@ -91,6 +91,16 @@ public partial class EnemyNode : Node2D
 			GameManager.Instance?.SelectEnemy(this);
 			GetViewport().SetInputAsHandled();
 		}
+	}
+	
+	
+	public bool IsMouseOver(Vector2 globalMousePosition)
+	{
+		var sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+		if (sprite == null) return false;
+
+		var localMousePosition = sprite.ToLocal(globalMousePosition);
+		return sprite.GetRect().HasPoint(localMousePosition);
 	}
 
 	private void UpdateName()
