@@ -13,9 +13,8 @@ namespace Gridfall.Services;
 					return new Goblin(level);
 				case "slime":
 					return new Slime(level);
-				case "normalslime":
-				case "normal slime":
-					return new NormalSlime(level);
+				case "orc":
+					return new Orc(level);
 				default:
 					throw new ArgumentException($"Unknown enemy type '{type}'");
 			}
