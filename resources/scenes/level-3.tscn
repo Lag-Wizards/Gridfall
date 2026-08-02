@@ -4,14 +4,15 @@
 [ext_resource type="Texture2D" uid="uid://cicegam34ioq0" path="res://assets/tileset/red.png" id="2_1vx3q"]
 [ext_resource type="Texture2D" uid="uid://cyxo3vn81hk6k" path="res://assets/tileset/tile-outline.png" id="2_svnkc"]
 [ext_resource type="Texture2D" uid="uid://dbw4e5htc5nbw" path="res://assets/tileset/blue.png" id="3_0ix3x"]
-[ext_resource type="Script" uid="uid://b0k4fynokt4ci" path="res://resources/scenes/Camera2d.cs" id="3_flxpq"]
+[ext_resource type="Script" uid="uid://xd1id2dfy5rl" path="res://resources/scenes/Camera2d.cs" id="3_flxpq"]
 [ext_resource type="Script" uid="uid://bmunriw4h1dye" path="res://src/Services/GridNode.cs" id="3_ie0k4"]
 [ext_resource type="Script" uid="uid://bg8ew4f50vlgn" path="res://resources/scenes/GridOverlay.cs" id="3_uxnsy"]
-[ext_resource type="Script" uid="uid://cgt07e7xtkcfg" path="res://src/Services/EnemyNode.cs" id="4_flxpq"]
+[ext_resource type="Script" uid="uid://dtf0ath0unthb" path="res://src/Services/EnemyNode.cs" id="4_flxpq"]
 [ext_resource type="Texture2D" uid="uid://bapth5fg7rekp" path="res://assets/sprites/slime.png" id="5_uxnsy"]
-[ext_resource type="Script" uid="uid://k2tooidbs618" path="res://src/Domain/Characters/CharacterNode.cs" id="6_1vx3q"]
+[ext_resource type="Script" uid="uid://dfeuhs6aae8nx" path="res://src/Domain/Characters/CharacterNode.cs" id="6_1vx3q"]
 [ext_resource type="Texture2D" uid="uid://3e370uhe0u38" path="res://assets/sprites/Character.png" id="7_0ix3x"]
 [ext_resource type="Texture2D" uid="uid://btlqixl2ixqhh" path="res://assets/sprites/goblin.png" id="8_svnkc"]
+[ext_resource type="Script" uid="uid://y8w2jeqglvlc" path="res://src/Controllers/PlayerController.cs" id="13_0ix3x"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ton4a"]
 texture = ExtResource("2_svnkc")
@@ -67,14 +68,6 @@ EnemyType = "Slime"
 position = Vector2(218, -183)
 texture = ExtResource("5_uxnsy")
 
-[node name="Character" type="Node2D" parent="." unique_id=956083732]
-position = Vector2(-24, -6)
-script = ExtResource("6_1vx3q")
-
-[node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=876553366]
-position = Vector2(-82, -1)
-texture = ExtResource("7_0ix3x")
-
 [node name="Slime2" type="Node2D" parent="." unique_id=1660121052]
 script = ExtResource("4_flxpq")
 EnemyType = "Slime"
@@ -96,3 +89,26 @@ script = ExtResource("4_flxpq")
 [node name="Sprite2D" type="Sprite2D" parent="Goblin2" unique_id=1251107398]
 position = Vector2(216, -74)
 texture = ExtResource("8_svnkc")
+
+[node name="Character" type="Node2D" parent="." unique_id=147256135]
+position = Vector2(-72, 9)
+script = ExtResource("6_1vx3q")
+
+[node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=109518156]
+position = Vector2(174, 47)
+texture = ExtResource("7_0ix3x")
+
+[node name="PlayerController" type="Node2D" parent="Character" unique_id=955418460]
+script = ExtResource("13_0ix3x")
+
+[node name="Character2" type="Node2D" parent="." unique_id=1013978003]
+position = Vector2(-72, 9)
+script = ExtResource("6_1vx3q")
+CharacterName = "Hero2"
+
+[node name="Sprite2D" type="Sprite2D" parent="Character2" unique_id=19867969]
+position = Vector2(146, -97)
+texture = ExtResource("7_0ix3x")
+
+[node name="PlayerController" type="Node2D" parent="Character2" unique_id=446737008]
+script = ExtResource("13_0ix3x")

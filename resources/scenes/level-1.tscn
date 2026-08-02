@@ -72,7 +72,7 @@ position = Vector2(-72, 9)
 script = ExtResource("6_g4asw")
 
 [node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=876553366]
-position = Vector2(49, -18)
+position = Vector2(49, -50)
 texture = ExtResource("7_qqyn2")
 
 [node name="PlayerController" type="Node2D" parent="Character" unique_id=1519821457]

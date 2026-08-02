@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bapth5fg7rekp" path="res://assets/sprites/slime.png" id="5_pvjst"]
 [ext_resource type="Script" uid="uid://dfeuhs6aae8nx" path="res://src/Domain/Characters/CharacterNode.cs" id="6_kmny4"]
 [ext_resource type="Texture2D" uid="uid://3e370uhe0u38" path="res://assets/sprites/Character.png" id="7_1p7cj"]
+[ext_resource type="Script" uid="uid://y8w2jeqglvlc" path="res://src/Controllers/PlayerController.cs" id="12_kmny4"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ton4a"]
 texture = ExtResource("2_muh35")
@@ -66,14 +67,6 @@ EnemyType = "Slime"
 position = Vector2(-40, 88)
 texture = ExtResource("5_pvjst")
 
-[node name="Character" type="Node2D" parent="." unique_id=956083732]
-position = Vector2(-24, -6)
-script = ExtResource("6_kmny4")
-
-[node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=876553366]
-position = Vector2(-82, -1)
-texture = ExtResource("7_1p7cj")
-
 [node name="Slime2" type="Node2D" parent="." unique_id=1660121052]
 script = ExtResource("4_o7h5r")
 EnemyType = "Slime"
@@ -97,3 +90,26 @@ EnemyType = "Slime"
 [node name="Sprite2D" type="Sprite2D" parent="Slime4" unique_id=904303796]
 position = Vector2(56, 55)
 texture = ExtResource("5_pvjst")
+
+[node name="Character" type="Node2D" parent="." unique_id=1502767846]
+position = Vector2(-72, 9)
+script = ExtResource("6_kmny4")
+
+[node name="Sprite2D" type="Sprite2D" parent="Character" unique_id=1735443419]
+position = Vector2(-32, 63)
+texture = ExtResource("7_1p7cj")
+
+[node name="PlayerController" type="Node2D" parent="Character" unique_id=1321150346]
+script = ExtResource("12_kmny4")
+
+[node name="Character2" type="Node2D" parent="." unique_id=1763372685]
+position = Vector2(-72, 9)
+script = ExtResource("6_kmny4")
+CharacterName = "Hero2"
+
+[node name="Sprite2D" type="Sprite2D" parent="Character2" unique_id=46547819]
+position = Vector2(-33, -16)
+texture = ExtResource("7_1p7cj")
+
+[node name="PlayerController" type="Node2D" parent="Character2" unique_id=1191944750]
+script = ExtResource("12_kmny4")
