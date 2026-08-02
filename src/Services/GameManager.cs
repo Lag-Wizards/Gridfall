@@ -208,14 +208,19 @@ public partial class GameManager : Node
 			CurrentCharacter = new CharacterBase();
 			CurrentCharacter.LoadFromSave(saveData);
 			_coinCount = saveData.Coins;
+			CurrentLevelNumber = saveData.LevelNumber > 0 ? saveData.LevelNumber : 1;
 
 			GD.Print("GameManager loaded saved character data.");
 			GD.Print(CurrentCharacter.CharacterName);
 			GD.Print(CurrentCharacter.Level);
+			GD.Print($"Level Number: {CurrentLevelNumber}");
 		}
 		else
 		{
-			GD.Print("GameManager found no save data.");
+			CurrentCharacter = null;
+			CurrentLevelNumber = 1;
+			_coinCount = 0;
+			GD.Print("GameManager found no save data for selected slot. Resetting to Level 1.");
 		}
 	}
 

@@ -20,6 +20,16 @@ public partial class SaveMenu : Control
 		backButton = GetNode<Button>("PanelContainer/VBoxContainer/BackButton");
 		saveService = new SaveService();
 		backButton.Pressed += OnBackPressed;
+
+		if (IsSaveMode)
+		{
+			backButton.Text = "Close";
+		}
+		else
+		{
+			backButton.Text = "Back to Main Menu";
+		}
+
 		PopulateSlots();
 	}
 
@@ -31,6 +41,8 @@ public partial class SaveMenu : Control
 			child.QueueFree();
 		}
 
+		int activeSlot = GameManager.Instance != null ? GameManager.Instance.CurrentSaveSlot : 1;
+
 		for (int i = 1; i <= totalSlots; i++)
 		{
 			// Add new slot UI row
@@ -41,7 +53,8 @@ public partial class SaveMenu : Control
 
 			// Get file data if it exists
 			SaveData data = saveService.SaveExists(i) ? saveService.Load(i) : null;
-			slotUI.Setup(i, data);
+			bool isSelected = (i == activeSlot);
+			slotUI.Setup(i, data, isSelected);
 		}
 	}
 
@@ -61,13 +74,16 @@ public partial class SaveMenu : Control
 		}
 		else
 		{
-			// Load Game if save exists
-			if (saveService.SaveExists(slotNumber))
+			// Load Game or start new game on Level 1 if slot is empty
+			GD.Print($"Loading Save Slot {slotNumber} and entering world...");
+			GameManager.Instance.LoadCharacterData();
+			int levelNum = GameManager.Instance.CurrentLevelNumber;
+			string levelPath = $"res://resources/scenes/level-{levelNum}.tscn";
+			if (!Godot.FileAccess.FileExists(levelPath))
 			{
-				GD.Print($"Loading Save Slot {slotNumber} and entering world...");
-				GameManager.Instance.LoadCharacterData();
-				GetTree().ChangeSceneToFile("res://resources/scenes/level-1.tscn");
+				levelPath = "res://resources/scenes/level-1.tscn";
 			}
+			GetTree().ChangeSceneToFile(levelPath);
 		}
 	}
 
@@ -80,7 +96,15 @@ public partial class SaveMenu : Control
 	
 	private void OnBackPressed()
 	{
-		GetTree().ChangeSceneToFile("res://resources/scenes/main_menu.tscn");
+		if (IsSaveMode)
+		{
+			QueueFree();
+			GD.Print("Save Menu overlay closed.");
+		}
+		else
+		{
+			GetTree().ChangeSceneToFile("res://resources/scenes/main_menu.tscn");
+		}
 	}
 	
 

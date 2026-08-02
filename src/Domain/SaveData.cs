@@ -8,6 +8,7 @@ namespace Gridfall.Domain
 	{
 		public string CharacterName { get; set; }
 		public int Level { get; set; }
+		public int LevelNumber { get; set; } = 1;
 		public int Health { get; set; }
 		public int MaxHealth { get; set; }
 		public int Strength { get; set; }

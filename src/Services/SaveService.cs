@@ -16,6 +16,7 @@ public class SaveService : ISaveService
 		{
 			CharacterName = character.CharacterName,
 			Level = character.Level,
+			LevelNumber = GameManager.Instance?.CurrentLevelNumber > 0 ? GameManager.Instance.CurrentLevelNumber : 1,
 			Health = character.Health,
 			
 			// Save BASE stats (without equipment bonuses) to avoid double-application on reload

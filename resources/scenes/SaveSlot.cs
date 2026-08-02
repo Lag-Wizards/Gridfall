@@ -28,14 +28,14 @@ public partial class SaveSlot : Button
 		deleteButton.Pressed += OnDeletePressed;
 	}
 
-	public void Setup(int slotNumber, SaveData saveData)
+	public void Setup(int slotNumber, SaveData saveData, bool isSelected = false)
 	{
 		this.slotNumber = slotNumber;
-		slotNumberLabel.Text = $"Slot {slotNumber}";
 
 		if (saveData != null)
 		{
-			detailsLabel.Text = $"{saveData.CharacterName} - Lv. {saveData.Level}";
+			int stageNum = saveData.LevelNumber > 0 ? saveData.LevelNumber : 1;
+			detailsLabel.Text = $"{saveData.CharacterName} - Lv. {saveData.Level} | Level {stageNum}";
 			deleteButton.Visible = true;
 		}
 		else
@@ -43,6 +43,17 @@ public partial class SaveSlot : Button
 			detailsLabel.Text = " Empty Slot ";
 			deleteButton.Visible = false; // Hide delete if nothing exists
 		}
+
+		SetSelected(isSelected);
+	}
+
+	public void SetSelected(bool selected)
+	{
+		if (slotNumberLabel != null)
+		{
+			slotNumberLabel.Text = selected ? $"▶ Slot {slotNumber} [Selected]" : $"Slot {slotNumber}";
+		}
+		SelfModulate = selected ? new Color(0.4f, 0.8f, 1.0f) : Colors.White;
 	}
 
 	private void OnSlotPressed()
