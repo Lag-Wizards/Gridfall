@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using Godot;
 using System.Text.Json;
 using Gridfall.Contracts;
 using Gridfall.Domain;
 using Gridfall.Characters.Domain;
+using Gridfall.Domain.Enums;
 
 namespace Gridfall.Services;
 
@@ -10,39 +12,44 @@ public class SaveService : ISaveService
 {
 	private const string SavePath = "user://savegame_{0}.json";
 
-	public void Save(CharacterBase character, int slot)
+	public void Save(List<CharacterBase> characters, int coins, int slot)
 	{
-		SaveData saveData = new SaveData
+		SaveData saveData = new SaveData();
+		saveData.Coins = coins;
+		foreach (var character in characters)
 		{
-			CharacterName = character.CharacterName,
-			Level = character.Level,
-			LevelNumber = GameManager.Instance?.CurrentLevelNumber > 0 ? GameManager.Instance.CurrentLevelNumber : 1,
-			Health = character.Health,
-			
-			// Save BASE stats (without equipment bonuses) to avoid double-application on reload
-			MaxHealth = character.BaseMaxHealth,
-			Strength = character.BaseStrength,
-			Defense = character.BaseDefense,
-			Speed = character.BaseSpeed,
-			MovementRange = character.BaseMoveDistance,
-			Luck = character.BaseLuck,
-			Skill = character.BaseSkill,
-			Constitution = character.BaseConstitution,
-			Resistance = character.BaseResistance,
-			IsMagic = character.IsMagic,
-			Experience = character.Experience,
-			Coins = GameManager.Instance?.GetCoinCount() ?? 0,
+			CharacterSaveData characterData = new CharacterSaveData
+			{
+				CharacterName = character.CharacterName,
+				Level = character.Level,
+				Health = character.Health,
 
-			// Serialize equipment by name
-			EquippedWeaponName = character.EquippedWeapon?.Name,
-			EquippedArmorName = character.EquippedArmor?.Name,
-			InventoryItemNames = character.Inventory.ConvertAll(item => item.Name),
+				// Save BASE stats (without equipment bonuses) to avoid double-application on reload
+				MaxHealth = character.BaseMaxHealth,
+				Strength = character.BaseStrength,
+				Defense = character.BaseDefense,
+				Speed = character.BaseSpeed,
+				MovementRange = character.BaseMoveDistance,
+				Luck = character.BaseLuck,
+				Skill = character.BaseSkill,
+				Constitution = character.BaseConstitution,
+				Resistance = character.BaseResistance,
+				IsMagic = character.IsMagic,
+				Experience = character.Experience,
+				Coins = GameManager.Instance?.GetCoinCount() ?? 0,
 
-			// Legacy fields for backwards compatibility
-			WeaponType = character.EquippedWeapon != null ? (int)character.EquippedWeapon.Type : 0,
-			WeaponDamage = character.EquippedWeapon != null ? character.EquippedWeapon.Damage : 0,
-			WeaponRange = character.EquippedWeapon != null ? character.EquippedWeapon.Range : 0
-		};
+				// Serialize equipment by name
+				EquippedWeaponName = character.EquippedWeapon?.Name,
+				EquippedArmorName = character.EquippedArmor?.Name,
+				InventoryItemNames = character.Inventory.ConvertAll(item => item.Name),
+
+				// Legacy fields for backwards compatibility
+				WeaponType = character.EquippedWeapon != null ? (int)character.EquippedWeapon.Type : 0,
+				WeaponDamage = character.EquippedWeapon != null ? character.EquippedWeapon.Damage : 0,
+				WeaponRange = character.EquippedWeapon != null ? character.EquippedWeapon.Range : 0
+			};
+			saveData.Characters.Add(characterData);
+		}
 
 		string json = JsonSerializer.Serialize(saveData);
 		GD.Print($"[SaveService] Serialized save data: {json}");

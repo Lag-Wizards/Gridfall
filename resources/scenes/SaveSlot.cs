@@ -31,11 +31,16 @@ public partial class SaveSlot : Button
 	public void Setup(int slotNumber, SaveData saveData, bool isSelected = false)
 	{
 		this.slotNumber = slotNumber;
+		slotNumberLabel.Text = $"Slot {slotNumber}";
 
 		if (saveData != null)
 		{
-			int stageNum = saveData.LevelNumber > 0 ? saveData.LevelNumber : 1;
-			detailsLabel.Text = $"{saveData.CharacterName} - Lv. {saveData.Level} | Level {stageNum}";
+			int characterCount = saveData.Characters.Count;
+
+			string firstCharacterName = saveData.Characters[0].CharacterName;
+			int firstCharacterLevel = saveData.Characters[0].Level;
+
+			detailsLabel.Text = $"{characterCount} Characters\n" + $"{firstCharacterName} Lv. {firstCharacterLevel}";
 			deleteButton.Visible = true;
 		}
 		else
