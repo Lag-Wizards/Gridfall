@@ -245,6 +245,7 @@ namespace Gridfall.Characters.Domain
 		{
 			Experience += amount;
 			EmitSignal(SignalName.ExpChanged, Experience);
+			GameManager.Instance?.UpdateHud();
 		}
 
 		public void ModifyStat(string stat, int amount)

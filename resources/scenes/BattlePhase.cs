@@ -184,6 +184,7 @@ public partial class BattlePhase : Control
 		if (defender is CharacterBase player)
 		{
 			expUi.SetSelectedCharacter(player);
+			expUi.RefreshBar();
 			levelupUi.SetSelectedCharacter(player);
 		}
 
@@ -244,6 +245,7 @@ public partial class BattlePhase : Control
 			
 			// Show EXP & LevelUp HUD
 			expUi.Visible = true;
+			expUi.RefreshBar();
 			levelupUi.Visible = true;
 		}
 		catch (Exception ex)

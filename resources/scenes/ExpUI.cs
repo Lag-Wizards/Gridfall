@@ -5,12 +5,13 @@ using Gridfall.Characters.Domain;
 
 public partial class ExpUI : Control
 {
-	private ProgressBar ExpBar;
+	private ProgressBar _expBar;
 	private CharacterBase selectedCharacter;
-	
+	private ProgressBar ExpBar => _expBar ??= GetNodeOrNull<ProgressBar>("ColorRect/ExpBar");
 	public override void _Ready()
 	{
-		ExpBar = GetNode<ProgressBar>("ColorRect/ExpBar");
+		_expBar = GetNode<ProgressBar>("ColorRect/ExpBar");
+		RefreshBar();
 	}
 	
 	public void SetSelectedCharacter(CharacterBase newCharacter)
@@ -27,14 +28,17 @@ public partial class ExpUI : Control
 			return;
 
 		selectedCharacter.ExpChanged += UpdateCharacter;
-		// updates Exp bar to current value
-		UpdateCharacter(selectedCharacter.Experience);
+		RefreshBar();
 	}
 	
 	// Changes the value of Exp Bar
 	private void UpdateCharacter(int exp)
 	{
-		ExpBar.Value = exp;
+		if (ExpBar == null)
+		{
+			return;
+		}
+		RefreshBar();
 	}
 
 	public override void _ExitTree()
@@ -44,5 +48,16 @@ public partial class ExpUI : Control
 		{
 			selectedCharacter.ExpChanged -= UpdateCharacter;
 		}
+	}
+	
+	public void RefreshBar()
+	{
+		if (selectedCharacter == null || ExpBar == null)
+			return;
+
+		ExpBar.MaxValue = 100; 
+
+		ExpBar.Value = selectedCharacter.Experience;
+
 	}
 }
