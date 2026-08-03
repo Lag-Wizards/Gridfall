@@ -992,7 +992,6 @@ public partial class GameManager : Node
 
 		var movement = rangeIndicatorService.GetMovementRange(enemyTile, enemy.Stats.MoveDistance, GridManager);
 		var attack = rangeIndicatorService.GetAttackRange(movement, 1, enemy.Stats.EquippedWeapon.Range);
-		GD.Print($"Calculated {movement.Count} movement tiles and {attack.Count} attack tiles for enemy.");
 		rangeOverlay.ClearRanges();
 		rangeOverlay.DrawMovement(movement);
 		rangeOverlay.DrawAttack(attack);
@@ -1072,7 +1071,7 @@ public partial class GameManager : Node
 		   if (clickBoundary.HasPoint(mousePosition))
 		   {
 			  SetCurrentPlayerCharacter(player);
-		 
+			  DeselectEnemy();
 			  var pc = player.GetNodeOrNull<PlayerController>("PlayerController") ?? FindPlayerController();
 			  
 			  if (pc != null && CurrentPhase == GamePhase.PlayerTurn)
@@ -1081,7 +1080,7 @@ public partial class GameManager : Node
 			  }
 
 			  GD.Print($"Selected active player: {player.Name}");
-			  DeselectEnemy();
+			  ShowPlayerRange(player);
 			  return; 
 		   }
 		}
@@ -1130,5 +1129,44 @@ public partial class GameManager : Node
 		LoadCharacterData();
 
 		loadedCharacters = true;
+	}
+	
+	public void ShowPlayerRange(CharacterNode player)
+	{
+		if (player == null)
+		{
+			return;
+		}
+
+		if (GridManager == null)
+		{
+			return;
+		}
+
+		if (rangeOverlay == null)
+		{
+			return;
+		}
+
+		int movementAvailable = player.RemainingMovement;
+
+		if (movementAvailable <= 0)
+		{
+			ClearRangeOverlay();
+			return;
+		}
+		var movement = rangeIndicatorService.GetMovementRange(player.CurrentTile, movementAvailable, GridManager);
+
+		int weaponRange = player.Stats?.EquippedWeapon?.Range ?? 1;
+		var attack = rangeIndicatorService.GetAttackRange(movement, 1, weaponRange);
+
+		rangeOverlay.ClearRanges();
+		rangeOverlay.DrawMovement(movement);
+		rangeOverlay.DrawAttack(attack);
+	}
+
+	public void ClearRangeOverlay()
+	{
+		rangeOverlay?.ClearRanges();
 	}
 }

@@ -186,4 +186,23 @@ public partial class PlayerController : Node2D
 		IsActive = false;
 		EndMovementPhase();
 	}
+	
+	public void MoveOneTile(Vector2I direction)
+	{
+		if (_parentUnit == null) return;
+		if (_parentUnit.TryMove(direction, RemainingMovement, out int movementCost))
+		{
+			_parentUnit.RemainingMovement = RemainingMovement;
+			GameManager.Instance?.UpdateHud();
+
+			if (RemainingMovement > 0)
+			{
+				GameManager.Instance?.ShowPlayerRange(_parentUnit);
+			}
+			else
+			{
+				GameManager.Instance?.ClearRangeOverlay();
+			}
+		}
+	}
 }
