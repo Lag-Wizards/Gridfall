@@ -40,6 +40,9 @@ https://dotnet.microsoft.com/en-us/download
 9. To build the project, you can press the hammer icon in the top right. 
 10. To the right of this hammer icon is a triangular play button which will build the project and run the game for playing.
 
+IMPORTANT: IF YOU HAVE RAN PREVIOUS ITERATIONS OF THE GRIDFALL, YOU MIGHT HAVE TO DELETE THE OLD SAVEDATA LOCATED HERE! 
+C:\Users\<username>\AppData\Roaming\Godot\app_userdata\Gridfall by default under the file "savegame.json"
+
 How to play:
 CONTROLS:
 arrow keys for movement, UI buttons otherwise.
