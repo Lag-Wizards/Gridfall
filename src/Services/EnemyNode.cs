@@ -28,7 +28,7 @@ public partial class EnemyNode : Node2D
 	{
 		if (level >= 5 && (string.IsNullOrEmpty(baseType) || baseType.Equals("Slime", StringComparison.OrdinalIgnoreCase)))
 		{
-			return "NormalSlime";
+			return "Slime";
 		}
 
 		return baseType;
