@@ -7,7 +7,7 @@ Team Contributions:
 
 Ahmad Idris - Main Menu, Pause Menu (Resume, Main Menu, Quit), GameManager implementation, CharacterNode save/load integration, SaveService integration, in-game pause menu listener, save button functionality, character persistence between scenes, code reviews and testing.
 
-Fong Vang - Character attributes, battling system, character leveling, Player battle phase /UI, Character leveling UI, Exp UI, review and testing
+Fong Vang - Character attributes, battling system, character leveling, Player battle phase /UI, Character leveling UI, Exp UI, multiple characters, multiple saves states, enemy pathfinding, range indicator,review and testing
 
 Jeffrey Cohn - EnemyAI implementation, CharacterBase implementation, EnemyDisplay implementation, enemy decision-making logic, character stat management, damage and healing functionality, code reviews, and testing.
 
@@ -43,31 +43,49 @@ https://dotnet.microsoft.com/en-us/download
 How to play:
 CONTROLS:
 arrow keys for movement, UI buttons otherwise.
+M to wait or fight if next to enemy
+I for inventory
+WASD for camera movement
 
 BASICS:
 Press Start Game to load into the first level.
-The game functions in phases. The first phase is the movement phase.
-There is currently only one level, so the victory screen "Next Level" button does not function.
+The game functions in turns. The game starts on the player turn.
+click on a unit to control them correspondingly.
+There are currently 6 levels which get more difficult as you progress.
+yellow block is the shop to buy items
+clicking on an enemy will reveal their movement range/ attack range and stats
+killing enemies reward player with coins randomly between 1-10
 
-MOVEMENT PHASE:
+PLAYER TURN:
 You are given a set amount of movement points to use, represented by the number in the top left of the screen. 
-Each tile costs 1 movement point to enter.
-Upon pressing the "Next phase" button or running out of movement, the game will transition to the next phase.
-If an enemy is within 1 tile, the battle phase will initiate, otherwise another movement phase will begin.
 
-PLAYER BATTLE PHASE:
-During battle phase, pressing "Fight" will trigger combat with the enemy. Pressing cancel will trigger the next phase.
-Combat is automated and the outcome is determined by the stats of the attacking and defending units, which can be previewed
-on the left side of the screen during the battle phase.
-After fighting or cancelling the battle phase, the game will transition to the next phase. 
+Each tile have a cost required to traverse. Depending on the terrain, tile costs may vary.
+- grass = 1 cost
+- mud = 2
+- walls = 999
 
-ENEMY BATTLE PHASE:
+During player turn, the user can move their units and attack enemies.
+The user can open their inventory to equip items or use consumables.
+
+To access the shop, the player's unit just has to simply be on the yellow tile.
+
+When adjacent to enemies "attack/wait" will trigger combat with the enemy. Pressing cancel will end the unit's turn without combat.
+
+Once a unit's movement points are used up or have attacked an enemy the unit's color will gray-out.
+
+If player unit is adjacent to an enemy when their last movement point is consumed, it'll automatically prompt the battle phase.
+
+Once all unit's are "done" the enemy turn will start.
+
+Combat is automated and the outcome is determined by the stats of the attacking and defending units, which can be previewed on the left side of the screen.
+
+ENEMY TURN:
 If an enemy is within one tile of the character after the player battle phase, it will trigger the enemy battle phase for the enemy to battle the character.
 
-From here the gameplay loops. 
+From here, the gameplay loops. 
 
 LEVELLING UP:
-Upon damaging or killing an enemy the character gains experience, and after 100 experience they will level up increasing their statistics and making battles easier. The character's current level is displayed in the top left corner. Levelling up also heals the character to their max health.
+Upon damaging or killing an enemy the character gains experience, and after 100 experience they will level up increasing their statistics and making battles easier. The character's current level is displayed in the top left corner. Leveling up also heals the character to their max health.
 
 WINNING:
 Win by defeating all of the enemies on the map.
