@@ -9,7 +9,7 @@ func _on_start_pressed():
 	GameManager.LoadCharacterData()
 	var level_num = GameManager.CurrentLevelNumber
 	var level_path = "res://resources/scenes/level-%d.tscn" % level_num
-	if FileAccess.file_exists(level_path):
+	if ResourceLoader.exists(level_path):
 		get_tree().change_scene_to_file(level_path)
 	else:
 		get_tree().change_scene_to_file("res://resources/scenes/level-1.tscn")
