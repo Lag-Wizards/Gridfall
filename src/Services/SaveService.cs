@@ -16,6 +16,7 @@ public class SaveService : ISaveService
 	{
 		SaveData saveData = new SaveData();
 		saveData.Coins = coins;
+		saveData.LevelNumber = GameManager.Instance != null ? GameManager.Instance.CurrentLevelNumber : 1;
 		foreach (var character in characters)
 		{
 			CharacterSaveData characterData = new CharacterSaveData

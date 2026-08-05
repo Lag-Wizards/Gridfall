@@ -5,6 +5,8 @@ func _ready():
 	$Save.pressed.connect(_on_save_pressed)
 	$NextLevel.pressed.connect(_on_next_level_pressed)
 	GameManager.CurrentLevelNumber += 1
+	if GameManager.CurrentLevelNumber > 6:
+		GameManager.CurrentLevelNumber = 1
 
 func _on_main_menu_pressed():
 	get_tree().paused = false

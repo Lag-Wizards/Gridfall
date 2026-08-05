@@ -23,7 +23,7 @@ namespace Gridfall.Domain
 		}
 
 		public Weapon(WeaponType type, int damage, int range)
-			: this(type, "Equipped Weapon", damage, range, 0, 80, 0)
+			: this(type, "Copper Sword", damage, range, 0, 80, 0)
 		{
 		}
 	}

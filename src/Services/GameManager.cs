@@ -206,6 +206,11 @@ public partial class GameManager : Node
 		{
 			SaveData saveData = _saveService.Load(CurrentSaveSlot);
 			_coinCount = saveData.Coins;
+			if (saveData.LevelNumber > 0)
+			{
+				CurrentLevelNumber = saveData.LevelNumber;
+			}
+			loadedCharacters = false;
 			playerCharacters.Clear();
 			for (int i = 0; i < saveData.Characters.Count; i++)
 			{
@@ -258,7 +263,6 @@ public partial class GameManager : Node
 
 	public void HandlePlayerDeath()
 	{
-		_coinCount = 0;
 		UpdateHud();
 		GetTree().ChangeSceneToFile("res://resources/scenes/game_over.tscn");
 	}
@@ -368,7 +372,13 @@ public partial class GameManager : Node
 		_playerCharacterNodes.RemoveAll(c => !GodotObject.IsInstanceValid(c));
 
 		if (_playerCharacterNodes.Count > 0)
+		{
 			_playerCharacterNode = _playerCharacterNodes[0];
+		}
+		else
+		{
+			_playerCharacterNode = null;
+		}
 
 		return _playerCharacterNode;
 	}
@@ -404,19 +414,19 @@ public partial class GameManager : Node
 	
 	private T FindNodeRecursive<T>(Node node) where T : Node
 	{
+		if (node == null || !GodotObject.IsInstanceValid(node))
+			return null;
+
 		if (node is T target)
 			return target;
 
-		if (node != null)
+		foreach (var child in node.GetChildren())
 		{
-			foreach (var child in node.GetChildren())
+			if (child is Node childNode && GodotObject.IsInstanceValid(childNode))
 			{
-				if (child is Node childNode)
-				{
-					var found = FindNodeRecursive<T>(childNode);
-					if (found != null)
-						return found;
-				}
+				var found = FindNodeRecursive<T>(childNode);
+				if (found != null)
+					return found;
 			}
 		}
 

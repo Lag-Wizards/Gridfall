@@ -6,13 +6,14 @@
 [ext_resource type="Texture2D" uid="uid://dbw4e5htc5nbw" path="res://assets/tileset/blue.png" id="3_fyx16"]
 [ext_resource type="Script" uid="uid://bmunriw4h1dye" path="res://src/Services/GridNode.cs" id="3_ie0k4"]
 [ext_resource type="Script" uid="uid://bg8ew4f50vlgn" path="res://resources/scenes/GridOverlay.cs" id="4_7vad6"]
-[ext_resource type="Script" uid="uid://dtf0ath0unthb" path="res://src/Services/EnemyNode.cs" id="4_flxpq"]
+[ext_resource type="Script" uid="uid://cgt07e7xtkcfg" path="res://src/Services/EnemyNode.cs" id="4_flxpq"]
 [ext_resource type="Texture2D" uid="uid://bapth5fg7rekp" path="res://assets/sprites/slime.png" id="5_uxnsy"]
-[ext_resource type="Script" uid="uid://xd1id2dfy5rl" path="res://resources/scenes/Camera2d.cs" id="5_v4kij"]
-[ext_resource type="Script" uid="uid://dfeuhs6aae8nx" path="res://src/Domain/Characters/CharacterNode.cs" id="6_1vx3q"]
+[ext_resource type="Script" uid="uid://b0k4fynokt4ci" path="res://resources/scenes/Camera2d.cs" id="5_v4kij"]
+[ext_resource type="Script" uid="uid://k2tooidbs618" path="res://src/Domain/Characters/CharacterNode.cs" id="6_1vx3q"]
 [ext_resource type="Texture2D" uid="uid://3e370uhe0u38" path="res://assets/sprites/Character.png" id="7_0ix3x"]
 [ext_resource type="Texture2D" uid="uid://btlqixl2ixqhh" path="res://assets/sprites/goblin.png" id="8_svnkc"]
-[ext_resource type="Script" uid="uid://y8w2jeqglvlc" path="res://src/Controllers/PlayerController.cs" id="13_7vad6"]
+[ext_resource type="Texture2D" uid="uid://pniwx0jlo5js" path="res://assets/sprites/orc.png" id="11_v4kij"]
+[ext_resource type="Script" uid="uid://c3cwb0vijktnq" path="res://src/Controllers/PlayerController.cs" id="13_7vad6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fyx16"]
 texture = ExtResource("2_svnkc")
@@ -111,6 +112,15 @@ Level = 3
 [node name="Sprite2D" type="Sprite2D" parent="Goblin2" unique_id=1345407486]
 position = Vector2(215, -75)
 texture = ExtResource("8_svnkc")
+
+[node name="Orc2" type="Node2D" parent="." unique_id=1285407856]
+script = ExtResource("4_flxpq")
+EnemyType = "Orc"
+Level = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="Orc2" unique_id=790340599]
+position = Vector2(199, -215)
+texture = ExtResource("11_v4kij")
 
 [node name="Goblin3" type="Node2D" parent="." unique_id=1116910943]
 script = ExtResource("4_flxpq")

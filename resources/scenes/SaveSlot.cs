@@ -35,12 +35,19 @@ public partial class SaveSlot : Button
 
 		if (saveData != null)
 		{
-			int characterCount = saveData.Characters.Count;
+			int levelNum = saveData.LevelNumber > 0 ? saveData.LevelNumber : 1;
+			double avgLevel = 0;
+			if (saveData.Characters != null && saveData.Characters.Count > 0)
+			{
+				double totalLevel = 0;
+				foreach (var c in saveData.Characters)
+				{
+					totalLevel += c.Level;
+				}
+				avgLevel = totalLevel / saveData.Characters.Count;
+			}
 
-			string firstCharacterName = saveData.Characters[0].CharacterName;
-			int firstCharacterLevel = saveData.Characters[0].Level;
-
-			detailsLabel.Text = $"{characterCount} Characters\n" + $"{firstCharacterName} Lv. {firstCharacterLevel}";
+			detailsLabel.Text = $"Game Level: {levelNum}\nCharacter Avg Lv.: {Math.Round(avgLevel, 1)}";
 			deleteButton.Visible = true;
 		}
 		else

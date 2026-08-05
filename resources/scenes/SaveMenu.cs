@@ -69,22 +69,22 @@ public partial class SaveMenu : Control
 			// Save game
 			GD.Print($"Saving current character data to Slot {slotNumber}");
 			GameManager.Instance.SaveCurrentCharacter();
-			
-			PopulateSlots(); 
 		}
 		else
 		{
-			// Load Game or start new game on Level 1 if slot is empty
-			GD.Print($"Loading Save Slot {slotNumber} and entering world...");
-			GameManager.Instance.LoadCharacterData();
-			int levelNum = GameManager.Instance.CurrentLevelNumber;
-			string levelPath = $"res://resources/scenes/level-{levelNum}.tscn";
-			if (!Godot.FileAccess.FileExists(levelPath))
+			// Load mode: select slot & load data into memory
+			GD.Print($"Selected Save Slot {slotNumber}");
+			if (saveService.SaveExists(slotNumber))
 			{
-				levelPath = "res://resources/scenes/level-1.tscn";
+				GameManager.Instance.LoadCharacterData();
 			}
-			GetTree().ChangeSceneToFile(levelPath);
+			else
+			{
+				GameManager.Instance.CurrentLevelNumber = 1;
+			}
 		}
+
+		PopulateSlots(); 
 	}
 
 	private void OnSlotDeleted(int slotNumber)

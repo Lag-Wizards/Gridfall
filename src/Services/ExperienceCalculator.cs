@@ -7,14 +7,14 @@ public class ExperienceCalculator
 {
 	public int EnemyKilled(CharacterBase player, CombatUnit enemy)
 	{
-		return 40;
+		return 50 + (enemy.Level * 10);
 	}
 	public int MissedHit(CharacterBase player, CombatUnit enemy)
 	{
-		return 5;
+		return 7 + (enemy.Level);
 	}
 	public int EnemyHitAlive(CharacterBase player, CombatUnit enemy)
 	{
-		return 20;
+		return 30 + (enemy.Level * 2);
 	}
 }

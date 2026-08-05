@@ -9,5 +9,6 @@ namespace Gridfall.Domain
 	{
 		public List<CharacterSaveData> Characters { get; set; } = new();
 		public int Coins { get; set; }
+		public int LevelNumber { get; set; } = 1;
 	}
 }
